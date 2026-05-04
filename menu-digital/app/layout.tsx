@@ -22,7 +22,7 @@ export default function RootLayout({
   return (
     <html lang="es" className={firaSans.variable}>
       <body className="bg-brand-fondo font-sans">
-        <ClerkProvider>
+        <ClerkProvider afterSignOutUrl="/sign-in">
           {children}
         </ClerkProvider>
       </body>

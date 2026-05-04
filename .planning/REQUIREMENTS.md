@@ -96,13 +96,40 @@
 
 | REQ-ID | Fase | Plan | Estado |
 |--------|------|------|--------|
-| AUTH-01..03 | — | — | Pendiente |
-| REST-01..02 | — | — | Pendiente |
-| CAT-01..05 | — | — | Pendiente |
-| DISH-01..07 | — | — | Pendiente |
-| QR-01..04 | — | — | Pendiente |
-| PUB-01..07 | — | — | Pendiente |
-| BRAND-01..06 | — | — | Pendiente |
+| AUTH-01 | Phase 1 | — | Pendiente |
+| AUTH-02 | Phase 1 | — | Pendiente |
+| AUTH-03 | Phase 1 | — | Pendiente |
+| REST-01 | Phase 1 | — | Pendiente |
+| REST-02 | Phase 1 | — | Pendiente |
+| CAT-01 | Phase 2 | — | Pendiente |
+| CAT-02 | Phase 2 | — | Pendiente |
+| CAT-03 | Phase 2 | — | Pendiente |
+| CAT-04 | Phase 2 | — | Pendiente |
+| CAT-05 | Phase 2 | — | Pendiente |
+| DISH-01 | Phase 2 | — | Pendiente |
+| DISH-02 | Phase 2 | — | Pendiente |
+| DISH-03 | Phase 2 | — | Pendiente |
+| DISH-04 | Phase 2 | — | Pendiente |
+| DISH-05 | Phase 2 | — | Pendiente |
+| DISH-06 | Phase 2 | — | Pendiente |
+| DISH-07 | Phase 2 | — | Pendiente |
+| QR-01 | Phase 3 | — | Pendiente |
+| QR-02 | Phase 3 | — | Pendiente |
+| QR-03 | Phase 3 | — | Pendiente |
+| QR-04 | Phase 3 | — | Pendiente |
+| PUB-01 | Phase 3 | — | Pendiente |
+| PUB-02 | Phase 3 | — | Pendiente |
+| PUB-03 | Phase 3 | — | Pendiente |
+| PUB-04 | Phase 3 | — | Pendiente |
+| PUB-05 | Phase 3 | — | Pendiente |
+| PUB-06 | Phase 3 | — | Pendiente |
+| PUB-07 | Phase 3 | — | Pendiente |
+| BRAND-01 | Phase 4 | — | Pendiente |
+| BRAND-02 | Phase 4 | — | Pendiente |
+| BRAND-03 | Phase 4 | — | Pendiente |
+| BRAND-04 | Phase 4 | — | Pendiente |
+| BRAND-05 | Phase 4 | — | Pendiente |
+| BRAND-06 | Phase 4 | — | Pendiente |
 
 *Tabla actualizada por el roadmapper y en cada transición de fase.*
 

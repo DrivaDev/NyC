@@ -6,7 +6,7 @@
 
 ## Phases
 
-- [ ] **Phase 1: Foundation** - Clerk auth is live, restaurant accounts are created with a permanent slug, and the MongoDB connection is stable.
+- [x] **Phase 1: Foundation** - Clerk auth is live, restaurant accounts are created with a permanent slug, and the MongoDB connection is stable. *(completed 2026-05-04)*
 - [ ] **Phase 2: Admin Panel** - A logged-in restaurant owner can fully manage their menu — categories, dishes, images, allergens, and availability — from the dashboard.
 - [ ] **Phase 3: Public Menu & QR** - A diner can scan the QR, open the public menu, and a restaurant owner can preview and download their QR code.
 - [ ] **Phase 4: Polish & Brand** - The entire product consistently applies Driva Dev's visual identity, handles empty and error states gracefully, and passes a mobile audit.
@@ -71,7 +71,7 @@
 
 | Phase | Name | Plans Complete | Status | Completed |
 |-------|------|----------------|--------|-----------|
-| 1 | Foundation | 0/? | Not started | — |
+| 1 | Foundation | 3/3 | Complete | 2026-05-04 |
 | 2 | Admin Panel | 0/? | Not started | — |
 | 3 | Public Menu & QR | 0/? | Not started | — |
 | 4 | Polish & Brand | 0/? | Not started | — |

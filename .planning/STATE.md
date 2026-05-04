@@ -1,7 +1,7 @@
 # Project State — Menú Digital
 
-**Current phase:** 1
-**Status:** Context captured — ready to plan
+**Current phase:** 2
+**Status:** Ready to plan
 **Last updated:** 2026-05-04
 
 ---
@@ -10,7 +10,7 @@
 
 | Phase | Name | Status | Started | Completed |
 |-------|------|--------|---------|-----------|
-| 1 | Foundation | Not started | — | — |
+| 1 | Foundation | Complete | 2026-05-04 | 2026-05-04 |
 | 2 | Admin Panel | Not started | — | — |
 | 3 | Public Menu & QR | Not started | — | — |
 | 4 | Polish & Brand | Not started | — | — |
@@ -19,13 +19,14 @@
 
 ## Active Work
 
-(empty)
+Phase 1 complete. Human UAT pending (6 items in `01-HUMAN-UAT.md`).
+Next: `/gsd-discuss-phase 2` to plan the Admin Panel.
 
 ---
 
 ## Completed Phases
 
-(none)
+- **Phase 1: Foundation** — completed 2026-05-04. Auth, Restaurant model, slug utilities, webhook handler, dashboard shell with 3-state onboarding flow. Human UAT pending.
 
 ---
 
@@ -60,8 +61,9 @@
 
 ## Session Continuity
 
-Next action: Run `/gsd-plan-phase 1` to plan Phase 1 (Foundation).
-Context file: `.planning/phases/01-foundation/01-CONTEXT.md`
+Next action: Run `/gsd-execute-phase 1` to execute Phase 1 (Foundation).
+Plans: `.planning/phases/01-foundation/01-PLAN-01.md` (Wave 1), `01-PLAN-02.md` (Wave 2), `01-PLAN-03.md` (Wave 3)
 
 Phase 1 scope: AUTH-01, AUTH-02, AUTH-03, REST-01, REST-02
 Core deliverable: Clerk auth live + Restaurant document with immutable slug + MongoDB singleton + Clerk webhook handler.
+Plan verification: PASSED (3 warnings, 0 blockers)

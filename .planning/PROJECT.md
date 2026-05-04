@@ -10,6 +10,7 @@ Plataforma web SaaS que permite a restaurantes tener un menú digital accesible 
 
 - **Producto:** SaaS desarrollado por Driva Dev
 - **Estado:** Greenfield — construir desde cero
+- **Dominio:** menudig.com.ar (comprado)
 - **Deploy target:** Vercel
 - **Repositorio:** GitHub
 

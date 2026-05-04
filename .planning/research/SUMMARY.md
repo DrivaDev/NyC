@@ -132,7 +132,7 @@ Route Handler usa `toBuffer()` para descarga PNG. Preview en dashboard via `toDa
 
 4. **`CLOUDINARY_API_SECRET` expuesto al cliente** — Nunca en variable `NEXT_PUBLIC_`. Siempre usar el patrón de upload firmado desde el servidor.
 
-5. **QR apuntando a localhost o preview URL** — El QR encoda `${NEXT_PUBLIC_APP_URL}/menu/${slug}`. Configurar esta variable explícitamente por entorno en Vercel.
+5. **QR apuntando a localhost o preview URL** — El QR encoda `${NEXT_PUBLIC_APP_URL}/menu/${slug}`. Producción: `NEXT_PUBLIC_APP_URL=https://menudig.com.ar`. Configurar explícitamente por entorno en Vercel.
 
 6. **Mutación del slug** — El slug es la identidad permanente del QR impreso. Si cambia, todos los QR en circulación se rompen. Inmutabilidad obligatoria a nivel API.
 

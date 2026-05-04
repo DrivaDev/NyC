@@ -1,7 +1,7 @@
 # Project State — Menú Digital
 
 **Current phase:** 1
-**Status:** Not started
+**Status:** Context captured — ready to plan
 **Last updated:** 2026-05-04
 
 ---
@@ -61,6 +61,7 @@
 ## Session Continuity
 
 Next action: Run `/gsd-plan-phase 1` to plan Phase 1 (Foundation).
+Context file: `.planning/phases/01-foundation/01-CONTEXT.md`
 
 Phase 1 scope: AUTH-01, AUTH-02, AUTH-03, REST-01, REST-02
 Core deliverable: Clerk auth live + Restaurant document with immutable slug + MongoDB singleton + Clerk webhook handler.

@@ -111,6 +111,7 @@ export async function deleteDish(prevState: any, formData: FormData) {
   if (!userId) return { success: false, error: 'No autorizado.' }
 
   const dishId = formData.get('dishId')?.toString()
+  if (!dishId) return { success: false, error: 'Datos inválidos.' }
 
   await dbConnect()
   const restaurant = await Restaurant.findOne({ clerkId: userId }).lean<{ _id: string; slug: string }>()
@@ -142,6 +143,7 @@ export async function toggleAvailability(prevState: any, formData: FormData) {
   if (!userId) return { success: false, error: 'No autorizado.' }
 
   const dishId = formData.get('dishId')?.toString()
+  if (!dishId) return { success: false, error: 'Datos inválidos.' }
 
   await dbConnect()
   const restaurant = await Restaurant.findOne({ clerkId: userId }).lean<{ _id: string; slug: string }>()

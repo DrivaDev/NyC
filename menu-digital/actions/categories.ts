@@ -67,6 +67,7 @@ export async function deleteCategory(prevState: any, formData: FormData) {
   if (!userId) return { success: false, error: 'No autorizado.' }
 
   const categoryId = formData.get('categoryId')?.toString()
+  if (!categoryId) return { success: false, error: 'Datos inválidos.' }
 
   await dbConnect()
   const restaurant = await Restaurant.findOne({ clerkId: userId }).lean<{ _id: string; slug: string }>()

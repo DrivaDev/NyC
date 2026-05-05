@@ -3,7 +3,7 @@
 ## Project
 SaaS de menú digital para restaurantes accesible por QR. Desarrollado por Driva Dev.
 - **Dominio:** menudig.com.ar
-- **Stack:** Next.js 15 App Router · Clerk v6 · MongoDB Atlas + Mongoose 8 · Cloudinary · qrcode npm · Vercel
+- **Stack:** Next.js 15 App Router · Clerk v7 · MongoDB Atlas + Mongoose 8 · Cloudinary · qrcode npm · Vercel
 
 ## GSD Workflow
 - Mode: **YOLO** — auto-approve, execute without interruptions
@@ -14,7 +14,7 @@ SaaS de menú digital para restaurantes accesible por QR. Desarrollado por Driva
 ## Architecture Rules (Non-negotiable)
 1. **Every DB query must filter by `userId` from `await auth()`** — never trust client-supplied IDs
 2. **Global Mongoose connection cache** in `lib/dbConnect.ts` — mandatory for Vercel serverless
-3. **Clerk v6 patterns only** — `clerkMiddleware` (not `authMiddleware`), async `auth()`, `ClerkProvider` inside `<body>`
+3. **Clerk v7 patterns only** — `clerkMiddleware` (not `authMiddleware`), async `auth()`, `ClerkProvider` inside `<body>`, `afterSignOutUrl` on `ClerkProvider` (not on `UserButton`)
 4. **Server Actions for writes, Server Components for reads** — only exception: `GET /api/qr` (binary PNG)
 5. **Signed Cloudinary uploads** — `CLOUDINARY_API_SECRET` never in client code or `NEXT_PUBLIC_` vars
 6. **ISR for `/menu/[slug]`** — not SSR; call `revalidatePath` on every dish/category mutation

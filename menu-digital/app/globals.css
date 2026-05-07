@@ -6,5 +6,6 @@
   --color-brand-acento:    #FED7AA;
   --color-brand-fondo:     #FFF7ED;
   --color-brand-texto:     #1C1917;
+  --color-brand-danger:    #DC2626;
   --font-sans: var(--font-fira-sans), sans-serif;
 }

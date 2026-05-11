@@ -9,6 +9,20 @@ const RestaurantSchema = new Schema(
     logoUrl:       { type: String, default: '' },
     logoPublicId:  { type: String, default: '' },
     description:   { type: String, default: '' },   // Phase 3 — public menu header
+    // ── Subscription ────────────────────────────────────────────────────────
+    subscriptionStatus: {
+      type: String,
+      enum: ['trial', 'active', 'past_due', 'cancelled'],
+      default: 'trial',
+    },
+    trialEndsAt: {
+      type: Date,
+      // 14-day free trial starting from account creation
+      default: () => new Date(Date.now() + 14 * 24 * 60 * 60 * 1000),
+    },
+    subscriptionId:        { type: String, default: '' },   // MP preapproval ID
+    subscriptionPeriodEnd: { type: Date,   default: null }, // end of current paid period
+
     menuColor:      { type: String, default: '#EA580C' }, // accent / active tab
     menuBgColor:    { type: String, default: '#FFF7ED' }, // page background
     menuTitleColor: { type: String, default: '#9A3412' }, // headings & prices

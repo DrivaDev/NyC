@@ -1,7 +1,9 @@
 import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server'
+import { NextResponse } from 'next/server'
 
 const isProtectedRoute = createRouteMatcher(['/dashboard(.*)'])
-const isPublicRoute = createRouteMatcher([
+const isPublicRoute    = createRouteMatcher([
+  '/',
   '/sign-in(.*)',
   '/sign-up(.*)',
   '/api/webhooks/(.*)',
@@ -9,10 +11,18 @@ const isPublicRoute = createRouteMatcher([
 ])
 
 export default clerkMiddleware(async (auth, req) => {
-  if (isPublicRoute(req)) return
+  // Stamp every response with the current pathname so Server Component layouts
+  // can read it via headers() without needing usePathname() (which is client-only).
+  const res = NextResponse.next()
+  res.headers.set('x-pathname', req.nextUrl.pathname)
+
+  if (isPublicRoute(req)) return res
+
   if (isProtectedRoute(req)) {
     await auth.protect()
   }
+
+  return res
 })
 
 export const config = {

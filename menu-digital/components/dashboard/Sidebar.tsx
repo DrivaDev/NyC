@@ -9,59 +9,110 @@ import {
   UtensilsCrossed,
   QrCode,
   Settings,
+  CreditCard,
 } from 'lucide-react'
+
+// ── Types ─────────────────────────────────────────────────────────────────────
 
 interface NavItem {
   label: string
   href: string
   icon: React.ReactNode
-  enabled: boolean
+  badge?: React.ReactNode
 }
-
-const navItems: NavItem[] = [
-  {
-    label: 'Dashboard',
-    href: '/dashboard',
-    icon: <LayoutDashboard size={16} />,
-    enabled: true,
-  },
-  {
-    label: 'Categorías',
-    href: '/dashboard/categories',
-    icon: <Tag size={16} />,
-    enabled: true,
-  },
-  {
-    label: 'Platos',
-    href: '/dashboard/dishes',
-    icon: <UtensilsCrossed size={16} />,
-    enabled: true,
-  },
-  {
-    label: 'Mi QR',
-    href: '/dashboard/qr',
-    icon: <QrCode size={16} />,
-    enabled: true,
-  },
-  {
-    label: 'Configuración',
-    href: '/dashboard/settings',
-    icon: <Settings size={16} />,
-    enabled: true,
-  },
-]
 
 interface SidebarProps {
   restaurantName?: string
+  subscriptionStatus?: string
+  trialEndsAt?: string | null
   onNavigate?: () => void
 }
 
-export default function Sidebar({ restaurantName, onNavigate }: SidebarProps) {
+// ── Subscription badge ────────────────────────────────────────────────────────
+
+function SubBadge({ status, trialEndsAt }: { status: string; trialEndsAt?: string | null }) {
+  if (status === 'active') {
+    return (
+      <span className="text-[10px] font-semibold bg-green-100 text-green-700 px-1.5 py-0.5 rounded-full">
+        Activa
+      </span>
+    )
+  }
+  if (status === 'trial') {
+    const daysLeft = trialEndsAt
+      ? Math.max(0, Math.ceil((new Date(trialEndsAt).getTime() - Date.now()) / 86400000))
+      : null
+    const label = daysLeft !== null ? `${daysLeft}d` : 'Trial'
+    return (
+      <span className="text-[10px] font-semibold bg-brand-acento text-brand-titulares px-1.5 py-0.5 rounded-full">
+        {label}
+      </span>
+    )
+  }
+  if (status === 'past_due') {
+    return (
+      <span className="text-[10px] font-semibold bg-red-100 text-red-700 px-1.5 py-0.5 rounded-full">
+        Vencida
+      </span>
+    )
+  }
+  if (status === 'cancelled') {
+    return (
+      <span className="text-[10px] font-semibold bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded-full">
+        Cancelada
+      </span>
+    )
+  }
+  return null
+}
+
+// ── Component ─────────────────────────────────────────────────────────────────
+
+export default function Sidebar({
+  restaurantName,
+  subscriptionStatus = 'trial',
+  trialEndsAt,
+  onNavigate,
+}: SidebarProps) {
   const pathname = usePathname()
-  const { user } = useUser()
+  const { user }  = useUser()
 
   const fullName = [user?.firstName, user?.lastName].filter(Boolean).join(' ')
   const email    = user?.primaryEmailAddress?.emailAddress ?? ''
+
+  const navItems: NavItem[] = [
+    {
+      label: 'Dashboard',
+      href: '/dashboard',
+      icon: <LayoutDashboard size={16} />,
+    },
+    {
+      label: 'Categorías',
+      href: '/dashboard/categories',
+      icon: <Tag size={16} />,
+    },
+    {
+      label: 'Platos',
+      href: '/dashboard/dishes',
+      icon: <UtensilsCrossed size={16} />,
+    },
+    {
+      label: 'Mi QR',
+      href: '/dashboard/qr',
+      icon: <QrCode size={16} />,
+    },
+    {
+      label: 'Configuración',
+      href: '/dashboard/settings',
+      icon: <Settings size={16} />,
+    },
+    {
+      label: 'Suscripción',
+      href: '/dashboard/suscripcion',
+      icon: <CreditCard size={16} />,
+      badge: <SubBadge status={subscriptionStatus} trialEndsAt={trialEndsAt} />,
+    },
+  ]
 
   return (
     <aside className="w-64 flex flex-col bg-white border-r border-brand-acento h-screen shrink-0">
@@ -78,44 +129,29 @@ export default function Sidebar({ restaurantName, onNavigate }: SidebarProps) {
       {/* Nav */}
       <nav className="flex-1 px-3 py-4 space-y-1">
         {navItems.map((item) => {
-          if (!item.enabled) {
-            return (
-              <span
-                key={item.href}
-                className="flex items-center justify-between px-3 py-2.5 rounded-lg text-sm text-gray-400 cursor-not-allowed select-none"
-                title="Disponible próximamente"
-              >
-                <span className="flex items-center">
-                  <span className="mr-3">{item.icon}</span>
-                  {item.label}
-                </span>
-                <span className="text-xs font-medium bg-brand-acento text-brand-titulares px-1.5 py-0.5 rounded-full">
-                  Pronto
-                </span>
-              </span>
-            )
-          }
-
           const isActive = pathname === item.href
           return (
             <Link
               key={item.href}
               href={item.href}
               onClick={() => onNavigate?.()}
-              className={`flex items-center px-3 py-2.5 rounded-lg text-sm transition-colors duration-100 ${
+              className={`flex items-center justify-between px-3 py-2.5 rounded-lg text-sm transition-colors duration-100 ${
                 isActive
                   ? 'bg-brand-acento text-brand-titulares font-medium'
                   : 'text-brand-texto font-normal hover:bg-brand-fondo'
               }`}
             >
-              <span className="mr-3">{item.icon}</span>
-              {item.label}
+              <span className="flex items-center">
+                <span className="mr-3">{item.icon}</span>
+                {item.label}
+              </span>
+              {item.badge}
             </Link>
           )
         })}
       </nav>
 
-      {/* Footer — UserButton + nombre + mail */}
+      {/* Footer */}
       <div className="px-4 py-4 border-t border-brand-acento flex items-center gap-3 min-w-0">
         <UserButton />
         {fullName && (

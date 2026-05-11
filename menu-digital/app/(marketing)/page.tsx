@@ -6,9 +6,9 @@ import { UtensilsCrossed, QrCode, Zap, Palette, Check, X, ChevronDown, ArrowRigh
 // ─────────────────────────────────────────────────────────────────────────────
 
 const STATS = [
-  { value: '0',     unit: 'apps',    label: 'El cliente no descarga nada' },
-  { value: '3',     unit: 'min',     label: 'Para tener el menú listo' },
-  { value: '100%',  unit: '',        label: 'Personalizable: colores, fotos, precios' },
+  { value: '0',    unit: 'apps',   label: 'El cliente no descarga nada' },
+  { value: '3',    unit: 'min',    label: 'Para tener el menú listo' },
+  { value: '14',   unit: 'días',   label: 'De prueba gratuita sin tarjeta' },
 ]
 
 const FEATURES = [
@@ -45,7 +45,7 @@ const COMPARISON = [
   { feature: 'QR incluido y descargable',        menudig: true,  papel: false, otras: null  },
   { feature: 'Fotos y descripciones de platos', menudig: true,  papel: false, otras: true  },
   { feature: 'Colores y marca propios',          menudig: true,  papel: false, otras: false },
-  { feature: 'Gratis',                           menudig: true,  papel: null,  otras: false },
+  { feature: '14 días de prueba gratuita',        menudig: true,  papel: false, otras: false },
 ]
 
 const FAQS = [
@@ -202,7 +202,7 @@ export default function LandingPage() {
             <div className="flex-1 text-center lg:text-left">
               <div className="inline-flex items-center gap-2 bg-brand-acento text-brand-titulares text-xs font-semibold px-3 py-1.5 rounded-full mb-6">
                 <Star size={12} fill="currentColor" />
-                Sin comisiones · Sin contratos · 100% gratis
+                14 días gratis · Sin tarjeta · $20.000/mes después
               </div>
 
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-brand-titulares leading-[1.1] tracking-tight">
@@ -246,7 +246,7 @@ export default function LandingPage() {
               </div>
 
               <p className="mt-4 text-xs font-light text-brand-texto/70 text-center lg:text-left">
-                Sin tarjeta de crédito · Listo en 3 minutos
+                14 días gratis, sin tarjeta · Después $20.000/mes · Cancelás cuando querés
               </p>
             </div>
 
@@ -388,6 +388,55 @@ export default function LandingPage() {
           </div>
         </section>
 
+        {/* ── PRICING ──────────────────────────────────────────────────────── */}
+        <section className="max-w-5xl mx-auto px-4 sm:px-6 py-16 sm:py-24">
+          <div className="text-center mb-10">
+            <h2 className="text-3xl sm:text-4xl font-bold text-brand-titulares">Precio simple</h2>
+            <p className="mt-3 text-base font-normal text-brand-texto max-w-sm mx-auto">
+              Un solo plan. Todo incluido. Sin sorpresas.
+            </p>
+          </div>
+
+          <div className="max-w-sm mx-auto bg-white rounded-2xl border-2 border-brand-principal p-8 text-center shadow-sm">
+            <p className="text-xs font-bold text-brand-principal uppercase tracking-widest mb-3">Plan Mensual</p>
+            <div className="mb-1">
+              <span className="text-5xl font-bold text-brand-titulares">$20.000</span>
+              <span className="text-base font-normal text-brand-texto">/mes</span>
+            </div>
+            <p className="text-sm font-normal text-brand-texto mb-7">
+              Los primeros <strong className="font-semibold text-brand-titulares">14 días son gratis</strong>, sin tarjeta de crédito.
+            </p>
+
+            <ul className="flex flex-col gap-2.5 text-left mb-8">
+              {[
+                'Menú público sin límite de platos',
+                'Código QR descargable en alta resolución',
+                'Fotos de platos incluidas',
+                'Colores y apariencia personalizados',
+                'Actualizaciones ilimitadas en tiempo real',
+                'Soporte incluido',
+              ].map(item => (
+                <li key={item} className="flex items-center gap-2.5">
+                  <span className="w-5 h-5 rounded-full bg-brand-acento flex items-center justify-center shrink-0">
+                    <Check size={11} className="text-brand-titulares" strokeWidth={3} />
+                  </span>
+                  <span className="text-sm font-normal text-brand-texto">{item}</span>
+                </li>
+              ))}
+            </ul>
+
+            <Link
+              href="/sign-up"
+              className="block w-full bg-brand-principal text-white text-sm font-bold rounded-xl px-6 py-3.5 hover:bg-[#C2410C] transition-colors"
+            >
+              Empezar prueba gratuita
+            </Link>
+            <p className="text-xs font-light text-brand-texto/60 mt-3">
+              Cancelás cuando querés · Cobro automático vía Mercado Pago
+            </p>
+          </div>
+        </section>
+
         {/* ── TESTIMONIAL ──────────────────────────────────────────────────── */}
         <section className="max-w-6xl mx-auto px-4 sm:px-6 py-16 sm:py-24">
           <div className="bg-brand-acento/40 rounded-3xl border border-brand-acento p-8 sm:p-12 max-w-2xl mx-auto text-center">
@@ -434,16 +483,16 @@ export default function LandingPage() {
         <section className="bg-brand-principal">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 py-16 sm:py-20 text-center">
             <h2 className="text-3xl sm:text-4xl font-bold text-white leading-tight mb-4">
-              Empezá hoy. Es gratis.
+              14 días gratis. Empezá hoy.
             </h2>
             <p className="text-base font-normal text-white/80 max-w-md mx-auto mb-8">
-              Sin tarjeta de crédito, sin contratos. Tu menú digital listo en menos de 3 minutos.
+              Sin tarjeta. Tu menú digital listo en minutos. Después $20.000/mes, cancelás cuando querés.
             </p>
             <Link
               href="/sign-up"
               className="inline-flex items-center gap-2 bg-white text-brand-principal text-sm font-bold rounded-xl px-8 py-4 hover:bg-brand-fondo focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-brand-principal transition-colors shadow-sm"
             >
-              Crear mi menú gratis
+              Empezar prueba gratuita
               <ArrowRight size={16} />
             </Link>
             <p className="mt-4 text-xs font-light text-white/60">

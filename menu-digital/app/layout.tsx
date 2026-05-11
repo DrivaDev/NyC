@@ -10,8 +10,29 @@ const firaSans = Fira_Sans({
 })
 
 export const metadata: Metadata = {
-  title: 'MenuDig',
-  description: 'El menú digital de tu restaurante, accesible por QR',
+  metadataBase: new URL('https://menudig.com.ar'),
+  title: {
+    default: 'MenuDig — Menú digital con QR para restaurantes',
+    template: '%s | MenuDig',
+  },
+  description: 'Creá el menú digital de tu restaurante en minutos. Tus clientes lo ven escaneando un QR, sin descargar nada. 14 días gratis, sin tarjeta.',
+  openGraph: {
+    type: 'website',
+    locale: 'es_AR',
+    url: 'https://menudig.com.ar',
+    siteName: 'MenuDig',
+    title: 'MenuDig — Menú digital con QR para restaurantes',
+    description: 'Creá el menú digital de tu restaurante en minutos. Tus clientes lo ven escaneando un QR, sin descargar nada. 14 días gratis, sin tarjeta.',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'MenuDig — Menú digital con QR para restaurantes',
+    description: 'Creá el menú digital de tu restaurante en minutos. Tus clientes lo ven escaneando un QR, sin descargar nada. 14 días gratis, sin tarjeta.',
+  },
+  icons: {
+    icon: '/logo.svg',
+    apple: '/logo.svg',
+  },
 }
 
 export default function RootLayout({

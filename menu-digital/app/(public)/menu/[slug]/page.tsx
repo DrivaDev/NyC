@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import Image from 'next/image'
 import { dbConnect } from '@/lib/dbConnect'
@@ -44,6 +45,48 @@ interface DishData {
   allergens: string[]
 }
 
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>
+}): Promise<Metadata> {
+  const { slug } = await params
+  await dbConnect()
+  const restaurant = await RestaurantModel.findOne(
+    { slug },
+    { name: 1, description: 1, logoUrl: 1 },
+  ).lean<Pick<RestaurantData, '_id' | 'name' | 'description' | 'logoUrl'>>()
+
+  if (!restaurant) return { title: 'Menú no encontrado' }
+
+  const title = `Menú de ${restaurant.name}`
+  const description = restaurant.description
+    ? `${restaurant.description} · Ver menú completo en menudig.com.ar`
+    : `Consultá el menú completo de ${restaurant.name} desde tu celular, sin descargar nada.`
+  const url = `https://menudig.com.ar/menu/${slug}`
+
+  return {
+    title,
+    description,
+    alternates: { canonical: url },
+    openGraph: {
+      title,
+      description,
+      url,
+      type: 'website',
+      ...(restaurant.logoUrl && {
+        images: [{ url: restaurant.logoUrl, alt: `Logo de ${restaurant.name}` }],
+      }),
+    },
+    twitter: {
+      card: 'summary',
+      title,
+      description,
+      ...(restaurant.logoUrl && { images: [restaurant.logoUrl] }),
+    },
+  }
+}
+
 export default async function MenuPage({
   params,
 }: {
@@ -88,11 +131,43 @@ export default async function MenuPage({
     cat => (serializedDishesByCategory[cat._id] ?? []).length > 0
   )
 
+  const restaurantSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'Restaurant',
+    name: serializedRestaurant.name,
+    ...(serializedRestaurant.description && { description: serializedRestaurant.description }),
+    url: `https://menudig.com.ar/menu/${serializedRestaurant.slug}`,
+    ...(serializedRestaurant.logoUrl && { image: serializedRestaurant.logoUrl }),
+    hasMenu: {
+      '@type': 'Menu',
+      name: `Menú de ${serializedRestaurant.name}`,
+      hasMenuSection: populatedCategories.map(cat => ({
+        '@type': 'MenuSection',
+        name: cat.name,
+        hasMenuItem: (serializedDishesByCategory[cat._id] ?? []).map(dish => ({
+          '@type': 'MenuItem',
+          name: dish.name,
+          ...(dish.description && { description: dish.description }),
+          ...(dish.imageUrl && { image: dish.imageUrl }),
+          offers: {
+            '@type': 'Offer',
+            price: (dish.price / 100).toFixed(2),
+            priceCurrency: 'ARS',
+          },
+        })),
+      })),
+    },
+  }
+
   return (
     <>
     {/* Inject per-restaurant CSS variable overrides — no client JS needed */}
     {/* eslint-disable-next-line react/no-danger */}
     <style dangerouslySetInnerHTML={{ __html: themeCSS }} />
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(restaurantSchema) }}
+    />
     <div className="menu-theme min-h-screen bg-brand-fondo">
       {/* Max-width container — responsive centering */}
       <div className="sm:max-w-lg md:max-w-2xl sm:mx-auto">

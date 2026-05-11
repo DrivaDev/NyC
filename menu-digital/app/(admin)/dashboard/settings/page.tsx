@@ -18,6 +18,9 @@ export default async function SettingsPage() {
     logoPublicId: string
     description: string
     menuColor: string
+    menuBgColor: string
+    menuTitleColor: string
+    menuTextColor: string
   }>()
 
   if (!restaurant) redirect('/dashboard')
@@ -46,9 +49,14 @@ export default async function SettingsPage() {
       <div className="bg-white rounded-lg shadow-sm border border-brand-acento p-6">
         <h2 className="text-base font-bold text-brand-titulares mb-1">Apariencia del menú</h2>
         <p className="text-sm font-normal text-brand-texto mb-5">
-          Elegí el color de acento que se muestra en la navegación de tu menú público.
+          Personalizá los colores de tu menú público: acento, fondo, títulos y texto.
         </p>
-        <MenuColorForm initialColor={restaurant.menuColor ?? '#EA580C'} />
+        <MenuColorForm
+          initialColor={restaurant.menuColor ?? '#EA580C'}
+          initialBgColor={restaurant.menuBgColor ?? '#FFF7ED'}
+          initialTitleColor={restaurant.menuTitleColor ?? '#9A3412'}
+          initialTextColor={restaurant.menuTextColor ?? '#1C1917'}
+        />
       </div>
     </div>
   )

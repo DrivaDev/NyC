@@ -23,6 +23,9 @@ interface RestaurantData {
   logoUrl: string
   description: string
   menuColor: string
+  menuBgColor: string
+  menuTitleColor: string
+  menuTextColor: string
 }
 
 interface CategoryData {
@@ -73,13 +76,24 @@ export default async function MenuPage({
   const serializedDishesByCategory: Record<string, DishData[]> = JSON.parse(JSON.stringify(dishesByCategory))
   const serializedRestaurant: RestaurantData = JSON.parse(JSON.stringify(restaurant))
 
+  // Build theme CSS — overrides brand tokens so all Tailwind brand classes reflect custom palette
+  const menuColor      = serializedRestaurant.menuColor      || '#EA580C'
+  const menuBgColor    = serializedRestaurant.menuBgColor    || '#FFF7ED'
+  const menuTitleColor = serializedRestaurant.menuTitleColor || '#9A3412'
+  const menuTextColor  = serializedRestaurant.menuTextColor  || '#1C1917'
+  const themeCSS = `.menu-theme{--color-brand-principal:${menuColor};--color-brand-fondo:${menuBgColor};--color-brand-titulares:${menuTitleColor};--color-brand-texto:${menuTextColor};}`
+
   // Filter out categories with no available dishes
   const populatedCategories = serializedCategories.filter(
     cat => (serializedDishesByCategory[cat._id] ?? []).length > 0
   )
 
   return (
-    <div className="min-h-screen bg-brand-fondo">
+    <>
+    {/* Inject per-restaurant CSS variable overrides — no client JS needed */}
+    {/* eslint-disable-next-line react/no-danger */}
+    <style dangerouslySetInnerHTML={{ __html: themeCSS }} />
+    <div className="menu-theme min-h-screen bg-brand-fondo">
       {/* Max-width container — responsive centering */}
       <div className="sm:max-w-lg md:max-w-2xl sm:mx-auto">
 
@@ -153,5 +167,6 @@ export default async function MenuPage({
 
       </div>
     </div>
+    </>
   )
 }

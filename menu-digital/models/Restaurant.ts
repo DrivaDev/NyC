@@ -9,7 +9,10 @@ const RestaurantSchema = new Schema(
     logoUrl:       { type: String, default: '' },
     logoPublicId:  { type: String, default: '' },
     description:   { type: String, default: '' },   // Phase 3 — public menu header
-    menuColor:     { type: String, default: '#EA580C' }, // custom accent color for public menu
+    menuColor:      { type: String, default: '#EA580C' }, // accent / active tab
+    menuBgColor:    { type: String, default: '#FFF7ED' }, // page background
+    menuTitleColor: { type: String, default: '#9A3412' }, // headings & prices
+    menuTextColor:  { type: String, default: '#1C1917' }, // body text
   },
   { timestamps: true }
 )

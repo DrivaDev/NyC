@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  serverExternalPackages: ['cloudinary', 'mongoose'],
+  serverExternalPackages: ['mongoose'],
   images: {
     remotePatterns: [
       {

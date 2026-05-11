@@ -41,7 +41,7 @@ const navItems: NavItem[] = [
     label: 'Mi QR',
     href: '/dashboard/qr',
     icon: <QrCode size={16} />,
-    enabled: false,
+    enabled: true,
   },
   {
     label: 'Configuración',

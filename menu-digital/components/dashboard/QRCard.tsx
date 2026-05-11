@@ -1,0 +1,55 @@
+import { Download } from 'lucide-react'
+
+interface QRCardProps {
+  menuUrl: string
+  qrDataUrl: string
+  slug: string
+}
+
+export default function QRCard({ menuUrl, qrDataUrl, slug }: QRCardProps) {
+  return (
+    <div className="bg-white rounded-lg shadow-sm border border-brand-acento p-6 flex flex-col items-center gap-4">
+      <h2 className="text-base font-bold text-brand-titulares self-start">
+        Tu QR
+      </h2>
+
+      {/* QR image */}
+      <div className="p-3 border border-brand-acento rounded-lg">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={qrDataUrl} alt="QR de tu menú" width={200} height={200} />
+      </div>
+
+      {/* Menu URL — clickable link opens menu in new tab */}
+      <a
+        href={menuUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="w-full flex items-center gap-2 bg-brand-fondo rounded-md px-4 py-3 hover:bg-brand-acento transition-colors duration-150 group"
+      >
+        <span className="font-mono text-xs text-brand-texto truncate group-hover:text-brand-titulares">
+          {menuUrl}
+        </span>
+      </a>
+
+      {/* Download button */}
+      <a
+        href={qrDataUrl}
+        download={`qr-${slug}.png`}
+        className="w-full flex items-center justify-center gap-2 bg-brand-principal text-white text-sm font-medium rounded-lg px-4 py-3 min-h-[44px] hover:bg-[#C2410C] focus:outline-none focus:ring-2 focus:ring-brand-principal focus:ring-offset-2 transition-colors duration-150"
+      >
+        <Download size={16} />
+        Descargar QR
+      </a>
+
+      {/* Ver mi menú — secondary affordance */}
+      <a
+        href={menuUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="w-full flex items-center justify-center gap-2 border border-brand-principal text-brand-principal text-sm font-medium rounded-lg px-4 py-3 min-h-[44px] hover:bg-brand-fondo focus:outline-none focus:ring-2 focus:ring-brand-principal focus:ring-offset-2 transition-colors duration-150"
+      >
+        Ver mi menú
+      </a>
+    </div>
+  )
+}

@@ -1,9 +1,12 @@
 import { auth } from '@clerk/nextjs/server'
 import { redirect } from 'next/navigation'
-import { Loader2, Clock } from 'lucide-react'
+import Link from 'next/link'
+import QRCode from 'qrcode'
+import { Loader2, Tag, UtensilsCrossed } from 'lucide-react'
 import { dbConnect } from '@/lib/dbConnect'
 import { Restaurant } from '@/models/Restaurant'
 import OnboardingSlug from '@/components/dashboard/OnboardingSlug'
+import QRCard from '@/components/dashboard/QRCard'
 
 export default async function DashboardPage() {
   const { userId } = await auth()
@@ -40,34 +43,70 @@ export default async function DashboardPage() {
   }
 
   // State C — Normal dashboard (slug confirmed)
+  const menuUrl = `${appUrl}/menu/${restaurant.slug}`
+  const qrDataUrl = await QRCode.toDataURL(menuUrl, {
+    width: 256,
+    margin: 2,
+    color: { dark: '#1C1917', light: '#FFFFFF' },
+  })
+
   return (
-    <>
-      <div className="mb-8">
+    <div className="flex flex-col gap-8">
+      {/* Welcome */}
+      <div>
         <h1 className="text-2xl font-bold text-brand-titulares mb-1">
           Bienvenido, {restaurant.name}
         </h1>
+        <p className="text-sm font-normal text-brand-texto">
+          Administrá tu menú digital desde acá.
+        </p>
       </div>
 
-      <div className="bg-white rounded-lg shadow-sm border border-brand-acento p-6 max-w-lg">
-        <h2 className="text-base font-bold text-brand-titulares mb-4">
-          Tu menú digital
-        </h2>
-        <p className="text-sm font-normal text-brand-texto mb-2">
-          Tu menú estará disponible en:
-        </p>
-        <div className="flex items-center gap-2 bg-brand-fondo rounded-md px-4 py-3">
-          <span className="font-mono text-sm text-brand-texto">
-            {appUrl.replace(/^https?:\/\//, '')}/menu/
-          </span>
-          <span className="font-mono text-sm font-medium text-brand-principal">
-            {restaurant.slug}
-          </span>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* QR preview card */}
+        <QRCard menuUrl={menuUrl} qrDataUrl={qrDataUrl} slug={restaurant.slug} />
+
+        {/* Quick actions card */}
+        <div className="bg-white rounded-lg shadow-sm border border-brand-acento p-6 flex flex-col gap-4">
+          <h2 className="text-base font-bold text-brand-titulares">
+            Acciones rápidas
+          </h2>
+
+          <Link
+            href="/dashboard/categories"
+            className="flex items-center gap-3 px-4 py-4 rounded-lg border border-brand-acento hover:bg-brand-fondo transition-colors duration-150 group"
+          >
+            <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-brand-acento shrink-0">
+              <Tag size={18} className="text-brand-titulares" />
+            </div>
+            <div>
+              <p className="text-sm font-medium text-brand-titulares group-hover:underline">
+                Agregar categoría
+              </p>
+              <p className="text-xs font-light text-brand-texto">
+                Organizá tu menú en secciones
+              </p>
+            </div>
+          </Link>
+
+          <Link
+            href="/dashboard/dishes"
+            className="flex items-center gap-3 px-4 py-4 rounded-lg border border-brand-acento hover:bg-brand-fondo transition-colors duration-150 group"
+          >
+            <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-brand-acento shrink-0">
+              <UtensilsCrossed size={18} className="text-brand-titulares" />
+            </div>
+            <div>
+              <p className="text-sm font-medium text-brand-titulares group-hover:underline">
+                Agregar plato
+              </p>
+              <p className="text-xs font-light text-brand-texto">
+                Sumá un nuevo plato al menú
+              </p>
+            </div>
+          </Link>
         </div>
-        <p className="text-xs font-light text-brand-texto mt-3 flex items-center gap-1">
-          <Clock size={12} />
-          El enlace se activará cuando publiques tu menú (disponible en la Fase 3)
-        </p>
       </div>
-    </>
+    </div>
   )
 }

@@ -4,7 +4,8 @@ import { useActionState } from 'react'
 import { Loader2, Tag } from 'lucide-react'
 import { redeemPromoCode } from '@/actions/promoCode'
 
-const initialState = { success: false, error: undefined as string | undefined, message: undefined as string | undefined }
+type RedeemState = { success: boolean; error?: string; message?: string }
+const initialState: RedeemState = { success: false }
 
 export function RedeemCodeForm() {
   const [state, formAction, pending] = useActionState(redeemPromoCode, initialState)

@@ -6,7 +6,9 @@ import { dbConnect } from '@/lib/dbConnect'
 import { Restaurant } from '@/models/Restaurant'
 import { PromoCode } from '@/models/PromoCode'
 
-export async function redeemPromoCode(_prevState: unknown, formData: FormData) {
+type RedeemState = { success: boolean; error?: string; message?: string }
+
+export async function redeemPromoCode(_prevState: RedeemState, formData: FormData): Promise<RedeemState> {
   const { userId } = await auth()
   if (!userId) return { success: false, error: 'No autorizado.' }
 

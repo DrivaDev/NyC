@@ -4,10 +4,12 @@ import { usePathname } from 'next/navigation'
 import { Menu } from 'lucide-react'
 
 const titles: Record<string, string> = {
-  '/dashboard':            'Dashboard',
-  '/dashboard/categories': 'Categorías',
-  '/dashboard/dishes':     'Platos',
-  '/dashboard/qr':         'Mi QR',
+  '/dashboard':              'Dashboard',
+  '/dashboard/categories':   'Categorías',
+  '/dashboard/dishes':       'Platos',
+  '/dashboard/qr':           'Mi QR',
+  '/dashboard/settings':     'Configuración',
+  '/dashboard/suscripcion':  'Suscripción',
 }
 
 interface DashboardHeaderProps {

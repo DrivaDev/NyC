@@ -11,18 +11,23 @@ const isPublicRoute    = createRouteMatcher([
 ])
 
 export default clerkMiddleware(async (auth, req) => {
-  // Stamp every response with the current pathname so Server Component layouts
-  // can read it via headers() without needing usePathname() (which is client-only).
-  const res = NextResponse.next()
-  res.headers.set('x-pathname', req.nextUrl.pathname)
+  // Stamp the current pathname onto the *request* headers so Server Component
+  // layouts can read it via headers().get('x-pathname').
+  // NOTE: NextResponse.next({ request: { headers } }) is the correct pattern —
+  // setting headers directly on the response object only adds them to the
+  // browser-visible HTTP response, NOT to the headers() call in server components.
+  const requestHeaders = new Headers(req.headers)
+  requestHeaders.set('x-pathname', req.nextUrl.pathname)
 
-  if (isPublicRoute(req)) return res
+  if (isPublicRoute(req)) {
+    return NextResponse.next({ request: { headers: requestHeaders } })
+  }
 
   if (isProtectedRoute(req)) {
     await auth.protect()
   }
 
-  return res
+  return NextResponse.next({ request: { headers: requestHeaders } })
 })
 
 export const config = {

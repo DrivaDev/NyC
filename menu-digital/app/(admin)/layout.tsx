@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation'
 import { dbConnect } from '@/lib/dbConnect'
 import { Restaurant } from '@/models/Restaurant'
 import DashboardShell from '@/components/dashboard/DashboardShell'
+import { SubscriptionGuard } from '@/components/dashboard/SubscriptionGuard'
 
 // ── Subscription access helper ─────────────────────────────────────────────
 
@@ -44,11 +45,14 @@ export default async function AdminLayout({
   await dbConnect()
   const restaurant = await Restaurant.findOne({ clerkId: userId }).lean<RestaurantLean>()
 
-  // Block access when trial/subscription is expired — except on the subscription page itself
+  // Block access when trial/subscription is expired — except on the subscription page itself.
+  // We deliberately do NOT call redirect() here: doing so during a Clerk post-login
+  // client navigation (RSC fetch) leaves the layout segment cache broken, causing the
+  // destination page to render blank until a manual refresh. Instead we render the shell
+  // fully and let SubscriptionGuard trigger an immediate client-side router.replace().
   const onSubscriptionPage = pathname.startsWith('/dashboard/suscripcion')
-  if (restaurant && !hasActiveAccess(restaurant) && !onSubscriptionPage) {
-    redirect('/dashboard/suscripcion')
-  }
+  const needsSubscriptionRedirect =
+    restaurant && !hasActiveAccess(restaurant) && !onSubscriptionPage
 
   // Serialize dates for client-component props
   const trialEndsAt = restaurant?.trialEndsAt
@@ -65,7 +69,7 @@ export default async function AdminLayout({
       trialEndsAt={trialEndsAt}
       subscriptionPeriodEnd={subscriptionPeriodEnd}
     >
-      {children}
+      {needsSubscriptionRedirect ? <SubscriptionGuard /> : children}
     </DashboardShell>
   )
 }

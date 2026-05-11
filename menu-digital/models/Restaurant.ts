@@ -6,6 +6,9 @@ const RestaurantSchema = new Schema(
     name:          { type: String, required: true },
     slug:          { type: String, required: true, unique: true, index: true, lowercase: true },
     slugConfirmed: { type: Boolean, default: false },
+    logoUrl:       { type: String, default: '' },
+    logoPublicId:  { type: String, default: '' },
+    description:   { type: String, default: '' },   // Phase 3 — public menu header
   },
   { timestamps: true }
 )

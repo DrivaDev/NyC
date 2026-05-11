@@ -10,14 +10,18 @@
   },
   "dependencies": {
     "@clerk/nextjs": "^7.3.0",
+    "@types/qrcode": "^1.5.6",
+    "cloudinary": "^2.10.0",
     "lucide-react": "^1.14.0",
     "mongoose": "^9.6.1",
     "nanoid": "^5.1.11",
     "next": "16.2.4",
+    "qrcode": "^1.5.4",
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "slugify": "^1.6.9",
-    "svix": "^1.92.2"
+    "svix": "^1.92.2",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",

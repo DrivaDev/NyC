@@ -1,10 +1,11 @@
 ---
 phase: 3
 slug: public-menu-qr
-status: draft
+status: approved
 shadcn_initialized: false
 preset: none
 created: 2026-05-05
+reviewed_at: 2026-05-05
 ---
 
 # Phase 3 — UI Design Contract
@@ -70,16 +71,16 @@ Font: Fira Sans. All weights via Tailwind font-weight utilities.
 |------|---------|------|--------|----------|-------------|
 | Display / Restaurant name | `<h1>` in RestaurantHeader | 28px (`text-2xl`) | Bold 700 (`font-bold`) | `text-2xl font-bold text-brand-titulares` | 1.2 (`leading-tight`) |
 | Section heading / Category name | `<h2>` in CategorySection | 18px (`text-lg`) | Bold 700 (`font-bold`) | `text-lg font-bold text-brand-titulares` | 1.2 (`leading-tight`) |
-| Dish name | `<p>` in DishRow | 16px (`text-base`) | Medium 500 (`font-medium`) | `text-base font-medium text-brand-texto` | 1.5 (`leading-normal`) |
+| Dish name | `<p>` in DishRow | 16px (`text-base`) | Regular 400 (`font-normal`) | `text-base font-normal text-brand-texto` | 1.5 (`leading-normal`) |
 | Body / Dish description | `<p>` in DishRow | 14px (`text-sm`) | Regular 400 (`font-normal`) | `text-sm font-normal text-brand-texto` | 1.5 (`leading-normal`) |
 | Price | `<span>` in DishRow | 16px (`text-base`) | Bold 700 (`font-bold`) | `text-base font-bold text-brand-titulares` | 1.2 |
-| Tab label | `<button>` in MenuCategoryNav | 14px (`text-sm`) | Medium 500 (`font-medium`) | `text-sm font-medium` (color varies by active state) | 1 (`leading-none`) |
+| Tab label | `<button>` in MenuCategoryNav | 14px (`text-sm`) | Regular 400 (`font-normal`) | `text-sm font-normal` (color varies by active state) | 1 (`leading-none`) |
 | Restaurant description | `<p>` in RestaurantHeader | 14px (`text-sm`) | Regular 400 (`font-normal`) | `text-sm font-normal text-brand-texto` | 1.5 (`leading-normal`) |
-| Caption / hint text | Settings textarea helper | 12px (`text-xs`) | Light 300 (`font-light`) | `text-xs font-light text-brand-texto` | 1.5 |
-| Allergen tooltip label | `<span>` inside AllergenBadge | 12px (`text-xs`) | Regular 400 (`font-normal`) | `text-xs font-normal text-white` | 1 |
-| Footer | `<p>` in page footer | 12px (`text-xs`) | Light 300 (`font-light`) | `text-xs font-light text-brand-texto` | 1.5 |
+| Caption / hint text | Settings textarea helper | 14px (`text-sm`) | Regular 400 (`font-normal`) | `text-sm font-normal text-brand-texto` | 1.5 |
+| Allergen tooltip label | `<span>` inside AllergenBadge | 14px (`text-sm`) | Regular 400 (`font-normal`) | `text-sm font-normal text-white` | 1 |
+| Footer | `<p>` in page footer | 14px (`text-sm`) | Regular 400 (`font-normal`) | `text-sm font-normal text-brand-texto` | 1.5 |
 
-Summary: 4 sizes declared (28px, 18px, 16px, 14px + 12px for captions). 3 weights used (Bold 700, Medium 500, Regular 400) plus Light 300 for captions only.
+Summary: 4 sizes declared (28px, 18px, 16px, 14px). 2 weights used (Bold 700, Regular 400).
 
 ---
 
@@ -91,7 +92,7 @@ Summary: 4 sizes declared (28px, 18px, 16px, 14px + 12px for captions). 3 weight
 |------|-----|----------------|-------|
 | Dominant (60%) | `#FFF7ED` | `bg-brand-fondo` | Page background, category section background |
 | Secondary (30%) | `#FFFFFF` | `bg-white` | Sticky tab bar background (visual separation from fondo), dish row hover state background |
-| Accent (10%) | `#FED7AA` | `bg-brand-acento` | Allergen badge circles ONLY |
+| Accent (10%) | `#FED7AA` | `bg-brand-acento` | Allergen badge circles and restaurant logo border in RestaurantHeader |
 | Text primary | `#1C1917` | `text-brand-texto` | Body text, dish descriptions, tab labels (inactive) |
 | Heading / Price | `#9A3412` | `text-brand-titulares` | H1 restaurant name, H2 category headers, dish prices, allergen tooltip background |
 | Active CTA | `#EA580C` | `text-brand-principal`, `border-brand-principal` | Active tab indicator (bottom border + text color) |
@@ -99,7 +100,7 @@ Summary: 4 sizes declared (28px, 18px, 16px, 14px + 12px for captions). 3 weight
 | Divider | gray-100 | `border-gray-100` | Dish-to-dish dividers, tab bar bottom border |
 | Placeholder | gray-100 bg + gray-400 icon | `bg-gray-100` | Dish image placeholder background |
 
-Accent reserved for: allergen badge circles ONLY. Not used for buttons, borders, hovers, or any other elements on the public menu.
+Accent reserved for: allergen badge circles and restaurant logo border in RestaurantHeader. Not used for buttons, hovers, or any other elements on the public menu.
 
 Secondary note: `bg-white` is used for the sticky tab bar to create a visual layer above `bg-brand-fondo`. This is intentional — the tab bar must visually "float" above the content when sticking.
 
@@ -152,7 +153,7 @@ Secondary note: `bg-white` is used for the sticky tab bar to create a visual lay
   <div class="flex gap-0 px-4">
     [for each category]
     <button
-      class="px-4 py-3 text-sm font-medium whitespace-nowrap border-b-2 transition-colors duration-150
+      class="px-4 py-3 text-sm font-normal whitespace-nowrap border-b-2 transition-colors duration-150
              [active]   border-brand-principal text-brand-principal
              [inactive] border-transparent text-brand-texto hover:text-brand-titulares"
     >
@@ -232,7 +233,7 @@ No `scroll-behavior: smooth` on `<html>` required. `scrollIntoView` is scoped an
 
   <!-- Right: text stack -->
   <div class="flex-1 min-w-0">
-    <p class="text-base font-medium text-brand-texto leading-normal">{dish.name}</p>
+    <p class="text-base font-normal text-brand-texto leading-normal">{dish.name}</p>
     [if dish.description]
       <p class="text-sm font-normal text-brand-texto leading-normal mt-1 line-clamp-2">
         {dish.description}
@@ -277,8 +278,8 @@ Price is stored as centavos integer. This renders as `$1.500,00` in Argentine lo
   </span>
   <!-- Tooltip -->
   <span
-    class="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 px-2 py-1
-           bg-brand-titulares text-white text-xs font-normal rounded whitespace-nowrap
+    class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1
+           bg-brand-titulares text-white text-sm font-normal rounded whitespace-nowrap
            opacity-0 group-hover/badge:opacity-100 pointer-events-none
            transition-opacity duration-150 z-20"
     aria-hidden="true"
@@ -307,7 +308,7 @@ Price is stored as centavos integer. This renders as `$1.500,00` in Argentine lo
 | altramuces | 🌼 |
 | moluscos | 🦪 |
 
-**Tooltip positioning:** Above the badge (`bottom-full`), centered horizontally (`left-1/2 -translate-x-1/2`), 6px gap (`mb-1.5`).
+**Tooltip positioning:** Above the badge (`bottom-full`), centered horizontally (`left-1/2 -translate-x-1/2`), 8px gap (`mb-2`).
 **Tooltip background:** `bg-brand-titulares` (`#9A3412`) with `text-white`.
 **Tooltip visibility:** `opacity-0` default, `group-hover/badge:opacity-100` on hover. CSS-only — no JS.
 **Mobile tap behavior:** CSS hover does not fire on touch. The `group/badge` approach means a tap focuses the element — add `focus-within:opacity-100` to the tooltip `<span>` for mobile tap support.
@@ -355,9 +356,9 @@ opacity-0 group-hover/badge:opacity-100 group-focus-within/badge:opacity-100
 
 **Structure:**
 ```
-<div class="flex flex-col gap-1.5">
-  <label class="text-sm font-medium text-brand-texto" for="restaurant-description">
-    Descripción <span class="text-xs font-light text-brand-texto">(opcional)</span>
+<div class="flex flex-col gap-2">
+  <label class="text-sm font-normal text-brand-texto" for="restaurant-description">
+    Descripción <span class="text-sm font-normal text-brand-texto">(opcional)</span>
   </label>
   <textarea
     id="restaurant-description"
@@ -375,14 +376,14 @@ opacity-0 group-hover/badge:opacity-100 group-focus-within/badge:opacity-100
            disabled:border-gray-100 disabled:bg-gray-50
            resize-none"
   />
-  <p class="text-xs font-light text-brand-texto">
+  <p class="text-sm font-normal text-brand-texto">
     Máximo 200 caracteres. Se muestra en tu menú público.
   </p>
 </div>
 ```
 
 **Rules:**
-- Label in Spanish: "Descripción" with inline "(opcional)" suffix in lighter weight.
+- Label in Spanish: "Descripción" with inline "(opcional)" suffix in same weight.
 - `maxLength={200}` enforced at HTML level. No character counter UI required.
 - `rows={3}` — approximately 3 lines visible (~72px tall).
 - `resize-none` — prevents user resizing, keeps form card layout stable.
@@ -400,7 +401,7 @@ opacity-0 group-hover/badge:opacity-100 group-focus-within/badge:opacity-100
 **Structure:**
 ```
 <footer class="mt-8 pb-16 px-4 text-center border-t border-gray-100">
-  <p class="text-xs font-light text-brand-texto mt-6">
+  <p class="text-sm font-normal text-brand-texto mt-6">
     Desarrollado por Driva Dev
   </p>
 </footer>
@@ -408,7 +409,7 @@ opacity-0 group-hover/badge:opacity-100 group-focus-within/badge:opacity-100
 
 **Rules:**
 - Text: "Desarrollado por Driva Dev" — EXACT string, no variations.
-- `text-xs font-light text-brand-texto` — caption hierarchy.
+- `text-sm font-normal text-brand-texto` — caption hierarchy.
 - `text-center` — centered on all viewports.
 - Top border `border-t border-gray-100` separates footer from last dish.
 - Required on every public page (CLAUDE.md brand rule).

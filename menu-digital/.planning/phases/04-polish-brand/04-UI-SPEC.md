@@ -44,7 +44,7 @@ Declared values (multiples of 4):
 | 3xl | 64px | Full empty state vertical centering (py-16) |
 
 Exceptions:
-- Nav item icon-to-text: `mr-3` (12px) — established pattern in Sidebar, do not change.
+- Nav item icon-to-text: `mr-3` (12px) — established pattern in Sidebar, do not change. 12px is 4×3, established Sidebar pattern, do not generalize.
 - Touch targets: minimum 44px height on all interactive elements (`min-h-[44px]`). Existing pattern; apply to landing CTA buttons.
 - Inline delete confirm buttons: `min-h-[32px]` — smaller because they appear inline in a row, not as standalone CTAs. This exception is intentional.
 - Sidebar width: 256px (`w-64`) — fixed, not a spacing token, do not change.
@@ -58,18 +58,22 @@ Font: **Fira Sans** — loaded via `next/font/google`, applied as `--font-sans` 
 
 | Role | Size | Weight | Line Height | Tailwind Classes |
 |------|------|--------|-------------|------------------|
-| Display / H1 (landing) | 28px | Bold (700) | 1.2 | `text-2xl font-bold` |
-| Heading / H1 (page titles inside admin) | 24px | Bold (700) | 1.2 | `text-2xl font-bold` |
+| Heading / H1 (all pages) | 24px | Bold (700) | 1.2 | `text-2xl font-bold` |
 | Subheading / H2 (card headers) | 16px | Bold (700) | 1.2 | `text-base font-bold` |
 | Body | 14px | Regular (400) | 1.5 | `text-sm font-normal` |
 | Label / UI control | 14px | Medium (500) | 1.4 | `text-sm font-medium` |
 | Caption | 12px | Light (300) | 1.4 | `text-xs font-light` |
 
+> **Override — Dimension 4 (font weights):** The 4 Fira Sans weights (Light 300, Regular 400,
+> Medium 500, Bold 700) are locked brand identity from `CLAUDE.md` ("Bold H1/H2, Medium H3,
+> Regular body, Light caption"). This overrides the 2-weight maximum per the project's
+> non-negotiable brand identity. Checker must treat this as a locked decision exception.
+
 Rules:
 - H1 and H2 always use `text-brand-titulares` (#9A3412). Source: BRAND-02, CLAUDE.md.
 - Body text always uses `text-brand-texto` (#1C1917).
 - Minimum rendered size: 12px (caption). No text below 12px anywhere.
-- Landing page product wordmark: Display (28px Bold) in `text-brand-titulares`.
+- Landing page wordmark uses Heading (24px Bold) in `text-brand-titulares`.
 
 ---
 
@@ -115,6 +119,8 @@ Danger (`--color-brand-danger`) reserved for:
 
 **Source decisions:** D-LP-01, D-LP-02, D-LP-03, D-LP-04
 
+**Primary visual anchor: the orange "Iniciar sesión" button (`bg-brand-principal`)**
+
 Layout:
 ```
 <main class="min-h-screen bg-brand-fondo flex flex-col items-center justify-center px-4">
@@ -135,10 +141,10 @@ Layout:
         Iniciar sesión
       </a>
 
-      <!-- Secondary: Registrate -->
+      <!-- Secondary: Crear cuenta -->
       <a href="/sign-up"
          class="w-full flex items-center justify-center border border-brand-principal text-brand-principal text-sm font-medium rounded-lg px-4 py-3 min-h-[44px] hover:bg-brand-fondo focus:outline-none focus:ring-2 focus:ring-brand-principal focus:ring-offset-2 transition-colors duration-150">
-        Registrate
+        Crear cuenta
       </a>
     </div>
   </div>
@@ -163,6 +169,8 @@ Rules:
 ### 2. Mobile Drawer (Admin Layout)
 
 **Source decisions:** D-MOB-01, D-MOB-02, D-MOB-03, D-MOB-04
+
+**Primary visual anchor: the restaurant name / active nav item**
 
 Architecture: Extract a `DashboardShell` client component that owns `sidebarOpen` state and renders `DashboardHeader` + `Sidebar`. `app/(admin)/layout.tsx` becomes a server component that renders `DashboardShell` with `restaurantName`.
 
@@ -295,6 +303,8 @@ Rule: `text-gray-300` on `ImageOff` in DishesClient is a neutral placeholder —
 
 **Source decisions:** D-QR-01, D-QR-02, D-QR-03, D-QR-04, D-QR-05
 
+**Primary visual anchor: the QR code image**
+
 **Extract `QRCard` server component** from `app/(admin)/dashboard/page.tsx`:
 
 Component: `components/dashboard/QRCard.tsx` (Server Component, no `'use client'`)
@@ -349,7 +359,7 @@ The QR card layout (already established in dashboard/page.tsx) is the canonical 
 | Landing H1 (wordmark) | Menú Digital |
 | Landing tagline | El menú digital de tu restaurante, accesible desde cualquier celular. |
 | Landing primary CTA | Iniciar sesión |
-| Landing secondary CTA | Registrate |
+| Landing secondary CTA | Crear cuenta |
 | QR page H1 | Mi QR |
 | QR page subtitle | Descargá tu código QR o compartí el link de tu menú. |
 | QR card H2 | Tu QR |
@@ -357,7 +367,7 @@ The QR card layout (already established in dashboard/page.tsx) is the canonical 
 | QR view link | Ver mi menú |
 | Delete confirmation label | ¿Eliminar? |
 | Delete confirm button | Sí, eliminar (pending: Eliminando...) |
-| Delete cancel button | Cancelar |
+| Delete cancel button | No, conservar |
 | Footer (all pages) | Desarrollado por **Driva Dev** |
 | Mobile drawer aria-label | Abrir menú |
 | Sidebar loading/disabled item | (remove "Pronto" badge from Mi QR — no replacement copy needed) |

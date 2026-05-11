@@ -173,7 +173,7 @@ export default async function SuscripcionPage() {
                 type="submit"
                 className="w-full bg-brand-principal text-white text-sm font-semibold rounded-lg px-6 py-3 min-h-[44px] hover:bg-[#C2410C] focus:outline-none focus:ring-2 focus:ring-brand-principal focus:ring-offset-2 transition-colors"
               >
-                {status === 'active' ? 'Gestionar suscripción' : 'Suscribirme — $20.000/mes'}
+                Suscribirme — $20.000/mes
               </button>
             </form>
           )}

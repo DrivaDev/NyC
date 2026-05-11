@@ -2,9 +2,33 @@
 
 import { auth } from '@clerk/nextjs/server'
 import { revalidatePath } from 'next/cache'
+import { createHmac } from 'crypto'
 import { dbConnect } from '@/lib/dbConnect'
 import { Restaurant } from '@/models/Restaurant'
 import { validateSlug } from '@/lib/utils'
+
+// Delete a Cloudinary asset using the REST API + native crypto (no SDK needed)
+async function cloudinaryDestroy(publicId: string) {
+  const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME
+  const apiKey    = process.env.NEXT_PUBLIC_CLOUDINARY_API_KEY
+  const apiSecret = process.env.CLOUDINARY_API_SECRET as string
+  const timestamp = Math.round(Date.now() / 1000)
+  const toSign    = `public_id=${publicId}&timestamp=${timestamp}`
+  const signature = createHmac('sha1', apiSecret).update(toSign + apiSecret).digest('hex')
+
+  const body = new URLSearchParams({
+    public_id: publicId,
+    api_key:   apiKey!,
+    timestamp: String(timestamp),
+    signature,
+  })
+
+  await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/destroy`, {
+    method:  'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body:    body.toString(),
+  })
+}
 
 export async function confirmSlug(formData: FormData) {
   const { userId } = await auth()
@@ -25,7 +49,6 @@ export async function confirmSlug(formData: FormData) {
 
   await dbConnect()
 
-  // Verify the restaurant belongs to this user and is not yet confirmed
   const restaurant = await Restaurant.findOne({ clerkId: userId })
   if (!restaurant) {
     return { success: false, error: 'Restaurante no encontrado.' }
@@ -34,7 +57,6 @@ export async function confirmSlug(formData: FormData) {
     return { success: false, error: 'La dirección ya fue confirmada y no puede modificarse.' }
   }
 
-  // Check slug uniqueness (skip if user is keeping the same auto-generated slug)
   if (slug !== restaurant.slug) {
     const existing = await Restaurant.findOne({ slug })
     if (existing) {
@@ -42,7 +64,6 @@ export async function confirmSlug(formData: FormData) {
     }
   }
 
-  // One-time update — set slug and mark as confirmed
   await Restaurant.updateOne(
     { clerkId: userId, slugConfirmed: false },
     { $set: { slug, slugConfirmed: true } }
@@ -67,16 +88,9 @@ export async function updateRestaurantProfile(prevState: any, formData: FormData
   if (!restaurant) return { success: false, error: 'Restaurante no encontrado.' }
 
   // If a new logo was uploaded and there was a previous one, delete the old asset
-  // Dynamic import avoids static analysis by Turbopack at build time
   if (newLogoPublicId && restaurant.logoPublicId && newLogoPublicId !== restaurant.logoPublicId) {
     try {
-      const { v2: cloudinary } = await import('cloudinary')
-      cloudinary.config({
-        cloud_name: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
-        api_key:    process.env.NEXT_PUBLIC_CLOUDINARY_API_KEY,
-        api_secret: process.env.CLOUDINARY_API_SECRET,
-      })
-      await cloudinary.uploader.destroy(restaurant.logoPublicId)
+      await cloudinaryDestroy(restaurant.logoPublicId)
     } catch (err) {
       console.error('[Cloudinary logo delete failed]', err)
     }
@@ -86,7 +100,6 @@ export async function updateRestaurantProfile(prevState: any, formData: FormData
   if (newLogoUrl)      update.logoUrl      = newLogoUrl
   if (newLogoPublicId) update.logoPublicId = newLogoPublicId
 
-  // Allow clearing the logo when the user explicitly sends empty strings
   if (formData.get('clearLogo') === 'true') {
     update.logoUrl      = ''
     update.logoPublicId = ''

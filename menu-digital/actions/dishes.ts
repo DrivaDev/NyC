@@ -2,10 +2,34 @@
 
 import { auth } from '@clerk/nextjs/server'
 import { revalidatePath } from 'next/cache'
+import { createHmac } from 'crypto'
 import { dbConnect } from '@/lib/dbConnect'
 import { Restaurant } from '@/models/Restaurant'
 import { Dish } from '@/models/Dish'
 import { Category } from '@/models/Category'
+
+// Delete a Cloudinary asset using the REST API + native crypto (no SDK needed)
+async function cloudinaryDestroy(publicId: string) {
+  const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME
+  const apiKey    = process.env.NEXT_PUBLIC_CLOUDINARY_API_KEY
+  const apiSecret = process.env.CLOUDINARY_API_SECRET as string
+  const timestamp = Math.round(Date.now() / 1000)
+  const toSign    = `public_id=${publicId}&timestamp=${timestamp}`
+  const signature = createHmac('sha1', apiSecret).update(toSign + apiSecret).digest('hex')
+
+  const body = new URLSearchParams({
+    public_id: publicId,
+    api_key:   apiKey!,
+    timestamp: String(timestamp),
+    signature,
+  })
+
+  await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/destroy`, {
+    method:  'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body:    body.toString(),
+  })
+}
 
 // ─── createDish ───────────────────────────────────────────────────────────────
 export async function createDish(prevState: any, formData: FormData) {
@@ -33,7 +57,6 @@ export async function createDish(prevState: any, formData: FormData) {
   const restaurant = await Restaurant.findOne({ clerkId: userId }).lean<{ _id: string; slug: string }>()
   if (!restaurant) return { success: false, error: 'Restaurante no encontrado.' }
 
-  // CR-02: verify the supplied categoryId belongs to this restaurant
   const category = await Category.findOne({ _id: categoryId, restaurantId: restaurant._id }).lean()
   if (!category) return { success: false, error: 'Categoría no válida.' }
 
@@ -80,11 +103,9 @@ export async function updateDish(prevState: any, formData: FormData) {
   const restaurant = await Restaurant.findOne({ clerkId: userId }).lean<{ _id: string; slug: string }>()
   if (!restaurant) return { success: false, error: 'Restaurante no encontrado.' }
 
-  // CR-02: verify the supplied categoryId belongs to this restaurant
   const category = await Category.findOne({ _id: categoryId, restaurantId: restaurant._id }).lean()
   if (!category) return { success: false, error: 'Categoría no válida.' }
 
-  // Ownership check
   const dish = await Dish.findOne({ _id: dishId, restaurantId: restaurant._id })
   if (!dish) return { success: false, error: 'Plato no encontrado.' }
 
@@ -109,22 +130,14 @@ export async function deleteDish(prevState: any, formData: FormData) {
   const restaurant = await Restaurant.findOne({ clerkId: userId }).lean<{ _id: string; slug: string }>()
   if (!restaurant) return { success: false, error: 'Restaurante no encontrado.' }
 
-  // Ownership check
   const dish = await Dish.findOne({ _id: dishId, restaurantId: restaurant._id })
     .lean<{ imagePublicId: string }>()
   if (!dish) return { success: false, error: 'Plato no encontrado.' }
 
-  // D-06: attempt Cloudinary deletion synchronously before DB delete
-  // Dynamic import avoids static analysis by Turbopack at build time
+  // Delete Cloudinary asset before removing DB record
   if (dish.imagePublicId) {
     try {
-      const { v2: cloudinary } = await import('cloudinary')
-      cloudinary.config({
-        cloud_name: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
-        api_key:    process.env.NEXT_PUBLIC_CLOUDINARY_API_KEY,
-        api_secret: process.env.CLOUDINARY_API_SECRET,
-      })
-      await cloudinary.uploader.destroy(dish.imagePublicId)
+      await cloudinaryDestroy(dish.imagePublicId)
     } catch (err) {
       console.error('[Cloudinary delete failed]', err)
     }

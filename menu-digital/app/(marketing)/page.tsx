@@ -39,13 +39,13 @@ const FEATURES = [
 ]
 
 const COMPARISON = [
-  { feature: 'Sin costo de impresión',          menudig: true,  papel: false, otras: null  },
-  { feature: 'Actualizaciones al instante',      menudig: true,  papel: false, otras: true  },
-  { feature: 'Sin app para el cliente',          menudig: true,  papel: true,  otras: false },
-  { feature: 'QR incluido y descargable',        menudig: true,  papel: false, otras: null  },
-  { feature: 'Fotos y descripciones de platos', menudig: true,  papel: false, otras: true  },
-  { feature: 'Colores y marca propios',          menudig: true,  papel: false, otras: false },
-  { feature: '14 días de prueba gratuita',        menudig: true,  papel: false, otras: false },
+  { feature: 'Sin costo de impresión',          menudig: true,  papel: false },
+  { feature: 'Actualizaciones al instante',      menudig: true,  papel: false },
+  { feature: 'Sin app para el cliente',          menudig: true,  papel: true  },
+  { feature: 'QR incluido y descargable',        menudig: true,  papel: false },
+  { feature: 'Fotos y descripciones de platos', menudig: true,  papel: false },
+  { feature: 'Colores y marca propios',          menudig: true,  papel: false },
+  { feature: '14 días de prueba gratuita',        menudig: true,  papel: false },
 ]
 
 const FAQS = [
@@ -71,83 +71,110 @@ const FAQS = [
 // Sub-components
 // ─────────────────────────────────────────────────────────────────────────────
 
-function CompareIcon({ val }: { val: boolean | null }) {
-  if (val === true)  return <Check  size={16} className="mx-auto text-brand-titulares" strokeWidth={3} />
-  if (val === false) return <X      size={16} className="mx-auto text-gray-300"       strokeWidth={3} />
-  return <span className="block text-center text-gray-300 text-sm leading-none">—</span>
+function CompareIcon({ val }: { val: boolean }) {
+  if (val) return <Check size={16} className="mx-auto text-brand-titulares" strokeWidth={3} />
+  return <X size={16} className="mx-auto text-gray-300" strokeWidth={3} />
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Phone mockup (pure HTML/CSS — no images)
 // ─────────────────────────────────────────────────────────────────────────────
 
+const MOCK_DISHES = [
+  { name: 'Empanadas de carne (x6)', desc: 'Relleno criollo, horno de barro', price: '$4.800', bg: '#FDE68A' },
+  { name: 'Provoleta a la parrilla',  desc: 'Con chimichurri casero',          price: '$6.200', bg: '#FCA5A5' },
+  { name: 'Tabla de fiambres',        desc: 'Jamón, salame y quesos selectos', price: '$8.500', bg: '#C4B5A5' },
+]
+
 function PhoneMockup() {
   return (
-    <div className="relative mx-auto w-[240px] sm:w-[260px] shrink-0">
+    <div className="relative mx-auto w-[260px] sm:w-[280px] shrink-0 select-none">
 
       {/* Floating badge — top right */}
-      <div className="absolute -right-6 top-10 z-20 bg-white rounded-xl border border-brand-acento shadow-md px-3 py-2 flex items-center gap-1.5">
-        <span className="w-2 h-2 rounded-full bg-green-500 shrink-0" />
-        <span className="text-[11px] font-medium text-brand-titulares whitespace-nowrap">Menú actualizado</span>
+      <div className="absolute -right-10 top-14 z-20 bg-white rounded-2xl border border-brand-acento shadow-lg px-3 py-2 flex items-center gap-2">
+        <span className="w-2 h-2 rounded-full bg-green-400 shrink-0" />
+        <span className="text-[11px] font-semibold text-brand-titulares whitespace-nowrap">Menú actualizado</span>
       </div>
 
       {/* Floating badge — bottom left */}
-      <div className="absolute -left-6 bottom-24 z-20 bg-white rounded-xl border border-brand-acento shadow-md px-3 py-2 flex items-center gap-1.5">
-        <QrCode size={14} className="text-brand-principal shrink-0" />
-        <span className="text-[11px] font-medium text-brand-titulares whitespace-nowrap">Sin app</span>
+      <div className="absolute -left-10 bottom-32 z-20 bg-white rounded-2xl border border-brand-acento shadow-lg px-3 py-2 flex items-center gap-2">
+        <QrCode size={13} className="text-brand-principal shrink-0" />
+        <span className="text-[11px] font-semibold text-brand-titulares whitespace-nowrap">Sin descargas</span>
       </div>
 
-      {/* Phone shell */}
-      <div className="bg-gray-900 rounded-[2.5rem] p-[10px] shadow-2xl ring-1 ring-gray-700/50">
-        {/* Screen */}
-        <div className="bg-[#FFF7ED] rounded-[2rem] overflow-hidden h-[520px] flex flex-col">
+      {/* Side buttons */}
+      <div className="absolute left-[-4px] top-[88px]  w-[4px] h-7 bg-gray-700 rounded-l-sm" />
+      <div className="absolute left-[-4px] top-[124px] w-[4px] h-7 bg-gray-700 rounded-l-sm" />
+      <div className="absolute right-[-4px] top-[108px] w-[4px] h-11 bg-gray-700 rounded-r-sm" />
 
-          {/* Dynamic island */}
-          <div className="flex justify-center pt-3 pb-1 shrink-0">
-            <div className="w-24 h-5 bg-gray-900 rounded-full" />
+      {/* Phone shell */}
+      <div className="bg-gray-900 rounded-[3rem] p-[11px] shadow-[0_32px_64px_-12px_rgba(0,0,0,0.55)] ring-1 ring-white/5">
+
+        {/* Screen */}
+        <div className="bg-[#FFF7ED] rounded-[2.4rem] overflow-hidden" style={{ height: '572px' }}>
+
+          {/* Status bar */}
+          <div className="grid grid-cols-3 items-center px-5 pt-3 pb-1">
+            <span className="text-[11px] font-bold text-brand-texto">9:41</span>
+            <div className="w-[76px] h-[22px] bg-gray-900 rounded-full mx-auto" />
+            <div className="flex justify-end items-center gap-[5px]">
+              {/* Signal bars */}
+              <div className="flex items-end gap-[2px] h-[10px]">
+                {[4, 6, 8, 10].map((h, i) => (
+                  <div key={i} className="w-[3px] rounded-sm bg-brand-texto" style={{ height: `${h}px` }} />
+                ))}
+              </div>
+              {/* Battery */}
+              <div className="flex items-center gap-[2px]">
+                <div className="w-[18px] h-[10px] rounded-[3px] border border-brand-texto/70 relative">
+                  <div className="absolute inset-[2px] bg-brand-texto rounded-[1px]" style={{ right: '4px' }} />
+                </div>
+                <div className="w-[2px] h-[5px] bg-brand-texto/60 rounded-r-sm" />
+              </div>
+            </div>
           </div>
 
-          {/* Menu content */}
-          <div className="flex-1 overflow-hidden flex flex-col">
+          {/* Restaurant header */}
+          <div className="px-4 pt-2 pb-3 flex items-center gap-3 border-b border-brand-acento/30">
+            <div className="w-10 h-10 rounded-full bg-brand-acento border-2 border-brand-principal flex items-center justify-center shrink-0">
+              <UtensilsCrossed size={15} className="text-brand-titulares" />
+            </div>
+            <div>
+              <p className="text-[12px] font-bold text-brand-titulares leading-tight">La Parrilla del Centro</p>
+              <p className="text-[10px] text-brand-texto/60 mt-0.5">menudig.com.ar/parrilla</p>
+            </div>
+          </div>
 
-            {/* Restaurant header */}
-            <div className="px-4 pt-3 pb-2 flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-full bg-brand-acento border border-brand-principal flex items-center justify-center shrink-0">
-                <UtensilsCrossed size={14} className="text-brand-titulares" />
-              </div>
-              <div>
-                <p className="text-[11px] font-bold text-brand-titulares leading-tight">La Parrilla del Centro</p>
-                <p className="text-[9px] text-brand-texto">Córdoba · menudig.com.ar/parrilla</p>
+          {/* Category nav */}
+          <div className="flex gap-2 px-4 py-2.5 border-b border-gray-200/70">
+            <span className="bg-brand-principal text-white text-[10px] font-bold px-3 py-1 rounded-full">Entradas</span>
+            <span className="text-brand-texto/50 text-[10px] px-3 py-1 rounded-full border border-gray-200">Parrilla</span>
+            <span className="text-brand-texto/50 text-[10px] px-3 py-1 rounded-full border border-gray-200">Postres</span>
+          </div>
+
+          {/* Section title */}
+          <div className="px-4 pt-3 pb-1">
+            <p className="text-[10px] font-bold text-brand-titulares/60 uppercase tracking-widest">Entradas</p>
+          </div>
+
+          {/* Dish rows */}
+          {MOCK_DISHES.map((d, i) => (
+            <div key={d.name} className={`flex items-center gap-3 px-4 py-3 ${i < MOCK_DISHES.length - 1 ? 'border-b border-gray-100' : ''}`}>
+              <div
+                className="w-12 h-12 rounded-xl shrink-0"
+                style={{ backgroundColor: d.bg }}
+              />
+              <div className="flex-1 min-w-0">
+                <p className="text-[11px] font-semibold text-brand-titulares leading-tight truncate">{d.name}</p>
+                <p className="text-[10px] text-brand-texto/60 mt-0.5 truncate">{d.desc}</p>
+                <p className="text-[12px] font-bold text-brand-titulares mt-1">{d.price}</p>
               </div>
             </div>
+          ))}
 
-            {/* Category nav */}
-            <div className="flex gap-1.5 px-3 pb-2 border-b border-brand-acento overflow-x-hidden shrink-0">
-              <span className="bg-brand-principal text-white text-[9px] font-semibold px-2.5 py-1 rounded-full whitespace-nowrap">Entradas</span>
-              <span className="text-brand-texto text-[9px] px-2.5 py-1 rounded-full border border-gray-200 whitespace-nowrap">Parrilla</span>
-              <span className="text-brand-texto text-[9px] px-2.5 py-1 rounded-full border border-gray-200 whitespace-nowrap">Postres</span>
-            </div>
-
-            {/* Category label */}
-            <div className="px-3 py-2 border-b border-gray-100 shrink-0">
-              <p className="text-[10px] font-bold text-brand-titulares">Entradas</p>
-            </div>
-
-            {/* Dish rows */}
-            {[
-              { name: 'Empanadas de carne (x6)', desc: 'Relleno criollo, horno de barro', price: '$4.800' },
-              { name: 'Provoleta a la parrilla',  desc: 'Con chimichurri casero',           price: '$6.200' },
-              { name: 'Tabla de fiambres',         desc: 'Jamón, salame y quesos',            price: '$8.500' },
-            ].map(d => (
-              <div key={d.name} className="flex items-start gap-2.5 px-3 py-2.5 border-b border-gray-100 last:border-0">
-                <div className="w-10 h-10 rounded-md bg-brand-acento/50 shrink-0" />
-                <div className="flex-1 min-w-0">
-                  <p className="text-[10px] font-semibold text-brand-titulares leading-tight truncate">{d.name}</p>
-                  <p className="text-[9px] text-brand-texto leading-tight mt-0.5 truncate">{d.desc}</p>
-                  <p className="text-[10px] font-bold text-brand-titulares mt-1">{d.price}</p>
-                </div>
-              </div>
-            ))}
+          {/* Bottom safe area */}
+          <div className="mt-auto px-4 pb-3 pt-4 border-t border-gray-100 flex justify-center">
+            <div className="w-28 h-1 bg-gray-300 rounded-full" />
           </div>
         </div>
       </div>
@@ -359,18 +386,17 @@ export default function LandingPage() {
 
             <div className="rounded-2xl border border-brand-acento overflow-hidden shadow-sm">
               {/* Table header */}
-              <div className="grid grid-cols-4 bg-brand-acento/50">
-                <div className="px-4 py-3 text-sm font-semibold text-brand-titulares col-span-1">Característica</div>
+              <div className="grid grid-cols-3 bg-brand-acento/50">
+                <div className="px-4 py-3 text-sm font-semibold text-brand-titulares">Característica</div>
                 <div className="px-2 py-3 text-center text-sm font-bold text-brand-principal border-l border-brand-acento bg-brand-acento">MenuDig</div>
                 <div className="px-2 py-3 text-center text-xs font-medium text-brand-texto/60 border-l border-brand-acento">Carta de papel</div>
-                <div className="px-2 py-3 text-center text-xs font-medium text-brand-texto/60 border-l border-brand-acento">Otras apps</div>
               </div>
 
               {/* Rows */}
               {COMPARISON.map((row, i) => (
                 <div
                   key={row.feature}
-                  className={`grid grid-cols-4 border-t border-brand-acento/40 ${i % 2 === 0 ? 'bg-white' : 'bg-brand-fondo/40'}`}
+                  className={`grid grid-cols-3 border-t border-brand-acento/40 ${i % 2 === 0 ? 'bg-white' : 'bg-brand-fondo/40'}`}
                 >
                   <div className="px-4 py-3 text-sm font-normal text-brand-texto flex items-center">{row.feature}</div>
                   <div className="px-2 py-3 flex items-center justify-center border-l border-brand-acento/40 bg-brand-acento/10">
@@ -378,9 +404,6 @@ export default function LandingPage() {
                   </div>
                   <div className="px-2 py-3 flex items-center justify-center border-l border-brand-acento/40">
                     <CompareIcon val={row.papel} />
-                  </div>
-                  <div className="px-2 py-3 flex items-center justify-center border-l border-brand-acento/40">
-                    <CompareIcon val={row.otras} />
                   </div>
                 </div>
               ))}
@@ -434,24 +457,6 @@ export default function LandingPage() {
             <p className="text-xs font-light text-brand-texto/60 mt-3">
               Cancelás cuando querés · Cobro automático vía Mercado Pago
             </p>
-          </div>
-        </section>
-
-        {/* ── TESTIMONIAL ──────────────────────────────────────────────────── */}
-        <section className="max-w-6xl mx-auto px-4 sm:px-6 py-16 sm:py-24">
-          <div className="bg-brand-acento/40 rounded-3xl border border-brand-acento p-8 sm:p-12 max-w-2xl mx-auto text-center">
-            <div className="flex justify-center gap-0.5 mb-6">
-              {Array.from({ length: 5 }).map((_, i) => (
-                <Star key={i} size={18} className="text-brand-principal" fill="#EA580C" />
-              ))}
-            </div>
-            <blockquote className="text-lg sm:text-xl font-normal text-brand-titulares leading-relaxed italic mb-6">
-              "Antes imprimíamos la carta cada vez que cambiaban los precios. Con MenuDig actualizamos todo en el momento desde el celular. Nuestros clientes lo aman."
-            </blockquote>
-            <div>
-              <p className="text-sm font-bold text-brand-titulares">María Luz González</p>
-              <p className="text-xs font-light text-brand-texto mt-0.5">El Rincón de Siempre · Mendoza</p>
-            </div>
           </div>
         </section>
 

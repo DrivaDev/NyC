@@ -170,8 +170,8 @@ export default function RestaurantProfileForm({ initialName, initialLogoUrl, ini
 
       {/* Feedback banners */}
       {successMsg && (
-        <div className="rounded-md bg-green-50 border border-green-200 px-4 py-3">
-          <p className="text-sm font-medium text-green-800">{successMsg}</p>
+        <div className="rounded-md bg-brand-acento/30 border border-brand-acento px-4 py-3">
+          <p className="text-sm font-medium text-brand-titulares">{successMsg}</p>
         </div>
       )}
       {state.error && !state.success && (

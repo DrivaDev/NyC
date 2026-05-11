@@ -2,7 +2,7 @@
 
 import { auth } from '@clerk/nextjs/server'
 import { revalidatePath } from 'next/cache'
-import { createHmac } from 'crypto'
+import { createHash } from 'crypto'
 import { dbConnect } from '@/lib/dbConnect'
 import { Restaurant } from '@/models/Restaurant'
 import { Dish } from '@/models/Dish'
@@ -15,7 +15,7 @@ async function cloudinaryDestroy(publicId: string) {
   const apiSecret = process.env.CLOUDINARY_API_SECRET as string
   const timestamp = Math.round(Date.now() / 1000)
   const toSign    = `public_id=${publicId}&timestamp=${timestamp}`
-  const signature = createHmac('sha1', apiSecret).update(toSign + apiSecret).digest('hex')
+  const signature = createHash('sha1').update(toSign + apiSecret).digest('hex')
 
   const body = new URLSearchParams({
     public_id: publicId,

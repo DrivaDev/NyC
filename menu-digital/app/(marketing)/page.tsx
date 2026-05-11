@@ -2,7 +2,7 @@ export default function MarketingPage() {
   return (
     <main className="min-h-screen bg-brand-fondo flex flex-col items-center justify-center px-4">
       <div className="w-full max-w-sm flex flex-col items-center gap-6 text-center">
-        <h1 className="text-2xl font-bold text-brand-titulares">Menú Digital</h1>
+        <h1 className="text-2xl font-bold text-brand-titulares">MenuDig</h1>
         <p className="text-sm font-normal text-brand-texto">
           El menú digital de tu restaurante, accesible desde cualquier celular.
         </p>

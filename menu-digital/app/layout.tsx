@@ -10,8 +10,8 @@ const firaSans = Fira_Sans({
 })
 
 export const metadata: Metadata = {
-  title: 'Menú Digital',
-  description: 'El menú digital de tu restaurante',
+  title: 'MenuDig',
+  description: 'El menú digital de tu restaurante, accesible por QR',
 }
 
 export default function RootLayout({

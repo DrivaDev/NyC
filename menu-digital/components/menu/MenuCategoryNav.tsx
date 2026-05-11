@@ -9,9 +9,10 @@ interface Category {
 
 interface Props {
   categories: Category[]
+  menuColor?: string
 }
 
-export function MenuCategoryNav({ categories }: Props) {
+export function MenuCategoryNav({ categories, menuColor = '#EA580C' }: Props) {
   const [activeId, setActiveId] = useState<string | null>(categories[0]?._id ?? null)
 
   useEffect(() => {
@@ -40,28 +41,31 @@ export function MenuCategoryNav({ categories }: Props) {
   }, [categories])
 
   function handleTabClick(categoryId: string) {
-    // Optimistic active state update — do not wait for IntersectionObserver
     setActiveId(categoryId)
     const el = document.getElementById(`category-${categoryId}`)
     el?.scrollIntoView({ behavior: 'smooth', block: 'start' })
   }
 
   return (
-    <nav className="sticky top-0 z-10 bg-white border-b border-gray-100 overflow-x-auto">
-      <div className="flex gap-0 px-4">
-        {categories.map(cat => (
-          <button
-            key={cat._id}
-            onClick={() => handleTabClick(cat._id)}
-            className={`px-4 py-3 text-sm font-normal whitespace-nowrap border-b-2 transition-colors duration-150 ${
-              activeId === cat._id
-                ? 'border-brand-principal text-brand-principal'
-                : 'border-transparent text-brand-texto hover:text-brand-titulares'
-            }`}
-          >
-            {cat.name}
-          </button>
-        ))}
+    <nav className="sticky top-0 z-10 bg-brand-fondo/95 backdrop-blur-sm border-b border-brand-acento overflow-x-auto">
+      <div className="flex gap-2 px-4 py-3">
+        {categories.map(cat => {
+          const isActive = activeId === cat._id
+          return (
+            <button
+              key={cat._id}
+              onClick={() => handleTabClick(cat._id)}
+              className="px-4 py-1.5 text-sm font-medium whitespace-nowrap rounded-full transition-all duration-150"
+              style={
+                isActive
+                  ? { backgroundColor: menuColor, color: '#fff' }
+                  : { color: '#1C1917' }
+              }
+            >
+              {cat.name}
+            </button>
+          )
+        })}
       </div>
     </nav>
   )

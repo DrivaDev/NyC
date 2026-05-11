@@ -67,7 +67,7 @@ export default function Sidebar({ restaurantName, onNavigate }: SidebarProps) {
     <aside className="w-64 flex flex-col bg-white border-r border-brand-acento h-screen shrink-0">
       {/* Header */}
       <div className="px-4 py-5 border-b border-brand-acento">
-        <span className="text-base font-bold text-brand-titulares">Menú Digital</span>
+        <span className="text-base font-bold text-brand-titulares">MenuDig</span>
         {restaurantName && (
           <p className="text-xs font-light text-brand-texto truncate mt-1">
             {restaurantName}

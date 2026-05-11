@@ -22,6 +22,7 @@ interface RestaurantData {
   slug: string
   logoUrl: string
   description: string
+  menuColor: string
 }
 
 interface CategoryData {
@@ -105,7 +106,10 @@ export default async function MenuPage({
 
         {/* Sticky category tab bar — client island (only 'use client' component on page) */}
         {populatedCategories.length > 0 && (
-          <MenuCategoryNav categories={populatedCategories.map(c => ({ _id: c._id, name: c.name }))} />
+          <MenuCategoryNav
+            categories={populatedCategories.map(c => ({ _id: c._id, name: c.name }))}
+            menuColor={serializedRestaurant.menuColor ?? '#EA580C'}
+          />
         )}
 
         {/* Category sections */}

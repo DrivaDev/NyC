@@ -9,7 +9,7 @@ export default function SignUpPage() {
             Crear cuenta
           </h1>
           <p className="text-sm font-normal text-brand-texto">
-            Registrá tu restaurante en Menú Digital
+            Registrá tu restaurante en MenuDig
           </p>
         </div>
 

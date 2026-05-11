@@ -1,5 +1,5 @@
 import { auth } from '@clerk/nextjs/server'
-import { createHmac } from 'crypto'
+import { createHash } from 'crypto'
 
 export async function POST() {
   const { userId } = await auth()
@@ -15,7 +15,7 @@ export async function POST() {
     .map(k => `${k}=${paramsToSign[k as keyof typeof paramsToSign]}`)
     .join('&')
 
-  const signature = createHmac('sha1', apiSecret)
+  const signature = createHash('sha1')
     .update(toSign + apiSecret)
     .digest('hex')
 

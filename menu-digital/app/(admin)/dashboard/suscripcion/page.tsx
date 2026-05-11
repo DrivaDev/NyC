@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import { dbConnect } from '@/lib/dbConnect'
 import { Restaurant } from '@/models/Restaurant'
 import { Check, AlertTriangle, Clock, CreditCard, XCircle } from 'lucide-react'
+import { CancelSubscriptionForm } from '@/components/dashboard/CancelSubscriptionForm'
 
 // ── Helpers ────────────────────────────────────────────────────────────────
 
@@ -178,24 +179,7 @@ export default async function SuscripcionPage() {
             </form>
           )}
 
-          {isActive && (
-            <form
-              action="/api/subscription/cancel"
-              method="POST"
-              onSubmit={(e) => {
-                if (!confirm('¿Seguro que querés cancelar tu suscripción? Perderás el acceso al panel.')) {
-                  e.preventDefault()
-                }
-              }}
-            >
-              <button
-                type="submit"
-                className="w-full border border-gray-200 text-brand-texto text-sm font-medium rounded-lg px-6 py-3 min-h-[44px] hover:bg-gray-50 transition-colors"
-              >
-                Cancelar suscripción
-              </button>
-            </form>
-          )}
+          {isActive && <CancelSubscriptionForm />}
         </div>
       </div>
 

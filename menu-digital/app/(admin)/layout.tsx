@@ -1,10 +1,8 @@
-import { headers } from 'next/headers'
 import { auth } from '@clerk/nextjs/server'
 import { redirect } from 'next/navigation'
 import { dbConnect } from '@/lib/dbConnect'
 import { Restaurant } from '@/models/Restaurant'
 import DashboardShell from '@/components/dashboard/DashboardShell'
-import { SubscriptionGuard } from '@/components/dashboard/SubscriptionGuard'
 
 // ── Subscription access helper ─────────────────────────────────────────────
 
@@ -38,21 +36,8 @@ export default async function AdminLayout({
   const { userId } = await auth()
   if (!userId) redirect('/sign-in')
 
-  // Read pathname stamped by middleware (needed to avoid redirect loop on the subscription page)
-  const headersList = await headers()
-  const pathname    = headersList.get('x-pathname') ?? ''
-
   await dbConnect()
   const restaurant = await Restaurant.findOne({ clerkId: userId }).lean<RestaurantLean>()
-
-  // Block access when trial/subscription is expired — except on the subscription page itself.
-  // We deliberately do NOT call redirect() here: doing so during a Clerk post-login
-  // client navigation (RSC fetch) leaves the layout segment cache broken, causing the
-  // destination page to render blank until a manual refresh. Instead we render the shell
-  // fully and let SubscriptionGuard trigger an immediate client-side router.replace().
-  const onSubscriptionPage = pathname.startsWith('/dashboard/suscripcion')
-  const needsSubscriptionRedirect =
-    restaurant && !hasActiveAccess(restaurant) && !onSubscriptionPage
 
   // Serialize dates for client-component props
   const trialEndsAt = restaurant?.trialEndsAt
@@ -62,14 +47,23 @@ export default async function AdminLayout({
     ? new Date(restaurant.subscriptionPeriodEnd).toISOString()
     : null
 
+  // Pass subscriptionExpired to DashboardShell so it can redirect client-side.
+  // We intentionally do NOT call server-side redirect() here and do NOT swap out
+  // {children} for a redirect component. Either approach removes the RSC children
+  // slot from the cached layout output, causing pages to render blank after a
+  // client-side navigation. DashboardShell uses usePathname() (reliable on the
+  // client) to redirect and keeps {children} always mounted.
+  const subscriptionExpired = restaurant ? !hasActiveAccess(restaurant) : false
+
   return (
     <DashboardShell
       restaurantName={restaurant?.name}
       subscriptionStatus={restaurant?.subscriptionStatus ?? 'trial'}
       trialEndsAt={trialEndsAt}
       subscriptionPeriodEnd={subscriptionPeriodEnd}
+      subscriptionExpired={subscriptionExpired}
     >
-      {needsSubscriptionRedirect ? <SubscriptionGuard /> : children}
+      {children}
     </DashboardShell>
   )
 }

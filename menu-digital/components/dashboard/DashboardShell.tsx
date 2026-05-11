@@ -1,6 +1,7 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { usePathname, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { AlertTriangle } from 'lucide-react'
 import Sidebar from '@/components/dashboard/Sidebar'
@@ -11,6 +12,7 @@ interface DashboardShellProps {
   subscriptionStatus?: string
   trialEndsAt?: string | null
   subscriptionPeriodEnd?: string | null
+  subscriptionExpired?: boolean   // true when trial/subscription lapsed
   children: React.ReactNode
 }
 
@@ -25,9 +27,26 @@ export default function DashboardShell({
   subscriptionStatus = 'trial',
   trialEndsAt,
   subscriptionPeriodEnd,
+  subscriptionExpired = false,
   children,
 }: DashboardShellProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const pathname = usePathname()
+  const router   = useRouter()
+
+  // Redirect expired users to the subscription page.
+  // Using client-side pathname (usePathname) is reliable regardless of RSC caching.
+  // The layout always renders {children} to keep the RSC children slot intact —
+  // if the layout conditionally swaps children for a redirect component the slot
+  // disappears from the cached RSC output and pages never render.
+  const onSubscriptionPage = pathname.startsWith('/dashboard/suscripcion')
+  const needsRedirect = subscriptionExpired && !onSubscriptionPage
+
+  useEffect(() => {
+    if (needsRedirect) {
+      router.replace('/dashboard/suscripcion')
+    }
+  }, [needsRedirect, router])
 
   // Determine if we should show a warning banner
   const trialDays = subscriptionStatus === 'trial' ? daysUntil(trialEndsAt) : null
@@ -103,7 +122,9 @@ export default function DashboardShell({
           </div>
         )}
 
-        <main className="flex-1 overflow-y-auto p-8 flex flex-col">
+        {/* Main content — always rendered to keep the RSC children slot alive.
+            Hidden while a subscription redirect is pending to avoid a content flash. */}
+        <main className={`flex-1 overflow-y-auto p-8 flex flex-col ${needsRedirect ? 'invisible' : ''}`}>
           {children}
           <footer className="mt-auto pt-6 text-center">
             <p className="text-xs font-light text-brand-texto">

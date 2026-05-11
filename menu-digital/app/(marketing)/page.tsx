@@ -194,7 +194,7 @@ export default function LandingPage() {
       <header className="sticky top-0 z-30 bg-brand-fondo/95 backdrop-blur-sm border-b border-brand-acento">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 flex items-center justify-between h-14">
           <div className="flex items-center gap-2">
-            <UtensilsCrossed size={20} className="text-brand-principal" />
+            <img src="/logo.svg" alt="MenuDig logo" width={24} height={24} className="shrink-0" />
             <span className="text-base font-bold text-brand-titulares tracking-tight">MenuDig</span>
           </div>
           <nav className="hidden sm:flex items-center gap-6 text-sm font-medium text-brand-texto">
@@ -512,7 +512,7 @@ export default function LandingPage() {
       <footer className="bg-brand-fondo border-t border-brand-acento/60">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
-            <UtensilsCrossed size={16} className="text-brand-principal" />
+            <img src="/logo.svg" alt="MenuDig logo" width={18} height={18} className="shrink-0" />
             <span className="text-sm font-bold text-brand-titulares">MenuDig</span>
           </div>
           <div className="flex items-center gap-5 text-xs font-normal text-brand-texto">

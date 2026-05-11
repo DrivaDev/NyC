@@ -59,7 +59,7 @@ export function MenuCategoryNav({ categories, menuColor = '#EA580C' }: Props) {
               style={
                 isActive
                   ? { backgroundColor: menuColor, color: '#fff' }
-                  : { color: '#1C1917' }
+                  : { color: 'var(--color-brand-texto)' }
               }
             >
               {cat.name}

@@ -43,7 +43,7 @@ export async function createDish(prevState: any, formData: FormData) {
   if (!categoryId) return { success: false, error: 'Seleccioná una categoría para el plato.' }
 
   const priceStr = formData.get('price')?.toString() ?? ''
-  const price = Math.round(parseFloat(priceStr) * 100)
+  const price = Math.round(parseFloat(priceStr === '' ? '0' : priceStr) * 100)
   if (!isFinite(price)) return { success: false, error: 'Ingresá un precio válido en pesos.' }
   if (price < 0) return { success: false, error: 'El precio no puede ser negativo.' }
 
@@ -89,7 +89,7 @@ export async function updateDish(prevState: any, formData: FormData) {
   if (!categoryId) return { success: false, error: 'Seleccioná una categoría para el plato.' }
 
   const priceStr = formData.get('price')?.toString() ?? ''
-  const price    = Math.round(parseFloat(priceStr) * 100)
+  const price    = Math.round(parseFloat(priceStr === '' ? '0' : priceStr) * 100)
   if (!isFinite(price)) return { success: false, error: 'Ingresá un precio válido en pesos.' }
   if (price < 0) return { success: false, error: 'El precio no puede ser negativo.' }
 

@@ -29,7 +29,15 @@ export default function DishModal({ mode, dish, categories, onClose, onSuccess, 
   const action = mode === 'edit' ? updateDish : createDish
   const [state, formAction, pending] = useActionState(action, initialState)
 
-  // Image upload state — managed separately from form (client-side upload)
+  // ── Controlled field state (preserves values on error) ────────────────────
+  const [name, setName]             = useState(dish?.name ?? '')
+  const [description, setDescription] = useState(dish?.description ?? '')
+  const [price, setPrice]           = useState(dish ? (dish.price / 100).toFixed(2) : '')
+  const [categoryId, setCategoryId] = useState(dish?.categoryId ?? '')
+  const [allergens, setAllergens]   = useState<string[]>(dish?.allergens ?? [])
+  const [available, setAvailable]   = useState(dish?.available ?? true)
+
+  // ── Image upload state — managed separately from form (client-side upload) ──
   const [imageUrl, setImageUrl]           = useState(dish?.imageUrl ?? '')
   const [imagePublicId, setImagePublicId] = useState(dish?.imagePublicId ?? '')
   const [isUploading, setIsUploading]     = useState(false)
@@ -45,6 +53,12 @@ export default function DishModal({ mode, dish, categories, onClose, onSuccess, 
       onError(state.error)
     }
   }, [state]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  function toggleAllergen(key: string) {
+    setAllergens(prev =>
+      prev.includes(key) ? prev.filter(k => k !== key) : [...prev, key]
+    )
+  }
 
   async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
@@ -117,7 +131,7 @@ export default function DishModal({ mode, dish, categories, onClose, onSuccess, 
 
         {/* Body */}
         <div className="px-6 py-5 overflow-y-auto max-h-[70vh]">
-          <form id="dish-modal-form" action={formAction} key={dish?._id ?? 'create'} className="space-y-4">
+          <form id="dish-modal-form" action={formAction} className="space-y-4">
             {mode === 'edit' && dish && (
               <input type="hidden" name="dishId" value={dish._id} />
             )}
@@ -134,7 +148,8 @@ export default function DishModal({ mode, dish, categories, onClose, onSuccess, 
                 id="dish-name"
                 type="text"
                 name="name"
-                defaultValue={dish?.name ?? ''}
+                value={name}
+                onChange={e => setName(e.target.value)}
                 placeholder="Ej. Milanesa a la napolitana"
                 disabled={pending}
                 autoFocus
@@ -149,7 +164,8 @@ export default function DishModal({ mode, dish, categories, onClose, onSuccess, 
                 id="dish-desc"
                 name="description"
                 rows={3}
-                defaultValue={dish?.description ?? ''}
+                value={description}
+                onChange={e => setDescription(e.target.value)}
                 placeholder="Describí el plato brevemente"
                 disabled={pending}
                 className="w-full border border-gray-200 rounded-md px-3 py-3 text-sm font-normal text-brand-texto bg-white placeholder:text-gray-400 focus:outline-none focus:border-brand-principal focus:ring-1 focus:ring-brand-principal resize-none transition-colors duration-100 disabled:border-gray-100 disabled:bg-gray-50"
@@ -169,13 +185,14 @@ export default function DishModal({ mode, dish, categories, onClose, onSuccess, 
                   name="price"
                   min="0"
                   step="0.01"
-                  defaultValue={dish ? (dish.price / 100).toFixed(2) : ''}
+                  value={price}
+                  onChange={e => setPrice(e.target.value)}
                   placeholder="0.00"
                   disabled={pending}
                   className="flex-1 px-3 py-3 text-sm font-mono text-brand-texto bg-white rounded-r-md outline-none disabled:bg-gray-50"
                 />
               </div>
-              <p className="text-xs font-light text-brand-texto">Ingresá el precio en pesos (ej. 1500.00)</p>
+              <p className="text-xs font-light text-brand-texto">Ingresá el precio en pesos (ej. 1500.00). Usá 0 para platos sin costo.</p>
             </div>
 
             {/* Category selector */}
@@ -186,7 +203,8 @@ export default function DishModal({ mode, dish, categories, onClose, onSuccess, 
               <select
                 id="dish-category"
                 name="categoryId"
-                defaultValue={dish?.categoryId ?? ''}
+                value={categoryId}
+                onChange={e => setCategoryId(e.target.value)}
                 disabled={pending}
                 className="w-full border border-gray-200 rounded-md px-3 py-3 text-sm font-normal text-brand-texto bg-white focus:outline-none focus:border-brand-principal focus:ring-1 focus:ring-brand-principal transition-colors duration-100 cursor-pointer disabled:bg-gray-50"
               >
@@ -237,7 +255,8 @@ export default function DishModal({ mode, dish, categories, onClose, onSuccess, 
                       type="checkbox"
                       name="allergens"
                       value={allergen.key}
-                      defaultChecked={dish?.allergens?.includes(allergen.key)}
+                      checked={allergens.includes(allergen.key)}
+                      onChange={() => toggleAllergen(allergen.key)}
                       className="w-4 h-4 accent-brand-principal"
                     />
                     <span className="text-sm font-normal text-brand-texto">{allergen.label}</span>
@@ -254,7 +273,8 @@ export default function DishModal({ mode, dish, categories, onClose, onSuccess, 
                   type="checkbox"
                   name="available"
                   value="true"
-                  defaultChecked={dish?.available ?? true}
+                  checked={available}
+                  onChange={e => setAvailable(e.target.checked)}
                   className="w-4 h-4 accent-brand-principal"
                 />
                 <span className="text-sm font-medium text-brand-texto">Disponible</span>

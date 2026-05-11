@@ -4,6 +4,7 @@ import { dbConnect } from '@/lib/dbConnect'
 import { Restaurant } from '@/models/Restaurant'
 import { Check, AlertTriangle, Clock, CreditCard, XCircle } from 'lucide-react'
 import { CancelSubscriptionForm } from '@/components/dashboard/CancelSubscriptionForm'
+import { RedeemCodeForm } from '@/components/dashboard/RedeemCodeForm'
 
 // ── Helpers ────────────────────────────────────────────────────────────────
 
@@ -192,6 +193,9 @@ export default async function SuscripcionPage() {
           independientemente del estado de tu suscripción.
         </p>
       </div>
+
+      {/* Promo code */}
+      <RedeemCodeForm />
     </div>
   )
 }

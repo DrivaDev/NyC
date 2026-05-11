@@ -128,7 +128,7 @@ export default function DishModal({ mode, dish, categories, onClose, onSuccess, 
             {/* Name */}
             <div className="flex flex-col gap-1.5">
               <label className="text-sm font-medium text-brand-texto" htmlFor="dish-name">
-                Nombre del plato <span className="text-red-500">*</span>
+                Nombre del plato <span className="text-brand-danger">*</span>
               </label>
               <input
                 id="dish-name"
@@ -159,7 +159,7 @@ export default function DishModal({ mode, dish, categories, onClose, onSuccess, 
             {/* Price */}
             <div className="flex flex-col gap-1.5">
               <label className="text-sm font-medium text-brand-texto" htmlFor="dish-price">
-                Precio <span className="text-red-500">*</span>
+                Precio <span className="text-brand-danger">*</span>
               </label>
               <div className="flex items-center border border-gray-200 rounded-md focus-within:border-brand-principal focus-within:ring-1 focus-within:ring-brand-principal">
                 <span className="px-3 py-3 text-sm font-normal text-brand-texto bg-brand-fondo border-r border-gray-200 rounded-l-md">$</span>
@@ -181,7 +181,7 @@ export default function DishModal({ mode, dish, categories, onClose, onSuccess, 
             {/* Category selector */}
             <div className="flex flex-col gap-1.5">
               <label className="text-sm font-medium text-brand-texto" htmlFor="dish-category">
-                Categoría <span className="text-red-500">*</span>
+                Categoría <span className="text-brand-danger">*</span>
               </label>
               <select
                 id="dish-category"
@@ -220,7 +220,7 @@ export default function DishModal({ mode, dish, categories, onClose, onSuccess, 
                 </div>
               )}
               {uploadError && (
-                <p className="text-xs text-red-600" role="alert">{uploadError}</p>
+                <p className="text-xs text-brand-danger" role="alert">{uploadError}</p>
               )}
             </div>
 
@@ -263,7 +263,7 @@ export default function DishModal({ mode, dish, categories, onClose, onSuccess, 
 
             {/* General form error */}
             {state.error && !state.success && (
-              <p role="alert" className="text-xs text-red-600">{state.error}</p>
+              <p role="alert" className="text-xs text-brand-danger">{state.error}</p>
             )}
           </form>
         </div>

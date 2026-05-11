@@ -188,18 +188,18 @@ export default function DishesClient({ dishes: initialDishes, categories }: Prop
                           <button
                             onClick={() => setConfirmDeleteId(dish._id)}
                             aria-label="Eliminar plato"
-                            className="flex items-center justify-center w-8 h-8 rounded-md border border-red-200 bg-white text-red-500 hover:bg-red-50 transition-colors duration-100"
+                            className="flex items-center justify-center w-8 h-8 rounded-md border border-brand-danger/30 bg-white text-brand-danger hover:bg-brand-danger/10 transition-colors duration-100"
                           >
                             <Trash2 size={14} />
                           </button>
                         </div>
                       ) : (
                         <div className="flex items-center justify-end gap-3 animate-in fade-in duration-150">
-                          <span className="text-xs font-medium text-red-600">¿Eliminar?</span>
+                          <span className="text-xs font-medium text-brand-danger">¿Eliminar?</span>
                           <button
                             onClick={() => handleDelete(dish._id)}
                             disabled={deletingId === dish._id}
-                            className="text-xs font-medium text-white bg-red-600 rounded-md px-3 py-1.5 min-h-[32px] hover:bg-red-700 disabled:opacity-50 transition-colors duration-100"
+                            className="text-xs font-medium text-white bg-brand-danger rounded-md px-3 py-1.5 min-h-[32px] hover:bg-[#B91C1C] disabled:opacity-50 transition-colors duration-100"
                           >
                             {deletingId === dish._id ? 'Eliminando...' : 'Sí, eliminar'}
                           </button>
@@ -236,11 +236,11 @@ export default function DishesClient({ dishes: initialDishes, categories }: Prop
       {toast && (
         <div className="fixed bottom-6 right-6 z-50">
           <div className={`bg-white rounded-lg shadow-sm px-4 py-3 flex items-center gap-3 min-w-[280px] max-w-xs border ${
-            toast.type === 'success' ? 'border-brand-acento' : 'border-red-200'
+            toast.type === 'success' ? 'border-brand-acento' : 'border-brand-danger/30'
           }`}>
             {toast.type === 'success'
               ? <CheckCircle2 size={18} className="text-brand-principal shrink-0" />
-              : <XCircle size={18} className="text-red-500 shrink-0" />
+              : <XCircle size={18} className="text-brand-danger shrink-0" />
             }
             <p className="text-sm font-medium text-brand-texto">{toast.message}</p>
           </div>

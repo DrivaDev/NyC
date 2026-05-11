@@ -96,7 +96,7 @@ export default function OnboardingSlug({ initialSlug }: OnboardingSlugProps) {
             </p>
 
             {error && (
-              <p className="text-xs text-red-600 mt-2" role="alert">
+              <p className="text-xs text-brand-danger mt-2" role="alert">
                 {error}
               </p>
             )}
@@ -140,13 +140,13 @@ export default function OnboardingSlug({ initialSlug }: OnboardingSlugProps) {
         <div className="fixed bottom-6 right-6 z-50">
           <div
             className={`bg-white rounded-lg shadow-sm px-4 py-3 flex items-center gap-3 min-w-[280px] max-w-xs border ${
-              toast.type === 'success' ? 'border-brand-acento' : 'border-red-200'
+              toast.type === 'success' ? 'border-brand-acento' : 'border-brand-danger/30'
             }`}
           >
             {toast.type === 'success' ? (
               <CheckCircle2 size={18} className="text-brand-principal shrink-0" />
             ) : (
-              <XCircle size={18} className="text-red-500 shrink-0" />
+              <XCircle size={18} className="text-brand-danger shrink-0" />
             )}
             <p className="text-sm font-medium text-brand-texto">{toast.message}</p>
           </div>

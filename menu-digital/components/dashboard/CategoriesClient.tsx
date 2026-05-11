@@ -1,7 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { useActionState } from 'react'
+import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { Tag, CheckCircle2, XCircle, ChevronUp, ChevronDown, Pencil, Trash2 } from 'lucide-react'
 import CategoryModal from './CategoryModal'
@@ -17,32 +16,17 @@ interface Props {
   categories: Category[]
 }
 
-const reorderInitialState = { success: false, error: undefined as string | undefined }
-
 export default function CategoriesClient({ categories: initialCategories }: Props) {
   const router = useRouter()
+
+  // Local state — optimistic reorder updates this instantly
+  const [categories, setCategories] = useState<Category[]>(initialCategories)
   const [modalOpen, setModalOpen]   = useState(false)
   const [editTarget, setEditTarget] = useState<Category | null>(null)
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null)
   const [deletePending, setDeletePending] = useState(false)
+  const [reorderPending, startReorderTransition] = useTransition()
   const [toast, setToast] = useState<{ type: 'success' | 'error'; message: string } | null>(null)
-
-  // WR-02: capture reorder state so errors can be surfaced to the user
-  const [reorderState, reorderAction, reorderPending] = useActionState(reorderCategory, reorderInitialState)
-
-  // WR-02: show toast when reorder action returns an error
-  useEffect(() => {
-    if (reorderState.error) {
-      showToast('error', reorderState.error)
-    }
-  }, [reorderState]) // eslint-disable-line react-hooks/exhaustive-deps
-
-  // WR-01: refresh RSC data after reorder succeeds
-  useEffect(() => {
-    if (reorderState.success) {
-      router.refresh()
-    }
-  }, [reorderState]) // eslint-disable-line react-hooks/exhaustive-deps
 
   function showToast(type: 'success' | 'error', message: string) {
     setToast({ type, message })
@@ -63,11 +47,41 @@ export default function CategoriesClient({ categories: initialCategories }: Prop
     setModalOpen(false)
     setEditTarget(null)
     showToast('success', message)
-    router.refresh() // WR-01: re-fetch Server Component data
+    router.refresh()
   }
 
   function handleModalError(message: string) {
     showToast('error', message)
+  }
+
+  function handleReorder(categoryId: string, direction: 'up' | 'down') {
+    const index = categories.findIndex(c => c._id === categoryId)
+    if (index === -1) return
+    if (direction === 'up' && index === 0) return
+    if (direction === 'down' && index === categories.length - 1) return
+
+    // Snapshot for rollback
+    const prev = categories
+
+    // Optimistic swap
+    const next = [...categories]
+    const swapIndex = direction === 'up' ? index - 1 : index + 1
+    ;[next[index], next[swapIndex]] = [next[swapIndex], next[index]]
+    setCategories(next)
+
+    // Fire Server Action in background
+    const fd = new FormData()
+    fd.append('categoryId', categoryId)
+    fd.append('direction', direction)
+
+    startReorderTransition(async () => {
+      const result = await reorderCategory({ success: false }, fd)
+      if (!result.success) {
+        setCategories(prev) // revert on error
+        showToast('error', result.error ?? 'No se pudo reordenar. Intentá de nuevo.')
+      }
+      // No router.refresh() on success — local state already shows the correct order
+    })
   }
 
   return (
@@ -85,7 +99,7 @@ export default function CategoriesClient({ categories: initialCategories }: Prop
 
       {/* Content area */}
       <div className="bg-white rounded-lg shadow-sm border border-brand-acento overflow-hidden">
-        {initialCategories.length === 0 ? (
+        {categories.length === 0 ? (
           /* Empty state */
           <div className="flex flex-col items-center justify-center py-16 text-center border-t border-brand-acento">
             <Tag size={32} className="text-brand-acento mb-4" />
@@ -102,7 +116,7 @@ export default function CategoriesClient({ categories: initialCategories }: Prop
           </div>
         ) : (
           <ul className="divide-y divide-brand-acento">
-            {initialCategories.map((cat, index) => (
+            {categories.map((cat, index) => (
               <li
                 key={cat._id}
                 className="flex items-center justify-between px-6 py-4 hover:bg-brand-acento/30 transition-colors duration-100"
@@ -113,32 +127,24 @@ export default function CategoriesClient({ categories: initialCategories }: Prop
                   {confirmDeleteId !== cat._id && (
                     <>
                       {/* ↑ button */}
-                      <form action={reorderAction}>
-                        <input type="hidden" name="categoryId" value={cat._id} />
-                        <input type="hidden" name="direction" value="up" />
-                        <button
-                          type="submit"
-                          disabled={index === 0 || reorderPending}
-                          aria-label="Subir categoría"
-                          className="flex items-center justify-center w-8 h-8 rounded-md border border-brand-acento bg-white text-brand-texto hover:bg-brand-fondo disabled:opacity-30 disabled:cursor-not-allowed transition-colors duration-100"
-                        >
-                          <ChevronUp size={14} />
-                        </button>
-                      </form>
+                      <button
+                        onClick={() => handleReorder(cat._id, 'up')}
+                        disabled={index === 0 || reorderPending}
+                        aria-label="Subir categoría"
+                        className="flex items-center justify-center w-8 h-8 rounded-md border border-brand-acento bg-white text-brand-texto hover:bg-brand-fondo disabled:opacity-30 disabled:cursor-not-allowed transition-colors duration-100"
+                      >
+                        <ChevronUp size={14} />
+                      </button>
 
                       {/* ↓ button */}
-                      <form action={reorderAction}>
-                        <input type="hidden" name="categoryId" value={cat._id} />
-                        <input type="hidden" name="direction" value="down" />
-                        <button
-                          type="submit"
-                          disabled={index === initialCategories.length - 1 || reorderPending}
-                          aria-label="Bajar categoría"
-                          className="flex items-center justify-center w-8 h-8 rounded-md border border-brand-acento bg-white text-brand-texto hover:bg-brand-fondo disabled:opacity-30 disabled:cursor-not-allowed transition-colors duration-100"
-                        >
-                          <ChevronDown size={14} />
-                        </button>
-                      </form>
+                      <button
+                        onClick={() => handleReorder(cat._id, 'down')}
+                        disabled={index === categories.length - 1 || reorderPending}
+                        aria-label="Bajar categoría"
+                        className="flex items-center justify-center w-8 h-8 rounded-md border border-brand-acento bg-white text-brand-texto hover:bg-brand-fondo disabled:opacity-30 disabled:cursor-not-allowed transition-colors duration-100"
+                      >
+                        <ChevronDown size={14} />
+                      </button>
 
                       {/* Edit button */}
                       <button
@@ -153,7 +159,7 @@ export default function CategoriesClient({ categories: initialCategories }: Prop
                       <button
                         onClick={() => setConfirmDeleteId(cat._id)}
                         aria-label="Eliminar categoría"
-                        className="flex items-center justify-center w-8 h-8 rounded-md border border-red-200 bg-white text-red-500 hover:bg-red-50 transition-colors duration-100"
+                        className="flex items-center justify-center w-8 h-8 rounded-md border border-brand-danger/30 bg-white text-brand-danger hover:bg-brand-danger/10 transition-colors duration-100"
                       >
                         <Trash2 size={14} />
                       </button>
@@ -163,7 +169,7 @@ export default function CategoriesClient({ categories: initialCategories }: Prop
                   {/* Inline delete confirmation */}
                   {confirmDeleteId === cat._id && (
                     <div className="flex items-center gap-3 animate-in fade-in duration-150">
-                      <span className="text-xs font-medium text-red-600">¿Eliminar?</span>
+                      <span className="text-xs font-medium text-brand-danger">¿Eliminar?</span>
                       <form
                         action={async (fd) => {
                           setDeletePending(true)
@@ -172,7 +178,7 @@ export default function CategoriesClient({ categories: initialCategories }: Prop
                           if (result.success) {
                             setConfirmDeleteId(null)
                             showToast('success', 'Categoría eliminada correctamente.')
-                            router.refresh() // WR-01: re-fetch Server Component data
+                            router.refresh()
                           } else {
                             setConfirmDeleteId(null)
                             showToast('error', result.error ?? 'Algo salió mal. Intentá de nuevo.')
@@ -183,7 +189,7 @@ export default function CategoriesClient({ categories: initialCategories }: Prop
                         <button
                           type="submit"
                           disabled={deletePending}
-                          className="text-xs font-medium text-white bg-red-600 rounded-md px-3 py-1.5 min-h-[32px] hover:bg-red-700 disabled:opacity-50 transition-colors duration-100"
+                          className="text-xs font-medium text-white bg-brand-danger rounded-md px-3 py-1.5 min-h-[32px] hover:bg-[#B91C1C] disabled:opacity-50 transition-colors duration-100"
                         >
                           {deletePending ? 'Eliminando...' : 'Sí, eliminar'}
                         </button>
@@ -218,11 +224,11 @@ export default function CategoriesClient({ categories: initialCategories }: Prop
       {toast && (
         <div className="fixed bottom-6 right-6 z-50">
           <div className={`bg-white rounded-lg shadow-sm px-4 py-3 flex items-center gap-3 min-w-[280px] max-w-xs border ${
-            toast.type === 'success' ? 'border-brand-acento' : 'border-red-200'
+            toast.type === 'success' ? 'border-brand-acento' : 'border-brand-danger/30'
           }`}>
             {toast.type === 'success'
               ? <CheckCircle2 size={18} className="text-brand-principal shrink-0" />
-              : <XCircle size={18} className="text-red-500 shrink-0" />
+              : <XCircle size={18} className="text-brand-danger shrink-0" />
             }
             <p className="text-sm font-medium text-brand-texto">{toast.message}</p>
           </div>

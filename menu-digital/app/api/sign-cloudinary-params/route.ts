@@ -1,27 +1,23 @@
 import { auth } from '@clerk/nextjs/server'
-import { v2 as cloudinary } from 'cloudinary'
-
-// Configure once at module scope — not inside the request handler
-cloudinary.config({
-  cloud_name: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
-  api_key:    process.env.NEXT_PUBLIC_CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
-})
+import { createHmac } from 'crypto'
 
 export async function POST() {
-  // Guard: only authenticated users may obtain upload credentials
   const { userId } = await auth()
-  if (!userId) {
-    return Response.json({ error: 'No autorizado.' }, { status: 401 })
-  }
+  if (!userId) return Response.json({ error: 'No autorizado.' }, { status: 401 })
 
+  const apiSecret = process.env.CLOUDINARY_API_SECRET as string
   const timestamp = Math.round(Date.now() / 1000)
-  const paramsToSign = { timestamp, folder: 'menu-digital' }
 
-  const signature = cloudinary.utils.api_sign_request(
-    paramsToSign,
-    process.env.CLOUDINARY_API_SECRET as string
-  )
+  // Cloudinary signature: sort params alphabetically, join as key=value pairs, append secret, SHA-1
+  const paramsToSign = { folder: 'menu-digital', timestamp }
+  const toSign = Object.keys(paramsToSign)
+    .sort()
+    .map(k => `${k}=${paramsToSign[k as keyof typeof paramsToSign]}`)
+    .join('&')
+
+  const signature = createHmac('sha1', apiSecret)
+    .update(toSign + apiSecret)
+    .digest('hex')
 
   return Response.json({
     signature,

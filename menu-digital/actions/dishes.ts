@@ -2,18 +2,10 @@
 
 import { auth } from '@clerk/nextjs/server'
 import { revalidatePath } from 'next/cache'
-import { v2 as cloudinary } from 'cloudinary'
 import { dbConnect } from '@/lib/dbConnect'
 import { Restaurant } from '@/models/Restaurant'
 import { Dish } from '@/models/Dish'
 import { Category } from '@/models/Category'
-
-// Configure Cloudinary once at module scope (for deleteDish)
-cloudinary.config({
-  cloud_name: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
-  api_key:    process.env.NEXT_PUBLIC_CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
-})
 
 // ─── createDish ───────────────────────────────────────────────────────────────
 export async function createDish(prevState: any, formData: FormData) {
@@ -123,9 +115,15 @@ export async function deleteDish(prevState: any, formData: FormData) {
   if (!dish) return { success: false, error: 'Plato no encontrado.' }
 
   // D-06: attempt Cloudinary deletion synchronously before DB delete
-  // If Cloudinary fails, log and continue — broken DB references > orphaned assets
+  // Dynamic import avoids static analysis by Turbopack at build time
   if (dish.imagePublicId) {
     try {
+      const { v2: cloudinary } = await import('cloudinary')
+      cloudinary.config({
+        cloud_name: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
+        api_key:    process.env.NEXT_PUBLIC_CLOUDINARY_API_KEY,
+        api_secret: process.env.CLOUDINARY_API_SECRET,
+      })
       await cloudinary.uploader.destroy(dish.imagePublicId)
     } catch (err) {
       console.error('[Cloudinary delete failed]', err)

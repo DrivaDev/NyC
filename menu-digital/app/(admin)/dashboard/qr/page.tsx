@@ -1,6 +1,6 @@
 import { auth } from '@clerk/nextjs/server'
 import { redirect } from 'next/navigation'
-import QRCode from 'qrcode'
+// qrcode loaded dynamically to avoid Turbopack static-analysis errors at build time
 import { dbConnect } from '@/lib/dbConnect'
 import { Restaurant } from '@/models/Restaurant'
 import QRCard from '@/components/dashboard/QRCard'
@@ -23,6 +23,7 @@ export default async function QRPage() {
 
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://menudig.com.ar'
   const menuUrl = `${appUrl}/menu/${restaurant.slug}`
+  const { default: QRCode } = await import('qrcode')
   const qrDataUrl = await QRCode.toDataURL(menuUrl, {
     width: 256,
     margin: 2,

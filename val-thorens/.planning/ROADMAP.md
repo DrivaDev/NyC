@@ -22,9 +22,16 @@
 **Plans**: 3 plans
 
 Plans:
-- [ ] 01-01-PLAN.md — Bootstrap: NextAuth Google OAuth + tailwind custom colors + .env.example + vercel.json
-- [ ] 01-02-PLAN.md — Page shell: app/page.tsx 3-state component (Login + Loading screens) + root layout
-- [ ] 01-03-PLAN.md — Form screen: all 5 fields, validation, PDF drag-drop, Base64 conversion, submit handler
+- **Wave 1**
+  - [ ] 01-01-PLAN.md — Bootstrap: NextAuth Google OAuth + tailwind custom colors + .env.example + vercel.json
+- **Wave 2** *(blocked on Wave 1)*
+  - [ ] 01-02-PLAN.md — Page shell: app/page.tsx 3-state component (Login + Loading screens) + root layout
+- **Wave 3** *(blocked on Wave 2)*
+  - [ ] 01-03-PLAN.md — Form screen: all 5 fields, validation, PDF drag-drop, Base64 conversion, submit handler
+
+**Cross-cutting constraints:**
+- NextAuth session callback must expose `access_token` for downstream Gmail API
+- CV stays Base64 in-memory only — never persisted to disk
 
 **UI hint**: yes
 

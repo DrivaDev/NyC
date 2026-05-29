@@ -19,7 +19,13 @@
   2. After signing in, user's Gmail address is shown and the form is accessible without entering their email
   3. User can fill name, upload a PDF CV, select job types, enter languages, and set availability dates — then submit
   4. Submitting the form triggers the pipeline; the `access_token` from the session is available to downstream API calls
-**Plans**: TBD
+**Plans**: 3 plans
+
+Plans:
+- [ ] 01-01-PLAN.md — Bootstrap: NextAuth Google OAuth + tailwind custom colors + .env.example + vercel.json
+- [ ] 01-02-PLAN.md — Page shell: app/page.tsx 3-state component (Login + Loading screens) + root layout
+- [ ] 01-03-PLAN.md — Form screen: all 5 fields, validation, PDF drag-drop, Base64 conversion, submit handler
+
 **UI hint**: yes
 
 ### Phase 2: Pipeline
@@ -51,6 +57,6 @@
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Auth & Form | 0/0 | Not started | - |
+| 1. Auth & Form | 0/3 | Planned | - |
 | 2. Pipeline | 0/0 | Not started | - |
 | 3. Real-Time UX | 0/0 | Not started | - |

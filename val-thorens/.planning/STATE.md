@@ -1,0 +1,62 @@
+# Project State
+
+## Status
+Phase: 0 (Not started)
+Last updated: 2026-05-29
+
+## Project Reference
+See: .planning/PROJECT.md
+
+**Core value:** User authenticates once and their CV is automatically sent to every relevant employer in Val Thorens with a personalized email in their name.
+**Current focus:** Phase 1
+
+## Phases
+
+| Phase | Name | Status |
+|-------|------|--------|
+| 1 | Auth & Form | pending |
+| 2 | Pipeline | pending |
+| 3 | Real-Time UX | pending |
+
+## Current Position
+
+**Active phase:** None (not started)
+**Active plan:** None
+**Last completed:** —
+
+```
+Progress: [ ] Phase 1  [ ] Phase 2  [ ] Phase 3
+```
+
+## Performance Metrics
+
+- Plans completed: 0
+- Phases completed: 0
+- Requirements delivered: 0 / 37
+
+## Accumulated Context
+
+### Decisions
+- Gmail API uses user's OAuth access_token (not server-side key) — emails sent from user's own address
+- Service Account used for Sheets writes — no user identity needed
+- SSE via ReadableStream — compatible with Next.js App Router, no WebSockets
+- @sparticuz/chromium + puppeteer-core — required for Vercel serverless compatibility
+- Gemini 2.0 Flash for email generation — free tier, fast, sufficient quality
+
+### Constraints to Keep in Mind
+- Vercel `maxDuration: 300` required for run route (Pro plan)
+- Scrape route: 60s max
+- Places API: 1 req/s between pages
+- Gmail API: 4s between sends
+- Gemini 429: exponential retry, never abort pipeline
+- App stays in Google OAuth Testing mode (up to 5 test users)
+
+### Todos
+- none yet
+
+### Blockers
+- none yet
+
+## Session Continuity
+
+Next action: Run `/gsd-plan-phase 1` to plan Phase 1 (Auth & Form).

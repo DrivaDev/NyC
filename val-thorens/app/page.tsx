@@ -1,8 +1,31 @@
 "use client";
 import { useSession, signIn, signOut } from "next-auth/react";
-import { useState } from "react";
-import { Loader2 } from "lucide-react";
+import { useState, useRef } from "react";
+import { Loader2, CheckCircle2, X } from "lucide-react";
 import { Session } from "next-auth";
+
+// ---------------------------------------------------------------------------
+// Interfaces
+// ---------------------------------------------------------------------------
+
+interface FormData {
+  name: string;
+  cv: File | null;
+  cvBase64: string | null;
+  jobTypes: string[];
+  languages: string;
+  availFrom: string;
+  availTo: string;
+}
+
+interface FormErrors {
+  name?: string;
+  cv?: string;
+  jobTypes?: string;
+  languages?: string;
+  dates?: string;
+  submit?: string;
+}
 
 // ---------------------------------------------------------------------------
 // Sub-views
@@ -87,11 +110,100 @@ function FormView({
   session: Session;
   onSubmitComplete: () => void;
 }) {
+  const [formData, setFormData] = useState<FormData>({
+    name: "",
+    cv: null,
+    cvBase64: null,
+    jobTypes: [],
+    languages: "",
+    availFrom: "",
+    availTo: "",
+  });
+  const [errors, setErrors] = useState<FormErrors>({});
+  const [isDragOver, setIsDragOver] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  function validate(data: FormData): FormErrors {
+    const errs: FormErrors = {};
+    if (!data.name.trim()) errs.name = "El nombre es obligatorio";
+    if (!data.cv) errs.cv = "Solo se aceptan archivos PDF de hasta 5 MB";
+    if (data.jobTypes.length === 0)
+      errs.jobTypes = "Selecciona al menos un tipo de trabajo";
+    if (!data.languages.trim()) errs.languages = "Indica al menos un idioma";
+    if (!data.availFrom || !data.availTo)
+      errs.dates = "Indica las fechas de disponibilidad";
+    return errs;
+  }
+
+  function handleFile(file: File) {
+    if (file.type !== "application/pdf" || file.size > 5 * 1024 * 1024) {
+      setErrors((e) => ({
+        ...e,
+        cv: "Solo se aceptan archivos PDF de hasta 5 MB",
+      }));
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const base64 = (e.target?.result as string).split(",")[1];
+      setFormData((d) => ({ ...d, cv: file, cvBase64: base64 }));
+      setErrors((e) => ({ ...e, cv: undefined }));
+    };
+    reader.readAsDataURL(file);
+  }
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(true);
+  };
+  const handleDragLeave = () => setIsDragOver(false);
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(false);
+    const file = e.dataTransfer.files[0];
+    if (file) handleFile(file);
+  };
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    const errs = validate(formData);
+    setErrors(errs);
+    if (Object.keys(errs).length > 0) return;
+
+    setIsSubmitting(true);
+    try {
+      fetch("/api/run", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: formData.name,
+          cvBase64: formData.cvBase64,
+          jobTypes: formData.jobTypes,
+          languages: formData.languages,
+          availFrom: formData.availFrom,
+          availTo: formData.availTo,
+          accessToken: session.access_token,
+        }),
+      }).catch(() => {
+        // Phase 1: /api/run does not exist yet — ignore network error
+        // Phase 2 will implement the route; error handling added in Phase 3
+      });
+      onSubmitComplete();
+    } catch {
+      setErrors((e) => ({
+        ...e,
+        submit: "Error al iniciar el proceso. Intentalo de nuevo.",
+      }));
+      setIsSubmitting(false);
+    }
+  }
+
   return (
-    <div className="min-h-screen bg-slate-100 flex items-center justify-center py-12">
-      <div className="bg-white shadow-md rounded-2xl p-8 max-w-lg w-full mx-4">
+    <div className="min-h-screen bg-slate-100 py-12">
+      <div className="max-w-lg mx-auto bg-white shadow-md rounded-2xl p-8 mx-4">
         {/* Card header */}
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center justify-between mb-8">
           <div>
             <h2 className="text-xl font-bold text-gray-900">The Annex</h2>
             <p className="text-sm text-gray-500">{session.user?.email}</p>
@@ -104,9 +216,240 @@ function FormView({
           </button>
         </div>
 
-        {/* TODO: Form fields — implemented in PLAN-03 */}
+        <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+          {/* Campo: Nombre completo */}
+          <div>
+            <label
+              htmlFor="name"
+              className="text-sm font-normal text-gray-700"
+            >
+              Nombre completo
+            </label>
+            <input
+              id="name"
+              type="text"
+              value={formData.name}
+              onChange={(e) =>
+                setFormData((d) => ({ ...d, name: e.target.value }))
+              }
+              onBlur={() => {
+                const errs = validate(formData);
+                setErrors((e) => ({ ...e, name: errs.name }));
+              }}
+              placeholder="Juan Garcia"
+              className={`text-base w-full border rounded-lg px-4 py-3 mt-2 focus:outline-none focus:ring-2 focus:ring-french-blue ${
+                errors.name ? "border-french-red" : "border-gray-300"
+              }`}
+            />
+            {errors.name && (
+              <p className="text-sm text-french-red mt-1">{errors.name}</p>
+            )}
+          </div>
 
-        {/* TODO: Submit button — implemented in PLAN-03 */}
+          {/* Campo: CV en PDF */}
+          <div>
+            <label className="text-sm font-normal text-gray-700">
+              Curriculum Vitae (PDF)
+            </label>
+            {formData.cv ? (
+              <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg border border-gray-200 mt-2">
+                <CheckCircle2 className="text-green-600 w-5 h-5 flex-shrink-0" />
+                <span className="text-sm font-normal text-gray-700 truncate flex-1">
+                  {formData.cv.name}
+                </span>
+                <button
+                  type="button"
+                  aria-label="Eliminar CV cargado"
+                  onClick={() =>
+                    setFormData((d) => ({ ...d, cv: null, cvBase64: null }))
+                  }
+                  className="ml-auto p-2 rounded-full hover:bg-red-50 text-gray-400 hover:text-french-red transition-colors h-11 w-11 flex items-center justify-center"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            ) : (
+              <div
+                role="button"
+                aria-label="Cargar archivo PDF del curriculum"
+                tabIndex={0}
+                onClick={() => fileInputRef.current?.click()}
+                onKeyDown={(e) =>
+                  e.key === "Enter" && fileInputRef.current?.click()
+                }
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+                onDrop={handleDrop}
+                className={`border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors mt-2 ${
+                  isDragOver
+                    ? "border-french-blue bg-blue-50"
+                    : errors.cv
+                    ? "border-french-red"
+                    : "border-gray-300 hover:border-french-blue"
+                }`}
+              >
+                <p className="text-sm text-gray-500">
+                  Arrastra tu CV o haz click
+                </p>
+                <p className="text-xs text-gray-400 mt-1">PDF · Max 5 MB</p>
+              </div>
+            )}
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="application/pdf"
+              className="hidden"
+              onChange={(e) => {
+                const f = e.target.files?.[0];
+                if (f) handleFile(f);
+              }}
+            />
+            {errors.cv && (
+              <p className="text-sm text-french-red mt-1">{errors.cv}</p>
+            )}
+          </div>
+
+          {/* Campo: Tipo de trabajo */}
+          <div>
+            <label className="text-sm font-normal text-gray-700">
+              Tipo de trabajo
+            </label>
+            <div className="grid grid-cols-2 gap-2 mt-2">
+              {[
+                "Hotel",
+                "Restaurante",
+                "Bar",
+                "Escuela de ski",
+                "Tienda",
+                "Otro",
+              ].map((type) => (
+                <label
+                  key={type}
+                  className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer"
+                >
+                  <input
+                    type="checkbox"
+                    checked={formData.jobTypes.includes(type)}
+                    onChange={(e) => {
+                      setFormData((d) => ({
+                        ...d,
+                        jobTypes: e.target.checked
+                          ? [...d.jobTypes, type]
+                          : d.jobTypes.filter((t) => t !== type),
+                      }));
+                    }}
+                    className="accent-french-blue"
+                  />
+                  {type}
+                </label>
+              ))}
+            </div>
+            {errors.jobTypes && (
+              <p className="text-sm text-french-red mt-1">{errors.jobTypes}</p>
+            )}
+          </div>
+
+          {/* Campo: Idiomas */}
+          <div>
+            <label
+              htmlFor="languages"
+              className="text-sm font-normal text-gray-700"
+            >
+              Idiomas que hablas
+            </label>
+            <input
+              id="languages"
+              type="text"
+              value={formData.languages}
+              onChange={(e) =>
+                setFormData((d) => ({ ...d, languages: e.target.value }))
+              }
+              onBlur={() => {
+                const errs = validate(formData);
+                setErrors((e) => ({ ...e, languages: errs.languages }));
+              }}
+              placeholder="Ej: Español, Frances, Ingles"
+              className={`text-base w-full border rounded-lg px-4 py-3 mt-2 focus:outline-none focus:ring-2 focus:ring-french-blue ${
+                errors.languages ? "border-french-red" : "border-gray-300"
+              }`}
+            />
+            <p className="text-xs text-gray-400 mt-1">Separalos por comas</p>
+            {errors.languages && (
+              <p className="text-sm text-french-red mt-1">
+                {errors.languages}
+              </p>
+            )}
+          </div>
+
+          {/* Campo: Disponibilidad */}
+          <div>
+            <label className="text-sm font-normal text-gray-700">
+              Disponibilidad
+            </label>
+            <div className="grid grid-cols-2 gap-4 mt-2">
+              <div>
+                <label
+                  htmlFor="availFrom"
+                  className="text-xs text-gray-500"
+                >
+                  Desde
+                </label>
+                <input
+                  id="availFrom"
+                  type="date"
+                  value={formData.availFrom}
+                  onChange={(e) =>
+                    setFormData((d) => ({ ...d, availFrom: e.target.value }))
+                  }
+                  onBlur={() => {
+                    const errs = validate(formData);
+                    setErrors((e) => ({ ...e, dates: errs.dates }));
+                  }}
+                  className={`text-base w-full border rounded-lg px-4 py-3 mt-1 focus:outline-none focus:ring-2 focus:ring-french-blue ${
+                    errors.dates ? "border-french-red" : "border-gray-300"
+                  }`}
+                />
+              </div>
+              <div>
+                <label htmlFor="availTo" className="text-xs text-gray-500">
+                  Hasta
+                </label>
+                <input
+                  id="availTo"
+                  type="date"
+                  value={formData.availTo}
+                  onChange={(e) =>
+                    setFormData((d) => ({ ...d, availTo: e.target.value }))
+                  }
+                  onBlur={() => {
+                    const errs = validate(formData);
+                    setErrors((e) => ({ ...e, dates: errs.dates }));
+                  }}
+                  className={`text-base w-full border rounded-lg px-4 py-3 mt-1 focus:outline-none focus:ring-2 focus:ring-french-blue ${
+                    errors.dates ? "border-french-red" : "border-gray-300"
+                  }`}
+                />
+              </div>
+            </div>
+            {errors.dates && (
+              <p className="text-sm text-french-red mt-1">{errors.dates}</p>
+            )}
+          </div>
+
+          {/* Submit */}
+          {errors.submit && (
+            <p className="text-sm text-french-red mt-1">{errors.submit}</p>
+          )}
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className={`w-full bg-french-blue text-white rounded-lg py-3 px-6 text-base font-bold hover:bg-blue-800 transition-colors focus:outline-none focus:ring-2 focus:ring-french-blue focus:ring-offset-2 mt-2 ${
+              isSubmitting ? "opacity-60 cursor-not-allowed" : ""
+            }`}
+          >
+            {isSubmitting ? "Enviando..." : "Enviar candidatura"}
+          </button>
+        </form>
       </div>
     </div>
   );

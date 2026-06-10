@@ -1,0 +1,92 @@
+# Roadmap: TMA — App interna Nicholson & Cano
+
+## Overview
+
+La app se construye en cinco fases naturales: primero la fundación de auth y branding que protege el acceso y establece la identidad visual; luego el pipeline de generación de contratos vía Gemini (el core del producto); luego la lógica multi-locador que extiende ese pipeline; luego el módulo Casos completo (CRUD + filtros); y por último las estadísticas que dependen de datos reales.
+
+## Phases
+
+**Phase Numbering:**
+- Integer phases (1, 2, 3): Planned milestone work
+- Decimal phases (2.1, 2.2): Urgent insertions (marked with INSERTED)
+
+Decimal phases appear between their surrounding integers in numeric order.
+
+- [ ] **Phase 1: Foundation & Auth** - Acceso seguro + identidad visual Driva Dev
+- [ ] **Phase 2: Contratos — Pipeline de generación** - Flujo completo de generación de .docx vía Gemini
+- [ ] **Phase 3: Contratos — Multi-locador** - Soporte para contratos con múltiples locadores
+- [ ] **Phase 4: Casos — CRUD & Dashboard** - Gestión completa de asuntos con tabla filtrable
+- [ ] **Phase 5: Casos — Estadísticas** - Selector de período + gráfico de barras mensual
+
+## Phase Details
+
+### Phase 1: Foundation & Auth
+**Goal**: Solo los 5 usuarios de NyC pueden acceder a la app, con identidad visual Driva Dev aplicada
+**Depends on**: Nothing (first phase)
+**Requirements**: AUTH-01, AUTH-02, AUTH-03, AUTH-04, AUTH-05, AUTH-06, UI-01, UI-02, UI-03, UI-07
+**Success Criteria** (what must be TRUE):
+  1. Usuario con email en allowlist puede registrarse y crear cuenta con contraseña
+  2. Usuario con email fuera de allowlist ve "Este email no está autorizado" y no puede registrarse
+  3. Usuario puede iniciar sesión y la sesión persiste al refrescar el navegador
+  4. Rutas protegidas redirigen a /login cuando no hay sesión activa
+  5. Todas las páginas muestran la paleta Driva Dev (naranja/crema), tipografía Poppins y footer con link a drivadev.com.ar
+**Plans**: TBD
+**UI hint**: yes
+
+### Phase 2: Contratos — Pipeline de generación
+**Goal**: Usuario puede subir documentación de un asunto y descargar el .docx de contrato completado por Gemini
+**Depends on**: Phase 1
+**Requirements**: CONTR-01, CONTR-02, CONTR-03, CONTR-04, CONTR-05, CONTR-06, CONTR-07, CONTR-08, CONTR-09, CONTR-10, CONTR-13, CONTR-14, CONTR-15, UI-06
+**Success Criteria** (what must be TRUE):
+  1. Usuario puede seleccionar uno de los 10 modelos de contrato y ver el formulario correspondiente
+  2. Usuario puede subir archivos jpg/png, docx y pdf como documentación del asunto
+  3. Sistema procesa los archivos y envía el prompt a Gemini; campos con información suficiente se completan, campos sin datos quedan vacíos (nunca inventados)
+  4. Usuario puede descargar el .docx generado con resaltado amarillo preservado
+  5. Ningún archivo subido persiste en el servidor tras la descarga
+**Plans**: TBD
+**UI hint**: yes
+
+### Phase 3: Contratos — Multi-locador
+**Goal**: Contratos con múltiples locadores se generan correctamente según el tipo de modelo
+**Depends on**: Phase 2
+**Requirements**: CONTR-11, CONTR-12
+**Success Criteria** (what must be TRUE):
+  1. En Anexo AC con 2+ locadores, el .docx generado contiene una fila de identificación por cada locador
+  2. En modelos no-Anexo AC con 2+ locadores, las referencias a "el LOCADOR" se adaptan a "los LOCADORES" sin alterar cláusulas ni numeración
+**Plans**: TBD
+
+### Phase 4: Casos — CRUD & Dashboard
+**Goal**: Usuarios pueden crear, ver, filtrar y eliminar asuntos desde un dashboard funcional
+**Depends on**: Phase 1
+**Requirements**: CASOS-01, CASOS-02, CASOS-03, CASOS-04, CASOS-05, CASOS-06, CASOS-07, UI-04, UI-05
+**Success Criteria** (what must be TRUE):
+  1. Usuario puede crear un asunto con los 4 campos obligatorios y verlo inmediatamente en la tabla
+  2. Submit con campo vacío muestra error de validación y no guarda el asunto
+  3. Usuario puede buscar asuntos por nombre parcial y por responsable parcial
+  4. Usuario puede ordenar la tabla por fechaVencimiento (ascendente y descendente)
+  5. Usuario puede eliminar un asunto de la tabla y desaparece inmediatamente
+**Plans**: TBD
+**UI hint**: yes
+
+### Phase 5: Casos — Estadísticas
+**Goal**: Usuarios pueden analizar la carga de trabajo por período con contadores y gráfico mensual
+**Depends on**: Phase 4
+**Requirements**: CASOS-08, CASOS-09
+**Success Criteria** (what must be TRUE):
+  1. Usuario ve contador de asuntos creados para el período seleccionado (último mes / 3 meses / año)
+  2. Usuario ve gráfico de barras Recharts con los 12 meses del año actual, con 0 en meses futuros
+**Plans**: TBD
+**UI hint**: yes
+
+## Progress
+
+**Execution Order:**
+Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
+
+| Phase | Plans Complete | Status | Completed |
+|-------|----------------|--------|-----------|
+| 1. Foundation & Auth | 0/TBD | Not started | - |
+| 2. Contratos — Pipeline de generación | 0/TBD | Not started | - |
+| 3. Contratos — Multi-locador | 0/TBD | Not started | - |
+| 4. Casos — CRUD & Dashboard | 0/TBD | Not started | - |
+| 5. Casos — Estadísticas | 0/TBD | Not started | - |

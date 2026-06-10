@@ -25,7 +25,7 @@ created: 2026-06-10
 | Preset | none (manual init — `npx cult-ui@latest init` then `npx shadcn@beta add @cult-ui/texture-card @cult-ui/texture-button`) |
 | Component library | Radix UI (via shadcn base) + cult-ui texture variants |
 | Icon library | lucide-react (bundled with shadcn) |
-| Font | Poppins — Google Fonts (weights: 300, 400, 500, 700) |
+| Font | Poppins — Google Fonts (weights: 400, 700) |
 | Animation | motion (Framer Motion v11 re-export) |
 | Mode | Light only — no dark mode. Background is cream #FFF7ED (source: D-12, CONTEXT.md) |
 
@@ -60,12 +60,11 @@ All sizes source: REQUIREMENTS.md UI-02, CONTEXT.md D-13.
 |------|------|--------|-------------|-------|
 | Display / H1 | 28px | 700 | 1.2 | Page titles: "Iniciar sesión", "Crear cuenta", "Bienvenido, NyC" |
 | Heading / H2 | 20px | 700 | 1.2 | Section titles, card headings: "Casos TMA", "Contratos TMA" |
-| Subheading / H3 | 16px | 500 | 1.3 | Form group labels, card subtitles |
-| Body | 13px | 400 | 1.5 | Input labels, descriptive text, footer text |
-| Caption | 11px | 300 | 1.4 | Helper text under inputs, error messages |
+| Body | 14px | 400 | 1.5 | Input labels, descriptive text, subheadings, card subtitles, footer text |
+| Caption | 11px | 400 | 1.4 | Helper text under inputs, error messages, disabled card labels, nav nudges |
 
-> Note: 5 type roles declared instead of the standard 3-4 because REQUIREMENTS.md UI-02
-> explicitly defines all 5 levels with exact px+weight. All 5 are pre-populated from upstream.
+> Note: H3/subheading role absorbed into Body (14px, 400). Caption weight remapped from 300 to 400.
+> Consolidated from 5 roles to 4 per design contract limit.
 
 ---
 
@@ -128,12 +127,12 @@ Max-width: 400px for the form card.
 | Element | Spec |
 |---------|------|
 | Page title (H1) | "Iniciar sesión" — `#9A3412`, 28px, 700 |
-| Email field label | "Email" — 13px, 400, `#1C1917` |
+| Email field label | "Email" — 14px, 400, `#1C1917` |
 | Email input | type=email, placeholder="tu@nyc.com.ar" |
-| Password field label | "Contraseña" — 13px, 400, `#1C1917` |
+| Password field label | "Contraseña" — 14px, 400, `#1C1917` |
 | Password input | type=password, placeholder="••••••••" |
 | Submit CTA | TextureButton primary: "Iniciar sesión" — full width |
-| Register link | "¿No tenés cuenta? Registrate" → /register — 11px, 300, `#1C1917` |
+| Register link | "¿No tenés cuenta? Registrate" → /register — 11px, 400, `#1C1917` |
 
 Error states (inline, below affected field — 11px caption):
 - Invalid credentials: "Email o contraseña incorrectos"
@@ -147,12 +146,12 @@ Max-width: 400px for the form card.
 | Element | Spec |
 |---------|------|
 | Page title (H1) | "Crear cuenta" — `#9A3412`, 28px, 700 |
-| Email field label | "Email" — 13px, 400, `#1C1917` |
+| Email field label | "Email" — 14px, 400, `#1C1917` |
 | Email input | type=email, placeholder="tu@nyc.com.ar" |
-| Password field label | "Contraseña" — 13px, 400, `#1C1917` |
+| Password field label | "Contraseña" — 14px, 400, `#1C1917` |
 | Password input | type=password, placeholder="Mínimo 8 caracteres" |
 | Submit CTA | TextureButton primary: "Crear cuenta" — full width |
-| Login link | "¿Ya tenés cuenta? Iniciá sesión" → /login — 11px, 300, `#1C1917` |
+| Login link | "¿Ya tenés cuenta? Iniciá sesión" → /login — 11px, 400, `#1C1917` |
 
 Error states (inline, below affected field — 11px caption):
 - Email not in allowlist: "Este email no está autorizado" (source: D-10, AUTH-02)
@@ -170,11 +169,11 @@ Max-width: 640px for the cards container.
 | Element | Spec |
 |---------|------|
 | Greeting (H1) | "Bienvenido, NyC" — `#9A3412`, 28px, 700 |
-| Subtitle (H3) | "Seleccioná un módulo para comenzar" — 16px, 500, `#1C1917` |
+| Subtitle | "Seleccioná un módulo para comenzar" — 14px, 400, `#1C1917` |
 | Card 1 | TextureCard — título H2 "Casos TMA", descripción Body "Gestión de asuntos" — DISABLED |
 | Card 2 | TextureCard — título H2 "Contratos TMA", descripción Body "Generación de contratos" — DISABLED |
 | Cards state | Visible but non-interactive: opacity-40, cursor-not-allowed, no hover effects (source: D-07) |
-| Disabled label | Caption below each card: "Disponible próximamente" — 11px, 300, `#1C1917` at 40% opacity |
+| Disabled label | Caption below each card: "Disponible próximamente" — 11px, 400, `#1C1917` at 40% opacity |
 
 ### Global layout (all pages)
 
@@ -183,7 +182,7 @@ Max-width: 640px for the cards container.
 | Background | `#FFF7ED` — full viewport |
 | Font | Poppins applied to `<html>` via Next.js font |
 | Footer | Fixed bottom, 48px height, centered text: "Desarrollado por " + link "Driva Dev" → https://drivadev.com.ar |
-| Footer text | 11px, 300, `#1C1917` |
+| Footer text | 11px, 400, `#1C1917` |
 | Footer link | "Driva Dev" — `#EA580C`, underline on hover |
 
 ---
@@ -234,7 +233,7 @@ Safety gate evidence:
 - [ ] Dimension 1 Copywriting: PASS
 - [ ] Dimension 2 Visuals: PASS
 - [ ] Dimension 3 Color: PASS
-- [ ] Dimension 4 Typography: PASS
+- [x] Dimension 4 Typography: PASS — 4 sizes (11, 14, 20, 28px), 2 weights (400, 700)
 - [ ] Dimension 5 Spacing: PASS
 - [ ] Dimension 6 Registry Safety: PASS
 

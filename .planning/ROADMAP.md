@@ -32,10 +32,24 @@ Decimal phases appear between their surrounding integers in numeric order.
   5. Todas las páginas muestran la paleta Driva Dev (naranja/crema), tipografía Poppins y footer con link a drivadev.com.ar
 **Plans**: 4 planes
 Plans:
+Wave 0 + Wave 1 *(ejecutar en paralelo — sin dependencias)*
 - [ ] 01-00-PLAN.md — Wave 0: Vitest + 5 archivos de test stub (AUTH-01/02/03/04/06, UI-03)
-- [ ] 01-01-PLAN.md — Scaffold del proyecto: dependencias, Tailwind v4 + paleta Driva Dev, Poppins, Footer, root layout, cult-ui, vercel.json
-- [ ] 01-02-PLAN.md — Capa de auth: NextAuth v5, User model, mongodb.ts, validations.ts, Server Action de registro, middleware de rutas
-- [ ] 01-03-PLAN.md — Páginas UI: /login, /register, /tma placeholder con TextureCards deshabilitadas, formularios con useActionState y motion
+- [ ] 01-01-PLAN.md — Wave 1: Scaffold del proyecto: dependencias, Tailwind v4 + paleta Driva Dev, Poppins, Footer, root layout, cult-ui, vercel.json
+
+Wave 2 *(blocked on Wave 1 completion)*
+- [ ] 01-02-PLAN.md — Wave 2: Capa de auth: NextAuth v5, User model, mongodb.ts, validations.ts, Server Action de registro, middleware de rutas
+
+Wave 3 *(blocked on Wave 2 completion)*
+- [ ] 01-03-PLAN.md — Wave 3: Páginas UI: /login, /register, /tma placeholder con TextureCards deshabilitadas, formularios con useActionState y motion
+
+**Cross-cutting constraints:**
+- `vespinola@nyc.com.ar` es el email correcto del 5to usuario (confirmado — D-09 actualizado)
+- `bcryptjs` (no `bcrypt`) — compatible con Vercel serverless sin node-gyp
+- `auth.ts` debe estar en `src/auth.ts`, nunca en `src/app/`
+- Tailwind v4: colores en `@theme {}` de globals.css, no en tailwind.config.ts
+- `motion` importa desde `"motion/react"`, no `"framer-motion"`
+- `npm install next-auth@5` (no `next-auth` que instala v4.x)
+
 **UI hint**: yes
 
 ### Phase 2: Contratos — Pipeline de generación

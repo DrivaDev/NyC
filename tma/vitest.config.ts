@@ -12,6 +12,9 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
+      // next-auth/lib/env.js imports "next/server" without .js extension
+      // Vitest ESM requires explicit resolution
+      "next/server": path.resolve(__dirname, "./node_modules/next/server.js"),
     },
   },
 })

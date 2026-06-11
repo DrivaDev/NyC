@@ -1,0 +1,19 @@
+@import "tailwindcss";
+
+@theme {
+  /* Paleta Driva Dev (UI-01, D-12) */
+  --color-brand-primary: #EA580C;
+  --color-brand-title: #9A3412;
+  --color-brand-accent: #FED7AA;
+  --color-brand-background: #FFF7ED;
+  --color-brand-text: #1C1917;
+
+  /* Tipografía Poppins (UI-02, D-13) */
+  --font-poppins: var(--font-poppins);
+}
+
+body {
+  background-color: var(--color-brand-background);
+  color: var(--color-brand-text);
+  font-family: var(--font-poppins), sans-serif;
+}

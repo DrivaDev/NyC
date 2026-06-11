@@ -12,7 +12,7 @@ La app se construye en cinco fases naturales: primero la fundación de auth y br
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Foundation & Auth** - Acceso seguro + identidad visual Driva Dev
+- [x] **Phase 1: Foundation & Auth** - Acceso seguro + identidad visual Driva Dev ✓ 2026-06-11
 - [ ] **Phase 2: Contratos — Pipeline de generación** - Flujo completo de generación de .docx vía Gemini
 - [ ] **Phase 3: Contratos — Multi-locador** - Soporte para contratos con múltiples locadores
 - [ ] **Phase 4: Casos — CRUD & Dashboard** - Gestión completa de asuntos con tabla filtrable
@@ -33,14 +33,14 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Plans**: 4 planes
 Plans:
 Wave 0 + Wave 1 *(ejecutar en paralelo — sin dependencias)*
-- [ ] 01-00-PLAN.md — Wave 0: Vitest + 5 archivos de test stub (AUTH-01/02/03/04/06, UI-03)
-- [ ] 01-01-PLAN.md — Wave 1: Scaffold del proyecto: dependencias, Tailwind v4 + paleta Driva Dev, Poppins, Footer, root layout, cult-ui, vercel.json
+- [x] 01-00-PLAN.md — Wave 0: Vitest + 5 archivos de test stub (AUTH-01/02/03/04/06, UI-03)
+- [x] 01-01-PLAN.md — Wave 1: Scaffold del proyecto: dependencias, Tailwind v4 + paleta Driva Dev, Poppins, Footer, root layout, cult-ui, vercel.json
 
 Wave 2 *(blocked on Wave 1 completion)*
-- [ ] 01-02-PLAN.md — Wave 2: Capa de auth: NextAuth v5, User model, mongodb.ts, validations.ts, Server Action de registro, middleware de rutas
+- [x] 01-02-PLAN.md — Wave 2: Capa de auth: NextAuth v5, User model, mongodb.ts, validations.ts, Server Action de registro, middleware de rutas
 
 Wave 3 *(blocked on Wave 2 completion)*
-- [ ] 01-03-PLAN.md — Wave 3: Páginas UI: /login, /register, /tma placeholder con TextureCards deshabilitadas, formularios con useActionState y motion
+- [x] 01-03-PLAN.md — Wave 3: Páginas UI: /login, /register, /tma placeholder con TextureCards deshabilitadas, formularios con useActionState y motion
 
 **Cross-cutting constraints:**
 - `vespinola@nyc.com.ar` es el email correcto del 5to usuario (confirmado — D-09 actualizado)
@@ -104,7 +104,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation & Auth | 0/4 | Ready to execute | - |
+| 1. Foundation & Auth | 4/4 | Complete | 2026-06-11 |
 | 2. Contratos — Pipeline de generación | 0/TBD | Not started | - |
 | 3. Contratos — Multi-locador | 0/TBD | Not started | - |
 | 4. Casos — CRUD & Dashboard | 0/TBD | Not started | - |

@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-06-10)
 
 **Core value:** El usuario puede cargar documentación de un asunto y obtener un .docx de contrato correctamente completado en segundos, sin escribir datos manualmente.
-**Current focus:** Phase 1 — Foundation & Auth
+**Current focus:** Phase 2 — Contratos (Pipeline de generación)
 
 ## Current Position
 
-Phase: 1 of 5 (Foundation & Auth)
-Plan: 0 of 4 in current phase
-Status: Ready to execute
-Last activity: 2026-06-11 — Phase 1 planned (4 plans, 3 waves + Wave 0)
+Phase: 2 of 5 (Contratos — Pipeline de generación)
+Plan: 0 of TBD in current phase
+Status: Phase 1 complete — ready to plan Phase 2
+Last activity: 2026-06-11 — Phase 1 executed (4/4 plans complete, human UAT pending)
 
-Progress: [░░░░░░░░░░] 0%
+Progress: [██░░░░░░░░] 20%
 
 ## Performance Metrics
 

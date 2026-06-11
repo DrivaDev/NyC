@@ -30,7 +30,11 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. Usuario puede iniciar sesión y la sesión persiste al refrescar el navegador
   4. Rutas protegidas redirigen a /login cuando no hay sesión activa
   5. Todas las páginas muestran la paleta Driva Dev (naranja/crema), tipografía Poppins y footer con link a drivadev.com.ar
-**Plans**: TBD
+**Plans**: 3 planes
+Plans:
+- [ ] 01-01-PLAN.md — Scaffold del proyecto: dependencias, Tailwind v4 + paleta Driva Dev, Poppins, Footer, root layout, cult-ui, vercel.json
+- [ ] 01-02-PLAN.md — Capa de auth: NextAuth v5, User model, mongodb.ts, validations.ts, Server Action de registro, middleware de rutas
+- [ ] 01-03-PLAN.md — Páginas UI: /login, /register, /tma placeholder con TextureCards deshabilitadas, formularios con useActionState y motion
 **UI hint**: yes
 
 ### Phase 2: Contratos — Pipeline de generación
@@ -85,7 +89,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation & Auth | 0/TBD | Not started | - |
+| 1. Foundation & Auth | 0/3 | Ready to execute | - |
 | 2. Contratos — Pipeline de generación | 0/TBD | Not started | - |
 | 3. Contratos — Multi-locador | 0/TBD | Not started | - |
 | 4. Casos — CRUD & Dashboard | 0/TBD | Not started | - |

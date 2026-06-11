@@ -26,7 +26,7 @@ Acceso seguro al sistema para los 5 usuarios de NyC, con identidad visual Driva 
 
 ### Autenticación y sesión
 - **D-08:** NextAuth.js v5 con Credentials Provider + bcrypt. Sin OAuth ni magic links.
-- **D-09:** Allowlist fija en código: nsilva@nyc.com.ar, crivera@nyc.com.ar, tderosa@nyc.com.ar, vespinosa@nyc.com.ar, ekoch@nyc.com.ar.
+- **D-09:** Allowlist fija en código: nsilva@nyc.com.ar, crivera@nyc.com.ar, tderosa@nyc.com.ar, vespinola@nyc.com.ar, ekoch@nyc.com.ar.
 - **D-10:** Email fuera de allowlist en /register muestra "Este email no está autorizado" y no crea usuario (AUTH-02).
 - **D-11:** Rutas bajo /tma/* quedan protegidas por middleware Next.js — redirigen a /login si no hay sesión (AUTH-06).
 

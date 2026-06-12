@@ -2,67 +2,78 @@
 
 import { TextureCard } from "@/components/ui/texture-card"
 import { motion } from "motion/react"
+import { Briefcase, FileText } from "lucide-react"
+
+const modules = [
+  {
+    title: "Casos TMA",
+    description: "Gestión de asuntos y seguimiento de causas",
+    Icon: Briefcase,
+    delay: 0.1,
+  },
+  {
+    title: "Contratos TMA",
+    description: "Generación automática de contratos vía Gemini",
+    Icon: FileText,
+    delay: 0.2,
+  },
+]
 
 export function TmaPageContent() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-brand-background py-16 px-4">
-      <div className="w-full max-w-[640px]">
+      <div className="w-full max-w-[680px]">
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.35, ease: "easeOut" }}
-          className="text-center mb-10"
+          className="text-center mb-12"
         >
-          <h1 className="text-[28px] font-bold text-brand-title mb-2">
+          <h1 className="text-[30px] font-bold text-brand-title mb-2 tracking-tight">
             Bienvenido, NyC
           </h1>
-          <p className="text-[14px] font-normal text-brand-text">
+          <p className="text-[14px] text-brand-text/60 font-normal">
             Seleccioná un módulo para comenzar
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-          {/* Card 1: Casos TMA — DISABLED (D-07) */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.97 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.35, ease: "easeOut", delay: 0.1 }}
-            className="opacity-40 cursor-not-allowed pointer-events-none select-none"
-            aria-disabled="true"
-          >
-            <TextureCard className="h-full p-6">
-              <h2 className="text-[20px] font-bold text-brand-title mb-2">
-                Casos TMA
-              </h2>
-              <p className="text-[14px] font-normal text-brand-text">
-                Gestión de asuntos
-              </p>
-              <p className="text-[11px] font-normal text-brand-text mt-4">
-                Disponible próximamente
-              </p>
-            </TextureCard>
-          </motion.div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+          {modules.map(({ title, description, Icon, delay }) => (
+            <motion.div
+              key={title}
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.35, ease: "easeOut", delay }}
+              className="opacity-40 cursor-not-allowed pointer-events-none select-none"
+              aria-disabled="true"
+            >
+              <TextureCard className="h-full">
+                <div className="p-6 flex flex-col gap-4">
+                  {/* Ícono con fondo acentuado */}
+                  <div className="w-10 h-10 rounded-xl flex items-center justify-center"
+                    style={{ backgroundColor: "#FED7AA" }}>
+                    <Icon size={20} style={{ color: "#9A3412" }} strokeWidth={1.75} />
+                  </div>
 
-          {/* Card 2: Contratos TMA — DISABLED (D-07) */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.97 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.35, ease: "easeOut", delay: 0.2 }}
-            className="opacity-40 cursor-not-allowed pointer-events-none select-none"
-            aria-disabled="true"
-          >
-            <TextureCard className="h-full p-6">
-              <h2 className="text-[20px] font-bold text-brand-title mb-2">
-                Contratos TMA
-              </h2>
-              <p className="text-[14px] font-normal text-brand-text">
-                Generación de contratos
-              </p>
-              <p className="text-[11px] font-normal text-brand-text mt-4">
-                Disponible próximamente
-              </p>
-            </TextureCard>
-          </motion.div>
+                  {/* Título y descripción */}
+                  <div>
+                    <h2 className="text-[17px] font-semibold text-brand-title leading-snug mb-1">
+                      {title}
+                    </h2>
+                    <p className="text-[13px] text-brand-text/70 leading-relaxed">
+                      {description}
+                    </p>
+                  </div>
+
+                  {/* Badge */}
+                  <span className="self-start text-[11px] font-medium px-2.5 py-1 rounded-full"
+                    style={{ backgroundColor: "#FED7AA", color: "#9A3412" }}>
+                    Próximamente
+                  </span>
+                </div>
+              </TextureCard>
+            </motion.div>
+          ))}
         </div>
       </div>
     </div>

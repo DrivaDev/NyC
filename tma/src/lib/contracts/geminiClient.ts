@@ -13,9 +13,33 @@ type InlinePart = {
   }
 }
 
+// Maps common ALL-CAPS legal placeholder labels to plain descriptions.
+// Gemini performs much better when it knows semantically what each label means.
+const FIELD_GLOSSARY = `
+GLOSARIO DE CAMPOS (usalo para interpretar las etiquetas):
+- NOMBRE DEL LOCADOR / NOMBRE: nombre completo (persona física o razón social) del propietario/locador
+- CUIT DEL LOCADOR / CUIT: número de CUIT del locador (formato XX-XXXXXXXX-X)
+- DOMICILIO DEL LOCADOR / DOMICILIO: domicilio legal completo del locador
+- ESTADO CIVIL / EST. CIVIL: estado civil (soltero/a, casado/a, etc.)
+- NACIONALIDAD: nacionalidad del locador
+- DNI / D.N.I.: número de documento nacional de identidad
+- NOMBRE DEL LOCATARIO: empresa locataria (generalmente Nicholson & Cano S.A. u otra empresa del grupo)
+- CUIT DEL LOCATARIO: CUIT de la empresa locataria
+- COD. SITIO / CÓDIGO DE SITIO: código numérico que identifica el sitio/antena (ej: 12345)
+- DIRECCIÓN / DOMICILIO DEL INMUEBLE: dirección completa del inmueble o sitio
+- LOCALIDAD / CIUDAD: ciudad o localidad donde se ubica el inmueble
+- PROVINCIA: provincia donde se ubica el inmueble
+- FECHA DE INICIO / FECHA DE COMIENZO: fecha en que comienza el contrato o período
+- FECHA DE VENCIMIENTO / FECHA DE FIN: fecha en que vence el contrato o período
+- PLAZO / PERÍODO: duración del contrato (ej: "24 meses", "2 años")
+- CANON / MONTO / ALQUILER: importe mensual del alquiler en pesos o dólares
+- AJUSTE / ACTUALIZACIÓN: periodicidad y mecanismo de ajuste del canon
+- REPRESENTANTE / APODERADO: nombre del representante legal o apoderado`
+
 /**
- * Build the Gemini prompt text.
- * Exported separately so tests can verify prompt structure without calling the API.
+ * Build the Gemini prompt using chain-of-thought: analyze documents first,
+ * then map findings to specific placeholder fields. This two-phase approach
+ * significantly improves extraction accuracy vs. one-shot structured output.
  */
 export function buildPrompt(
   placeholders: GeminiPlaceholder[],
@@ -25,9 +49,9 @@ export function buildPrompt(
   const fieldsList = placeholders
     .map(p => {
       const labelPart = p.label ? ` | Etiqueta: "${p.label}"` : ""
-      return `- ID: "${p.id}"${labelPart} | Contexto del párrafo: "${p.context}"`
+      return `    "${p.id}"${labelPart}: ""`
     })
-    .join("\n")
+    .join(",\n")
 
   const docsText =
     extractedTexts.length > 0
@@ -35,43 +59,68 @@ export function buildPrompt(
       : "(Sin documentos de texto adjuntos)"
 
   const notesSection = notes.trim()
-    ? `\n\nNotas adicionales del usuario:\n${notes.trim()}`
+    ? `\n\nDATOS ADICIONALES PROVISTOS:\n${notes.trim()}`
     : ""
 
-  return `Sos un asistente especializado en derecho argentino. Tu tarea es completar los campos de un contrato de locación usando la información de los documentos adjuntos.
-
-INSTRUCCIONES:
-- Devolvé ÚNICAMENTE JSON válido con exactamente las IDs de campo listadas abajo.
-- Para cada campo, extraé el valor correcto de los documentos. Podés inferir valores razonables del contexto (por ejemplo, si el documento menciona "el inmueble ubicado en Av. Corrientes 1234", el campo "DOMICILIO DEL INMUEBLE" debe ser "Av. Corrientes 1234").
-- NO inventes datos que no tengan ningún respaldo en los documentos. Si genuinamente no hay información, devolvé "".
-- Los valores deben estar en el formato apropiado para un contrato legal argentino.
-- Los campos de fecha van en formato "DD de mes de AAAA" (ej: "15 de junio de 2026").
-- Los montos van con signo de moneda (ej: "$ 150.000" o "USD 2.500").
-
-CAMPOS A COMPLETAR:
-${fieldsList}
+  return `Sos un asistente especializado en derecho argentino. Tu tarea es completar los campos de un contrato de locación.
+${FIELD_GLOSSARY}
 
 DOCUMENTACIÓN DEL ASUNTO:
 ${docsText}${notesSection}
 
-Respondé SÓLO con el JSON. Ejemplo:
+INSTRUCCIONES — Seguí estos dos pasos:
+
+PASO 1 — ANÁLISIS: Leé los documentos e identificá toda la información disponible:
+• Partes: nombre completo, CUIT, DNI, domicilio, estado civil, nacionalidad, rol (locador/locatario)
+• Inmueble/sitio: dirección, código de sitio, localidad, provincia
+• Fechas: inicio, vencimiento, firma, plazos
+• Montos: canon, moneda, ajustes
+
+PASO 2 — MAPEO: Usá lo identificado en el Paso 1 para completar exactamente estos campos.
+Reglas:
+- Si encontrás el dato, usalo aunque esté en otro orden o formato
+- Fechas: formato "DD de mes de AAAA" (ej: "15 de junio de 2026")
+- Montos: incluí signo de moneda (ej: "$ 150.000" o "USD 2.500")
+- Si no encontrás información para un campo: ""
+- No inventes datos sin respaldo en los documentos
+
+Respondé SOLO con este JSON:
 {
-  "ph_0": "Juan Carlos Pérez",
-  "ph_1": "25 de junio de 2026",
-  "ph_2": ""
+  "analisis": "resumen de lo identificado en los documentos",
+  "campos": {
+${fieldsList}
+  }
 }`
 }
 
 /**
+ * Extract the fields record from a chain-of-thought JSON response.
+ * Response format: { "analisis": "...", "campos": { "ph_0": "...", ... } }
+ */
+function parseResponse(raw: string): Record<string, string> {
+  // Try parsing as { analisis, campos } first
+  try {
+    const parsed = JSON.parse(raw) as { analisis?: string; campos?: Record<string, string> }
+    if (parsed.campos && typeof parsed.campos === "object") {
+      return parsed.campos
+    }
+    // Fallback: if Gemini returned flat { ph_0: ..., ph_1: ... }
+    return parsed as Record<string, string>
+  } catch {
+    // Gemini sometimes wraps JSON in markdown code blocks
+    const match = raw.match(/```(?:json)?\s*([\s\S]*?)```/)
+    if (match) {
+      return parseResponse(match[1].trim())
+    }
+    throw new Error("Gemini devolvió una respuesta que no se puede parsear como JSON")
+  }
+}
+
+/**
  * Call Gemini API to fill placeholders from document context.
- * Uses gemini-2.0-flash with JSON mode (responseMimeType: "application/json").
- * Implements 1 automatic retry on 429 (rate limit) errors with 2000ms delay.
- *
- * @param placeholders  List of placeholders with context (from extractPlaceholders)
- * @param extractedTexts Array of plain-text strings from docx/pdf files
- * @param imageParts    Array of base64-encoded image parts for Gemini Vision
- * @param notes         Free-text notes from the user (Step 2 form)
- * @returns             Record<placeholder_id, value> — empty string means no data found
+ * Uses chain-of-thought prompting (analyze → map) for better extraction accuracy.
+ * Text mode (no JSON lock) allows Gemini to reason before outputting structured data.
+ * Implements 1 automatic retry on 429 / RESOURCE_EXHAUSTED after 2000ms delay.
  */
 export async function callGemini(
   placeholders: GeminiPlaceholder[],
@@ -85,12 +134,8 @@ export async function callGemini(
   }
 
   const genAI = new GoogleGenerativeAI(apiKey)
-  const model = genAI.getGenerativeModel({
-    model: "gemini-2.5-flash",
-    generationConfig: {
-      responseMimeType: "application/json",
-    },
-  })
+  // No responseMimeType — text mode lets Gemini reason before producing JSON
+  const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" })
 
   const prompt = buildPrompt(placeholders, extractedTexts, notes)
   const contentParts: Array<{ text: string } | InlinePart> = [
@@ -102,9 +147,8 @@ export async function callGemini(
     try {
       const result = await model.generateContent(contentParts)
       const raw = result.response.text()
-      return JSON.parse(raw) as Record<string, string>
+      return parseResponse(raw)
     } catch (err: unknown) {
-      // Retry once on 429 (rate limit) after 2 seconds
       if (
         retryCount === 0 &&
         err instanceof Error &&

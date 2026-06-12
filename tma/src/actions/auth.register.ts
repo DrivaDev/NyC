@@ -14,6 +14,7 @@ const ALLOWLIST = [
   "tderosa@nyc.com.ar",
   "vespinola@nyc.com.ar",
   "ekoch@nyc.com.ar",
+  "driva.devv@gmail.com",
 ]
 
 // Mensaje genérico para no filtrar información sobre la allowlist

@@ -73,15 +73,20 @@ function groupText(runs: RunInfo[]): string {
     .trim()
 }
 
-function extractSurroundingParagraphText(xml: string, pos: number): string {
-  const before = xml.lastIndexOf("<w:p", pos)
-  const after = xml.indexOf("</w:p>", pos)
-  if (before === -1 || after === -1) return ""
-  return xml
-    .slice(before, after + 6)
-    .replace(/<[^>]+>/g, " ")
-    .replace(/\s+/g, " ")
-    .trim()
+/**
+ * Returns the immediate linguistic position of a placeholder group as
+ * "...BEFORE[CAMPO]AFTER..." (plain text, ~80 chars each side).
+ * This is far more useful for Gemini than the full paragraph, because
+ * multiple placeholders often share the same paragraph (e.g. street,
+ * city, province are all in one sentence). With local context, Gemini
+ * knows exactly what each blank represents.
+ */
+function extractLocalContext(xml: string, groupStart: number, groupEnd: number): string {
+  const beforeXml = xml.slice(Math.max(0, groupStart - 600), groupStart)
+  const afterXml = xml.slice(groupEnd, Math.min(xml.length, groupEnd + 600))
+  const before = beforeXml.replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim().slice(-80)
+  const after = afterXml.replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim().slice(0, 80)
+  return `...${before}[CAMPO]${after}...`
 }
 
 /**
@@ -121,12 +126,13 @@ export function extractHighlightPlaceholders(xml: string): Placeholder[] {
     if (!label) continue // skip purely whitespace groups
 
     const firstRun = group[0]
+    const lastRun = group[group.length - 1]
     placeholders.push({
       id: `ph_${phIndex++}`,
-      context: extractSurroundingParagraphText(xml, firstRun.start),
+      context: extractLocalContext(xml, firstRun.start, lastRun.end),
       label,
       _startPos: firstRun.start,
-      _endPos: group[group.length - 1].end,
+      _endPos: lastRun.end,
       _rprXml: extractRprContent(firstRun.full),
     })
   }

@@ -49,7 +49,8 @@ export function buildPrompt(
   const fieldsList = placeholders
     .map(p => {
       const labelPart = p.label ? ` | Etiqueta: "${p.label}"` : ""
-      return `    "${p.id}"${labelPart}: ""`
+      const contextPart = p.context ? ` | Posición en el documento: "${p.context}"` : ""
+      return `    "${p.id}"${labelPart}${contextPart}: ""`
     })
     .join(",\n")
 

@@ -12,6 +12,7 @@ vi.mock("@/lib/contracts/extractPlaceholders", () => ({
     { id: "ph_0", context: "ctx", label: "FIELD", _startPos: 0, _endPos: 10, _rprXml: "" },
   ]),
   extractLabelPlaceholders: vi.fn().mockReturnValue([]),
+  extractUnderscoredPlaceholders: vi.fn().mockReturnValue([]),
   loadTemplateXml: vi.fn().mockReturnValue({ zip: {}, xml: "<w:document/>" }),
 }))
 
@@ -22,6 +23,7 @@ vi.mock("@/lib/contracts/geminiClient", () => ({
 vi.mock("@/lib/contracts/fillPlaceholders", () => ({
   fillHighlightPlaceholders: vi.fn().mockReturnValue("<w:document/>"),
   fillLabelPlaceholders: vi.fn().mockReturnValue("<w:document/>"),
+  fillUnderscoredPlaceholders: vi.fn().mockReturnValue("<w:document/>"),
   generateDocxBuffer: vi.fn().mockReturnValue(Buffer.from("fake-docx")),
 }))
 

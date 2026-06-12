@@ -1,23 +1,24 @@
-import { auth } from "@/auth"
+import NextAuth from "next-auth"
+import { authConfig } from "@/auth.config"
 import { NextResponse } from "next/server"
+
+// Edge-compatible: solo importa auth.config.ts, nunca auth.ts (que tiene bcryptjs/mongoose)
+const { auth } = NextAuth(authConfig)
 
 export default auth((req) => {
   const isLoggedIn = !!req.auth
   const { pathname } = req.nextUrl
 
-  // D-05: / redirige según estado de sesión
   if (pathname === "/") {
     return NextResponse.redirect(
       new URL(isLoggedIn ? "/tma" : "/login", req.url)
     )
   }
 
-  // Redirigir usuarios autenticados fuera de /login y /register
   if ((pathname === "/login" || pathname === "/register") && isLoggedIn) {
     return NextResponse.redirect(new URL("/tma", req.url))
   }
 
-  // D-11 / AUTH-06: Rutas bajo /tma/* requieren sesión activa
   if (pathname.startsWith("/tma") && !isLoggedIn) {
     return NextResponse.redirect(new URL("/login", req.url))
   }
@@ -26,6 +27,5 @@ export default auth((req) => {
 })
 
 export const config = {
-  // Aplicar middleware a todas las rutas excepto assets estáticos y api/auth
   matcher: ["/((?!api/auth|_next/static|_next/image|favicon.ico).*)"],
 }

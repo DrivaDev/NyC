@@ -43,7 +43,7 @@ Declared values (must be multiples of 4):
 | 3xl | 64px | Page-level top/bottom padding |
 
 Exceptions:
-- File upload drop zone: min-height 88px (multiple of 8; touch target accessibility)
+- File upload drop zone: min-height 88px (multiple of 8; touch target accessibility); padding: 16px (md token)
 - Step indicator dots: 8px diameter, 4px gap between dots
 - Processing message container: 44px min-height (touch target baseline)
 
@@ -52,17 +52,17 @@ Exceptions:
 ## Typography
 
 Source: `UI-02` from REQUIREMENTS.md, confirmed against `TmaPageContent.tsx` measured values.
+BLOCK 1 FIX (2026-06-12): collapsed from 6 sizes to 4; BLOCK 2 FIX (2026-06-12): collapsed from 4 weights to 2 (400 regular, 700 bold only).
 
 | Role | Size | Weight | Line Height | Usage |
 |------|------|--------|-------------|-------|
 | Display | 30px | 700 (bold) | 1.2 | Page title: "Contratos TMA" |
 | Heading | 20px | 700 (bold) | 1.25 | Section group headers: "Anexo AC", "Adenda Carta Oferta", "Adenda Contrato Tradicional" |
-| Card Title | 17px | 600 (semibold) | 1.3 | Model card names: "AC PF", "AC PJ", etc. |
-| Body | 14px | 400 (regular) | 1.5 | Form labels, descriptions, summary text |
-| Caption | 13px | 400 (regular) | 1.4 | Card descriptions, helper text, field counts |
-| Small | 11px | 500 (medium) | 1.3 | Badges, step indicators, file type labels |
+| Body | 14px | 400 (regular) | 1.5 | Form labels, descriptions, summary text, card titles (differentiated by weight: card titles use 700, body copy uses 400) |
+| Small | 11px | 400 (regular) | 1.3 | Badges, step indicator labels, file type labels, captions, helper text, validation messages, sub-text |
 
-Weights used: 400 (regular), 500 (medium), 600 (semibold), 700 (bold).
+Weights used: 400 (regular) and 700 (bold) — exactly 2 weights. No 500 or 600 anywhere in this phase.
+
 NOTE: UI-02 specifies H1 700/28px; this phase uses 30px to match Phase 1's existing `TmaPageContent.tsx` pattern — do NOT deviate from what is already rendered.
 
 ---
@@ -108,7 +108,7 @@ No dark mode. Light mode only. Do NOT add `dark:` classes.
 - Inactive step: 8px circle, `bg-brand-accent` (#FED7AA), opacity 0.6
 - Completed step: 8px circle, `bg-brand-title` (#9A3412), opacity 1 with small checkmark SVG overlay (4px)
 - Gap between dots: 8px
-- Labels below each dot (11px, weight 500, `text-brand-text/60`): "Selección", "Documentación", "Procesamiento", "Descarga"
+- Labels below each dot: 11px, weight 400, `text-brand-text/60` — "Selección", "Documentación", "Procesamiento", "Descarga"
 
 ---
 
@@ -116,10 +116,12 @@ No dark mode. Light mode only. Do NOT add `dark:` classes.
 
 **Layout:** Single-column scroll container (max-width 720px, centered).
 
+**Initial focal point (unselected state):** heading "Seleccioná el modelo de contrato" receives focus on step mount (scroll-into-view, no visual focus ring on the heading element itself).
+
 **Section groups (3 total):**
 
 Each group:
-- Group label: 14px, weight 600, `text-brand-title`, padding-bottom 12px
+- Group label: 14px, weight 700, `text-brand-title`, padding-bottom 12px
 - Grid: `grid-cols-1 sm:grid-cols-2` gap 16px (gap-4 in Tailwind)
 - Section separator: 32px margin-top between groups
 
@@ -147,10 +149,10 @@ Card contents (top to bottom):
    - Anexo AC: `FileText` icon
    - Adenda Carta Oferta: `FileSignature` icon (or `FilePen`)
    - Adenda Contrato Tradicional: `FileCheck` icon
-2. Card title: 17px, weight 600, `text-brand-title`
-3. Card description: 13px, weight 400, `text-brand-text/70`, line-height 1.5
+2. Card title: 14px, weight 700, `text-brand-title`
+3. Card description: 11px, weight 400, `text-brand-text/70`, line-height 1.5
    - "Persona Física" / "Persona Jurídica" + currency suffix where applicable
-4. Type badge (bottom-left): 11px, weight 500, `bg-brand-accent`, `text-brand-title`, rounded-full, px 10px py 4px
+4. Type badge (bottom-left): 11px, weight 700, `bg-brand-accent`, `text-brand-title`, rounded-full, px 8px py 4px
    - Anexo AC cards badge text: "Anticorrupción"
    - Adenda Carta Oferta badge: "Carta Oferta"
    - Adenda Contrato Tradicional badge: "Contrato Tradicional"
@@ -165,7 +167,7 @@ Card contents (top to bottom):
 **Enter animation:** `initial={{ opacity: 0, y: 12 }}` → `animate={{ opacity: 1, y: 0 }}`, staggered delay (0.05s per card), duration 0.25s easeOut.
 
 **CTA below grid:**
-- TextureButton (cult-ui) — label "Continuar", disabled until a card is selected
+- TextureButton (cult-ui) — label "Continuar a Documentación", disabled until a card is selected
 - Width: 100% on mobile, `w-auto` on sm+, right-aligned
 - When disabled: opacity 0.45, `cursor-not-allowed`
 - When enabled: `bg-brand-primary` (#EA580C), white text, hover scale 1.02
@@ -194,21 +196,21 @@ padding: 32px
 - Field 3: "Notas" — textarea (optional)
 
 **File upload field anatomy:**
-- Label: 14px, weight 600, `text-brand-text`, margin-bottom 8px
-- Helper text: 13px, `text-brand-text/60`, "Aceptá jpg, png, pdf o docx"
+- Label: 14px, weight 700, `text-brand-text`, margin-bottom 8px
+- Helper text: 11px, weight 400, `text-brand-text/60`, "Aceptá jpg, png, pdf o docx"
 - Drop zone:
   ```
   min-height: 88px
   border: 1.5px dashed #FECBA1
   border-radius: 12px
   background: #FFF7ED
-  padding: 20px
+  padding: 16px
   cursor: pointer
   ```
-- Drop zone content (empty state): Upload icon (lucide `Upload`, 24px, `text-brand-accent`), text "Hacé clic o arrastrá archivos" (14px, `text-brand-text/60`)
+- Drop zone content (empty state): Upload icon (lucide `Upload`, 24px, `text-brand-accent`), text "Hacé clic o arrastrá archivos" (14px, weight 400, `text-brand-text/60`)
 - Drop zone hover: `border-color: #EA580C`, `background: #FFF7ED` (slight orange tint — `rgba(234,88,12,0.04)`)
 - Drop zone drag-over: `border-style: solid`, `border-color: #EA580C`, `background: rgba(234,88,12,0.06)`
-- Files attached list (below drop zone): each file as a pill — 11px filename truncated at 24 chars, `bg-brand-accent`, `text-brand-title`, rounded-full, lucide `X` button (12px) to remove
+- Files attached list (below drop zone): each file as a pill — 11px filename truncated at 24 chars, weight 400, `bg-brand-accent`, `text-brand-title`, rounded-full, lucide `X` button (12px, `aria-label="Quitar {filename}"`) to remove
 
 **Accepted file types:**
 - Información del sitio: `image/jpeg, image/png, application/pdf, application/vnd.openxmlformats-officedocument.wordprocessingml.document`
@@ -216,20 +218,20 @@ padding: 32px
 - Multiple files allowed per field; no hard cap shown in UI (server enforces size)
 
 **Notas textarea:**
-- Label: 14px, weight 600, `text-brand-text`
+- Label: 14px, weight 700, `text-brand-text`
 - Placeholder: "Información adicional relevante para completar el contrato (opcional)"
 - Height: 96px (rows 4), resizable vertically only
 - Border: `1px solid #FECBA1`, focus: `border-color: #EA580C`, `ring: 2px rgba(234,88,12,0.2)`
-- Font: 14px Poppins, `text-brand-text`
+- Font: 14px Poppins, weight 400, `text-brand-text`
 
 **Validation messages** (shown inline below each field):
-- 13px, `text-red-600` (#DC2626)
+- 11px, weight 400, `text-red-600` (#DC2626)
 - Icon: lucide `AlertCircle` 14px inline-start
 - Triggered on submit attempt with empty required field: "Este campo es obligatorio"
 
 **Navigation:**
-- "Volver" button (ghost variant, left-aligned): 14px, `text-brand-text/70`, no background, hover `text-brand-title`
-- "Continuar" button (primary, right-aligned): TextureButton pattern, `bg-brand-primary` (#EA580C), disabled until required fields have at least 1 file
+- "Volver" button (ghost variant, left-aligned): 14px, weight 400, `text-brand-text/70`, no background, hover `text-brand-title`
+- "Continuar a Procesamiento" button (primary, right-aligned): TextureButton pattern, `bg-brand-primary` (#EA580C), disabled until required fields have at least 1 file
 
 ---
 
@@ -255,7 +257,7 @@ text-align: center
   1. "Analizando documentación..."
   2. "Identificando campos del contrato..."
   3. "Completando contrato con Gemini..."
-- Typography: 16px, weight 500, `text-brand-text`, line-height 1.5
+- Typography: 14px, weight 400, `text-brand-text`, line-height 1.5
 - Animation: `AnimatePresence mode="wait"` + `motion.p` with:
   - `initial={{ opacity: 0, y: 8 }}`
   - `animate={{ opacity: 1, y: 0 }}`
@@ -265,16 +267,16 @@ text-align: center
 
 **Sub-text below message:**
 - "Esto puede demorar hasta 60 segundos"
-- 13px, `text-brand-text/50`, weight 400
+- 11px, weight 400, `text-brand-text/50`
 
 **Note:** No real progress bar — only the 3-message simulation. No cancel button.
 
 **Error sub-state (within step 3 → error panel):**
 - Replace spinner with lucide `AlertCircle` 48px, `text-red-600`
-- Message: "Hubo un error al procesar el contrato. Intentá de nuevo." (16px, `text-brand-text`, weight 500)
-- Sub-text: "Los archivos se mantienen cargados — no necesitás volver a subirlos." (13px, `text-brand-text/60`)
+- Message: "Hubo un error al procesar el contrato. Intentá de nuevo." (14px, weight 700, `text-brand-text`)
+- Sub-text: "Los archivos se mantienen cargados — no necesitás volver a subirlos." (11px, weight 400, `text-brand-text/60`)
 - "Reintentar" button: TextureButton, full-width up to 240px, `bg-brand-primary` (#EA580C), white text, lucide `RefreshCw` 16px icon left of label
-- "Volver a Documentación" ghost link below: 13px, `text-brand-text/70`
+- "Volver a Documentación" ghost link below: 11px, weight 400, `text-brand-text/70`
 
 ---
 
@@ -298,11 +300,11 @@ text-align: center
 **Summary text** (from D-06):
 - Primary: "Se completaron {X}/{N} campos." — 20px, weight 700, `text-brand-title`
 - Secondary (if Y > 0): "{Y} quedaron vacíos por falta de datos." — 14px, weight 400, `text-brand-text/70`
-- Secondary (if Y = 0): "Todos los campos fueron completados." — 14px, weight 500, `text-brand-title`
+- Secondary (if Y = 0): "Todos los campos fueron completados." — 14px, weight 700, `text-brand-title`
 
 **Fields summary badge:**
 - `bg-brand-accent` (#FED7AA), `text-brand-title` (#9A3412)
-- 13px, weight 600, rounded-full, px 12px py 6px
+- 11px, weight 700, rounded-full, px 12px py 4px
 - Content: "{X} de {N} campos completados"
 - Positioned above the summary text
 
@@ -310,14 +312,14 @@ text-align: center
 - TextureButton with full brand treatment
 - Width: 100% up to 280px
 - Background: `#EA580C` (brand-primary)
-- Text color: white, 15px, weight 600
+- Text color: white, 14px, weight 700
 - Icon: lucide `Download` 18px, left of label
 - Label: "Descargar .docx"
 - Hover: `scale(1.02)`, `shadow-md`
 - motion/react `whileHover` + `whileTap={{ scale: 0.97 }}`
 
 **"Generar otro contrato" link** (below download button):
-- 13px, `text-brand-text/60`, underline on hover, `text-brand-title` on hover
+- 11px, weight 400, `text-brand-text/60`, underline on hover, `text-brand-title` on hover
 - Resets wizard to step 1 (RESET action in useReducer)
 - Margin-top: 16px
 
@@ -328,7 +330,7 @@ text-align: center
 | Component | Source | Phase 2 Usage |
 |-----------|--------|---------------|
 | TextureCard / TextureCardContent | cult-ui (already installed) | Form shell in step 2, processing + result containers in steps 3/4 |
-| TextureButton | cult-ui (already installed) | All primary CTAs: Continuar, Descargar .docx, Reintentar |
+| TextureButton | cult-ui (already installed) | All primary CTAs: Continuar a Documentación, Continuar a Procesamiento, Descargar .docx, Reintentar |
 | motion.div / motion.p / AnimatePresence | motion/react (already installed) | Card entrance, step transitions, processing messages, success icon |
 | Loader2 | lucide-react | Processing spinner |
 | CheckCircle | lucide-react | Success state icon |
@@ -336,7 +338,7 @@ text-align: center
 | Download | lucide-react | Download button icon |
 | RefreshCw | lucide-react | Reintentar button icon |
 | Upload | lucide-react | File upload drop zone |
-| X (icon) | lucide-react | Remove attached file pill |
+| X (icon) | lucide-react | Remove attached file pill (`aria-label="Quitar {filename}"`) |
 | FileText / FilePen / FileCheck | lucide-react | Model card icons |
 
 Custom components to build (no external source):
@@ -359,8 +361,8 @@ Custom components to build (no external source):
 | Step 2 heading (Adenda) | "Cargá la documentación del asunto" |
 | Step 3 heading | "Procesando tu contrato" |
 | Step 4 heading | "Tu contrato está listo" |
-| Primary CTA step 1 | "Continuar" |
-| Primary CTA step 2 | "Continuar" |
+| Primary CTA step 1 | "Continuar a Documentación" |
+| Primary CTA step 2 | "Continuar a Procesamiento" |
 | Primary CTA step 3 (download) | "Descargar .docx" |
 | Primary CTA error (retry) | "Reintentar" |
 | Secondary nav (back) | "Volver" |
@@ -395,7 +397,7 @@ Custom components to build (no external source):
 ### File Upload Rules
 - Multiple files per field allowed
 - Accepted types validated client-side before adding to state (show inline error if wrong type: "Tipo de archivo no soportado. Usá jpg, png, pdf o docx")
-- Each attached file shown as removable pill
+- Each attached file shown as removable pill; X button carries `aria-label="Quitar {filename}"`
 - Removing all files from a required field re-disables the "Continuar" button
 
 ### Animation Budget
@@ -435,6 +437,8 @@ No new third-party registry blocks introduced in this phase.
 | `tma/src/components/TmaPageContent.tsx` | Confirmed card gradient pattern, border color (#FECBA1), shadow values, motion enter animation |
 | `tma/components.json` | Confirmed shadcn new-york style, cult-ui registry URL, lucide icon library |
 | User input | 0 — all contract questions answered by upstream artifacts |
+| Checker revision (2026-06-12) | BLOCK 1: font sizes collapsed 6→4; BLOCK 2: font weights collapsed 4→2; non-blocking: CTA labels, aria-label on X, drop zone padding, step 1 focal point |
+| Checker revision (2026-06-12) | BLOCK A: Step 1 badge px changed 10px→8px; BLOCK B: Step 4 summary badge py changed 6px→4px — both now multiples of 4 |
 
 ---
 

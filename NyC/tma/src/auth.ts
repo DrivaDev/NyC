@@ -1,5 +1,6 @@
 import NextAuth from "next-auth"
 import Credentials from "next-auth/providers/credentials"
+import { authConfig } from "./auth.config"
 import { connectDB } from "@/lib/mongodb"
 import User from "@/models/User"
 import bcryptjs from "bcryptjs"
@@ -15,6 +16,7 @@ if (!process.env.AUTH_SECRET) {
 const DUMMY_HASH = bcryptjs.hashSync("__timing_sentinel__", 12)
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
+  ...authConfig,
   providers: [
     Credentials({
       credentials: {
@@ -43,17 +45,4 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       },
     }),
   ],
-  callbacks: {
-    jwt({ token, user }) {
-      if (user) token.id = user.id
-      return token
-    },
-    session({ session, token }) {
-      if (token.id) session.user.id = token.id as string
-      return session
-    },
-  },
-  pages: {
-    signIn: "/login",
-  },
 })

@@ -105,22 +105,26 @@ export async function POST(request: NextRequest) {
 
   const totalCount = geminiPlaceholders.length
 
-  // ── Call Gemini API (T-02-05: sanitize errors, never log key) ───────────────
+  // ── Get field values: use pre-filled values from review step, or call Gemini ──
   let geminiValues: Record<string, string>
-  try {
-    geminiValues = await callGemini(geminiPlaceholders, extractedTexts, imageParts, notes)
-  } catch (err: unknown) {
-    // Sanitize error: do NOT return GEMINI_API_KEY or raw Gemini response (T-02-05)
-    const message = err instanceof Error ? err.message : "Error desconocido"
-    return NextResponse.json(
-      { error: `Error al procesar con Gemini: ${message}` },
-      { status: 500 }
-    )
+  const fieldValuesJson = formData.get("fieldValuesJson") as string | null
+  if (fieldValuesJson) {
+    try {
+      geminiValues = JSON.parse(fieldValuesJson) as Record<string, string>
+    } catch {
+      return NextResponse.json({ error: "fieldValuesJson inválido" }, { status: 400 })
+    }
+  } else {
+    try {
+      geminiValues = await callGemini(geminiPlaceholders, extractedTexts, imageParts, notes)
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Error desconocido"
+      return NextResponse.json(
+        { error: `Error al procesar con Gemini: ${message}` },
+        { status: 500 }
+      )
+    }
   }
-
-  // DEBUG — remove after confirming Gemini fills correctly
-  console.log("[generate] placeholders sent:", geminiPlaceholders.length)
-  console.log("[generate] Gemini response:", JSON.stringify(geminiValues, null, 2))
 
   // ── Fill placeholders — reuse already-extracted objects (no second parse) ────
   let modifiedXml: string

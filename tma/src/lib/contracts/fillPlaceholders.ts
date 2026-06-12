@@ -3,13 +3,18 @@ import type { Placeholder, LabelPlaceholder } from "./extractPlaceholders"
 
 /**
  * Fill highlighted run placeholders in OOXML XML string (Adenda strategy).
- * Replaces <w:t> content inside each highlighted <w:r>, preserving <w:highlight>.
- * Uses REVERSE ORDER replacement to preserve string indices (RESEARCH.md Pitfall 4).
- * Always escapes XML special characters in values.
+ *
+ * Uses position-based replacement: each Placeholder stores _startPos/_endPos
+ * covering the ENTIRE group of consecutive highlighted runs (which Word splits
+ * for formatting reasons). The whole group is collapsed into one run with the
+ * Gemini value and the original <w:rPr> (including w:highlight).
+ *
+ * If Gemini returns "" for a field, the original placeholder label is kept (still
+ * highlighted yellow) so unfilled fields remain visually obvious.
  *
  * @param xml          The original document.xml string
- * @param values       Map of placeholder_id → string value (empty string = leave blank)
- * @param placeholders Array from extractHighlightPlaceholders (same order as extraction)
+ * @param values       Map of placeholder_id → string value from Gemini
+ * @param placeholders Array from extractHighlightPlaceholders (carries position data)
  * @returns            Modified XML string with replacements applied
  */
 export function fillHighlightPlaceholders(
@@ -17,40 +22,18 @@ export function fillHighlightPlaceholders(
   values: Record<string, string>,
   placeholders: Placeholder[]
 ): string {
-  // Re-scan the XML to find all highlighted run positions (mirrors extraction logic)
-  const runPattern = /<w:r\b[^>]*>([\s\S]*?)<\/w:r>/g
-  const positions: Array<{ start: number; end: number; phId: string }> = []
-  let match: RegExpExecArray | null
-  let phIndex = 0
-
-  while ((match = runPattern.exec(xml)) !== null) {
-    const runContent = match[1]
-    if (
-      runContent.includes('w:val="yellow"') ||
-      runContent.includes("w:val='yellow'")
-    ) {
-      if (phIndex < placeholders.length) {
-        positions.push({
-          start: match.index,
-          end: match.index + match[0].length,
-          phId: `ph_${phIndex++}`,
-        })
-      }
-    }
-  }
-
-  // Replace from end to start to preserve earlier string indices
   let result = xml
-  for (let i = positions.length - 1; i >= 0; i--) {
-    const { start, end, phId } = positions[i]
-    const value = values[phId] ?? ""
-    const originalRun = result.slice(start, end)
-    // Replace ONLY <w:t>...</w:t> content; keep <w:rPr> with highlight intact
-    const filled = originalRun.replace(
-      /<w:t[^>]*>[\s\S]*?<\/w:t>/,
-      `<w:t>${escapeXml(value)}</w:t>`
-    )
-    result = result.slice(0, start) + filled + result.slice(end)
+  // Reverse order to preserve string indices of earlier placeholders
+  for (let i = placeholders.length - 1; i >= 0; i--) {
+    const ph = placeholders[i]
+    const value = values[ph.id]
+    // If Gemini filled it use the value; otherwise keep original label (highlighted yellow)
+    const fillText =
+      value !== undefined && value.trim() !== "" ? value : ph.label
+
+    // Collapse entire run group into one run with original formatting + new text
+    const newRun = `<w:r><w:rPr>${ph._rprXml}</w:rPr><w:t xml:space="preserve">${escapeXml(fillText)}</w:t></w:r>`
+    result = result.slice(0, ph._startPos) + newRun + result.slice(ph._endPos)
   }
   return result
 }

@@ -6,6 +6,7 @@ import {
   loadTemplateXml,
   extractHighlightPlaceholders,
   extractLabelPlaceholders,
+  type Placeholder,
   type LabelPlaceholder,
 } from "@/lib/contracts/extractPlaceholders"
 import { callGemini, type GeminiPlaceholder } from "@/lib/contracts/geminiClient"
@@ -85,26 +86,29 @@ export async function POST(request: NextRequest) {
   }
 
   // ── Extract placeholders (strategy determined by model.type) ─────────────────
-  let placeholders: GeminiPlaceholder[]
+  let highlightPlaceholders: Placeholder[] | null = null
   let labelPlaceholders: LabelPlaceholder[] | null = null
+  let geminiPlaceholders: GeminiPlaceholder[]
 
   if (model.type === "adenda") {
-    placeholders = extractHighlightPlaceholders(xml)
+    highlightPlaceholders = extractHighlightPlaceholders(xml)
+    // Placeholder is a superset of GeminiPlaceholder — pass directly
+    geminiPlaceholders = highlightPlaceholders
   } else {
-    // model.type === "ac" — label-based strategy (D-09)
+    // model.type === "ac" — label-based strategy
     labelPlaceholders = extractLabelPlaceholders(xml)
-    placeholders = labelPlaceholders.map(lp => ({
+    geminiPlaceholders = labelPlaceholders.map(lp => ({
       id: lp.id,
       context: `${lp.label}: ${lp.context}`,
     }))
   }
 
-  const totalCount = placeholders.length
+  const totalCount = geminiPlaceholders.length
 
   // ── Call Gemini API (T-02-05: sanitize errors, never log key) ───────────────
   let geminiValues: Record<string, string>
   try {
-    geminiValues = await callGemini(placeholders, extractedTexts, imageParts, notes)
+    geminiValues = await callGemini(geminiPlaceholders, extractedTexts, imageParts, notes)
   } catch (err: unknown) {
     // Sanitize error: do NOT return GEMINI_API_KEY or raw Gemini response (T-02-05)
     const message = err instanceof Error ? err.message : "Error desconocido"
@@ -114,21 +118,16 @@ export async function POST(request: NextRequest) {
     )
   }
 
-  // ── Fill placeholders (strategy mirrors extraction) ──────────────────────────
+  // ── Fill placeholders — reuse already-extracted objects (no second parse) ────
   let modifiedXml: string
   if (model.type === "adenda") {
-    modifiedXml = fillHighlightPlaceholders(
-      xml,
-      geminiValues,
-      extractHighlightPlaceholders(xml)
-    )
+    modifiedXml = fillHighlightPlaceholders(xml, geminiValues, highlightPlaceholders!)
   } else {
-    // Re-use already-extracted label placeholders to avoid double parsing
     modifiedXml = fillLabelPlaceholders(xml, geminiValues, labelPlaceholders!)
   }
 
   // ── Count completed fields for X-Fields-Completed header ────────────────────
-  const completedCount = placeholders.filter(
+  const completedCount = geminiPlaceholders.filter(
     p => geminiValues[p.id] !== undefined && geminiValues[p.id].trim() !== ""
   ).length
 

@@ -8,7 +8,10 @@ vi.mock("@/auth", () => ({
 // Mock the lib modules to isolate route handler logic
 vi.mock("@/lib/contracts/extractPlaceholders", () => ({
   extractXmlFromBuffer: vi.fn().mockReturnValue("<w:document/>"),
-  extractHighlightPlaceholders: vi.fn().mockReturnValue([{ id: "ph_0", context: "ctx" }]),
+  extractHighlightPlaceholders: vi.fn().mockReturnValue([
+    { id: "ph_0", context: "ctx", label: "FIELD", _startPos: 0, _endPos: 10, _rprXml: "" },
+  ]),
+  extractLabelPlaceholders: vi.fn().mockReturnValue([]),
   loadTemplateXml: vi.fn().mockReturnValue({ zip: {}, xml: "<w:document/>" }),
 }))
 
@@ -18,7 +21,13 @@ vi.mock("@/lib/contracts/geminiClient", () => ({
 
 vi.mock("@/lib/contracts/fillPlaceholders", () => ({
   fillHighlightPlaceholders: vi.fn().mockReturnValue("<w:document/>"),
+  fillLabelPlaceholders: vi.fn().mockReturnValue("<w:document/>"),
   generateDocxBuffer: vi.fn().mockReturnValue(Buffer.from("fake-docx")),
+}))
+
+// Mock extractDocText to prevent pdf-parse from loading browser globals (DOMMatrix)
+vi.mock("@/lib/contracts/extractDocText", () => ({
+  processUploadedFile: vi.fn().mockResolvedValue(null),
 }))
 
 // Mock fs so no real files needed

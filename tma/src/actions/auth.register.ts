@@ -16,6 +16,9 @@ const ALLOWLIST = [
   "ekoch@nyc.com.ar",
 ]
 
+// Mensaje genérico para no filtrar información sobre la allowlist
+const NOT_AUTHORIZED_MSG = "Este email no está autorizado para registrarse"
+
 export async function registerUser(
   _: unknown,
   formData: FormData
@@ -35,14 +38,15 @@ export async function registerUser(
 
   // 2. Verificar allowlist ANTES de consultar DB (T6 — AUTH-02, D-10)
   if (!ALLOWLIST.includes(email.toLowerCase())) {
-    return { error: "Este email no está autorizado" }
+    return { error: NOT_AUTHORIZED_MSG }
   }
 
-  // 3. Verificar email único (D-02)
+  // 3. Verificar email único (D-02) — usar mismo mensaje para no revelar
+  // qué emails de la allowlist ya están registrados
   await connectDB()
   const existing = await User.findOne({ email: email.toLowerCase() }).lean()
   if (existing) {
-    return { error: "Este email ya tiene cuenta, iniciá sesión" }
+    return { error: NOT_AUTHORIZED_MSG }
   }
 
   // 4. Hash de contraseña (AUTH-04) — NUNCA loggear password

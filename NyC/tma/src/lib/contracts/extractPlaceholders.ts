@@ -21,7 +21,7 @@ export function loadTemplateXml(filename: string): { zip: PizZip; xml: string } 
   const fs = require("fs") as typeof import("fs")
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   const path = require("path") as typeof import("path")
-  const templatePath = path.join(process.cwd(), "public", "templates", filename)
+  const templatePath = path.join(process.cwd(), "templates", filename)
   const content = fs.readFileSync(templatePath) as Buffer
   return extractZipAndXml(content)
 }

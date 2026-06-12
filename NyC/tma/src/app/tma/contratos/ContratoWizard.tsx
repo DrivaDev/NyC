@@ -13,19 +13,12 @@ import {
   RefreshCw,
   Upload,
   X,
-  Pencil,
 } from "lucide-react"
 import { getModelsByGroup, type ContractModel } from "@/lib/contracts/models"
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 
 type WizardStep = 1 | 2 | 3 | 4
-
-interface ReviewField {
-  id: string
-  label: string
-  value: string
-}
 
 interface GenerationResult {
   blob: Blob
@@ -39,7 +32,6 @@ interface WizardState {
   siteFiles: File[]
   personFiles: File[]
   notes: string
-  reviewFields: ReviewField[] | null  // null = loading; array = ready to review
   result: GenerationResult | null
   error: string | null
 }
@@ -52,8 +44,6 @@ type WizardAction =
   | { type: "NEXT_STEP" }
   | { type: "PREV_STEP" }
   | { type: "START_PROCESSING" }
-  | { type: "SET_REVIEW_FIELDS"; fields: ReviewField[] }
-  | { type: "UPDATE_FIELD"; id: string; value: string }
   | { type: "SET_RESULT"; result: GenerationResult }
   | { type: "SET_ERROR"; error: string }
   | { type: "RETRY" }
@@ -65,7 +55,6 @@ const initialState: WizardState = {
   siteFiles: [],
   personFiles: [],
   notes: "",
-  reviewFields: null,
   result: null,
   error: null,
 }
@@ -85,26 +74,13 @@ function wizardReducer(state: WizardState, action: WizardAction): WizardState {
     case "PREV_STEP":
       return { ...state, step: Math.max(state.step - 1, 1) as WizardStep }
     case "START_PROCESSING":
-      return { ...state, step: 3, error: null, reviewFields: null }
-    case "SET_REVIEW_FIELDS":
-      return { ...state, reviewFields: action.fields, error: null }
-    case "UPDATE_FIELD":
-      return {
-        ...state,
-        reviewFields: state.reviewFields?.map(f =>
-          f.id === action.id ? { ...f, value: action.value } : f
-        ) ?? null,
-      }
+      return { ...state, step: 3, error: null, result: null }
     case "SET_RESULT":
       return { ...state, step: 4, result: action.result, error: null }
     case "SET_ERROR":
       return { ...state, error: action.error }
     case "RETRY":
-      // If reviewFields exist, error was from generation — clear error only
-      // If no reviewFields, error was from analysis — re-run analyze
-      return state.reviewFields
-        ? { ...state, error: null }
-        : { ...state, error: null, reviewFields: null }
+      return { ...state, error: null }
     case "RESET":
       return initialState
     default:
@@ -118,6 +94,7 @@ const PROCESSING_MESSAGES = [
   "Analizando documentación...",
   "Identificando campos del contrato...",
   "Consultando a Gemini...",
+  "Completando el documento...",
 ]
 
 // ── Accepted file types ────────────────────────────────────────────────────────
@@ -251,7 +228,7 @@ function FileUploadZone({ label, files, onChange, required = false }: FileUpload
 
 // ── WizardStepIndicator ────────────────────────────────────────────────────────
 
-const STEP_LABELS = ["Selección", "Documentación", "Revisión", "Descarga"]
+const STEP_LABELS = ["Selección", "Documentación", "Procesamiento", "Descarga"]
 
 function WizardStepIndicator({ currentStep }: { currentStep: WizardStep }) {
   return (
@@ -292,61 +269,31 @@ function WizardStepIndicator({ currentStep }: { currentStep: WizardStep }) {
 export function ContratoWizard() {
   const [state, dispatch] = useReducer(wizardReducer, initialState)
   const [msgIndex, setMsgIndex] = useState(0)
-  const [generating, setGenerating] = useState(false)
   const modelGroups = getModelsByGroup()
 
-  // Cycle processing messages while loading (step 3, no reviewFields, no error)
+  // Cycle processing messages while generating
   useEffect(() => {
-    const isLoading = state.step === 3 && !state.reviewFields && !state.error
+    const isLoading = state.step === 3 && !state.error
     if (!isLoading) return
     setMsgIndex(0)
     const interval = setInterval(() => {
       setMsgIndex(i => Math.min(i + 1, PROCESSING_MESSAGES.length - 1))
     }, 4000)
     return () => clearInterval(interval)
-  }, [state.step, state.reviewFields, state.error])
+  }, [state.step, state.error])
 
-  // Auto-run analyze when entering step 3 without reviewFields
+  // Auto-run generate when entering step 3
   useEffect(() => {
-    if (state.step === 3 && !state.reviewFields && !state.error) {
-      handleAnalyze()
+    if (state.step === 3 && !state.result && !state.error) {
+      handleGenerate()
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [state.step, state.reviewFields, state.error])
-
-  async function handleAnalyze() {
-    const fd = new FormData()
-    fd.append("modelId", state.model!.id)
-    fd.append("notes", state.notes)
-    state.siteFiles.forEach(f => fd.append("siteFiles", f))
-    state.personFiles.forEach(f => fd.append("personFiles", f))
-
-    try {
-      const res = await fetch("/api/contracts/analyze", { method: "POST", body: fd })
-      if (!res.ok) {
-        let msg = `Error ${res.status}`
-        try { const b = await res.json(); if (b?.error) msg = b.error } catch { /* ignore */ }
-        throw new Error(msg)
-      }
-      const data = await res.json() as { fields: ReviewField[] }
-      dispatch({ type: "SET_REVIEW_FIELDS", fields: data.fields })
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : "Error desconocido"
-      dispatch({ type: "SET_ERROR", error: msg })
-    }
-  }
+  }, [state.step])
 
   async function handleGenerate() {
-    if (!state.reviewFields) return
-    setGenerating(true)
-
     const fd = new FormData()
     fd.append("modelId", state.model!.id)
     fd.append("notes", state.notes)
-    fd.append(
-      "fieldValuesJson",
-      JSON.stringify(Object.fromEntries(state.reviewFields.map(f => [f.id, f.value])))
-    )
     state.siteFiles.forEach(f => fd.append("siteFiles", f))
     state.personFiles.forEach(f => fd.append("personFiles", f))
 
@@ -364,8 +311,6 @@ export function ContratoWizard() {
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Error desconocido"
       dispatch({ type: "SET_ERROR", error: msg })
-    } finally {
-      setGenerating(false)
     }
   }
 
@@ -508,165 +453,70 @@ export function ContratoWizard() {
           className="px-6 py-3 rounded-xl text-[14px] font-bold text-white transition-all duration-200"
           style={{ backgroundColor: "#EA580C", opacity: step2RequiredFulfilled ? 1 : 0.45, cursor: step2RequiredFulfilled ? "pointer" : "not-allowed" }}
         >
-          Analizar con Gemini
+          Generar con Gemini
         </button>
       </div>
     </div>
   )
 
-  // ── Step 3: Loading → Review form ─────────────────────────────────────────
+  // ── Step 3: Generating ─────────────────────────────────────────────────────
 
-  const renderStep3Loading = () => (
-    <div className="p-12 rounded-2xl flex flex-col items-center gap-6 text-center" style={cardStyle}>
-      <motion.div
-        animate={{ rotate: 360 }}
-        transition={{ repeat: Infinity, duration: 1.2, ease: "linear" }}
-      >
-        <Loader2 size={48} style={{ color: "#EA580C" }} />
-      </motion.div>
-
-      <div style={{ minHeight: 44 }} className="flex items-center justify-center">
-        <AnimatePresence mode="wait">
-          <motion.p
-            key={msgIndex}
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            transition={{ duration: 0.3 }}
-            className="text-[14px] text-brand-text"
-          >
-            {PROCESSING_MESSAGES[msgIndex]}
-          </motion.p>
-        </AnimatePresence>
-      </div>
-
-      <p className="text-[11px] text-brand-text/50">Esto puede demorar hasta 60 segundos</p>
-    </div>
-  )
-
-  const renderStep3Error = () => (
-    <div className="p-12 rounded-2xl flex flex-col items-center gap-6 text-center" style={cardStyle}>
-      <AlertCircle size={48} className="text-red-600" />
-      <p className="text-[14px] font-bold text-brand-text">{state.error}</p>
-      <p className="text-[11px] text-brand-text/60">
-        Los archivos se mantienen cargados — no necesitás volver a subirlos.
-      </p>
-      <button
-        type="button"
-        onClick={() => dispatch({ type: "RETRY" })}
-        className="flex items-center gap-2 px-6 py-3 rounded-xl text-[14px] font-bold text-white max-w-[240px] w-full justify-center"
-        style={{ backgroundColor: "#EA580C" }}
-      >
-        <RefreshCw size={16} />
-        Reintentar
-      </button>
-      <button
-        type="button"
-        onClick={() => dispatch({ type: "PREV_STEP" })}
-        className="text-[11px] text-brand-text/70 hover:text-brand-title transition-colors"
-      >
-        Volver a Documentación
-      </button>
-    </div>
-  )
-
-  const renderStep3Review = (fields: ReviewField[]) => {
-    const filledCount = fields.filter(f => f.value.trim() !== "").length
-    const emptyCount = fields.length - filledCount
-
-    return (
-      <div className="rounded-2xl flex flex-col gap-0 overflow-hidden" style={cardStyle}>
-        {/* Header */}
-        <div className="px-8 pt-8 pb-6">
-          <div className="flex items-center gap-3 mb-2">
-            <Pencil size={20} style={{ color: "#EA580C" }} />
-            <h2 className="text-[20px] font-bold text-brand-title">Revisá los campos del contrato</h2>
-          </div>
-          <p className="text-[13px] text-brand-text/70">
-            Gemini encontró {filledCount} de {fields.length} campos.
-            {emptyCount > 0 && ` Completá manualmente los ${emptyCount} campos vacíos.`}
+  const renderStep3 = () => {
+    if (state.error) {
+      return (
+        <div className="p-12 rounded-2xl flex flex-col items-center gap-6 text-center" style={cardStyle}>
+          <AlertCircle size={48} className="text-red-600" />
+          <p className="text-[14px] font-bold text-brand-text">{state.error}</p>
+          <p className="text-[11px] text-brand-text/60">
+            Los archivos se mantienen cargados — no necesitás volver a subirlos.
           </p>
-        </div>
-
-        {/* Field list */}
-        <div className="px-8 pb-6 flex flex-col gap-3 max-h-[480px] overflow-y-auto">
-          {fields.map((f, idx) => (
-            <motion.div
-              key={f.id}
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.2, delay: idx * 0.015 }}
-              className="flex flex-col gap-1"
-            >
-              <label
-                htmlFor={f.id}
-                className="text-[11px] font-bold uppercase tracking-wide"
-                style={{ color: "#9A3412" }}
-              >
-                {f.label}
-              </label>
-              <input
-                id={f.id}
-                type="text"
-                value={f.value}
-                onChange={e => dispatch({ type: "UPDATE_FIELD", id: f.id, value: e.target.value })}
-                placeholder="Sin datos — completar manualmente"
-                className="w-full rounded-lg text-[13px] text-brand-text font-[Poppins] focus:outline-none transition-colors"
-                style={{
-                  padding: "8px 12px",
-                  border: f.value.trim() ? "1px solid #FECBA1" : "1px solid #FCA5A5",
-                  background: f.value.trim() ? "#FFFFFF" : "#FFF7ED",
-                }}
-                onFocus={e => { e.target.style.borderColor = "#EA580C" }}
-                onBlur={e => { e.target.style.borderColor = f.value.trim() ? "#FECBA1" : "#FCA5A5" }}
-              />
-            </motion.div>
-          ))}
-        </div>
-
-        {/* Error from generation attempt */}
-        {state.error && (
-          <div className="mx-8 mb-4 flex items-center gap-2 p-3 rounded-lg bg-red-50 border border-red-200">
-            <AlertCircle size={16} className="text-red-600 flex-shrink-0" />
-            <p className="text-[12px] text-red-700">{state.error}</p>
-          </div>
-        )}
-
-        {/* Footer */}
-        <div
-          className="px-8 py-5 flex justify-between items-center"
-          style={{ borderTop: "1px solid #FECBA1" }}
-        >
+          <button
+            type="button"
+            onClick={() => { dispatch({ type: "RETRY" }); handleGenerate() }}
+            className="flex items-center gap-2 px-6 py-3 rounded-xl text-[14px] font-bold text-white max-w-[240px] w-full justify-center"
+            style={{ backgroundColor: "#EA580C" }}
+          >
+            <RefreshCw size={16} />
+            Reintentar
+          </button>
           <button
             type="button"
             onClick={() => dispatch({ type: "PREV_STEP" })}
-            className="text-[14px] text-brand-text/70 hover:text-brand-title transition-colors"
+            className="text-[11px] text-brand-text/70 hover:text-brand-title transition-colors"
           >
-            Volver
+            Volver a Documentación
           </button>
-
-          <motion.button
-            type="button"
-            disabled={generating}
-            onClick={handleGenerate}
-            whileHover={{ scale: generating ? 1 : 1.02 }}
-            whileTap={{ scale: generating ? 1 : 0.97 }}
-            className="flex items-center gap-2 px-6 py-3 rounded-xl text-[14px] font-bold text-white transition-all"
-            style={{ backgroundColor: "#EA580C", opacity: generating ? 0.7 : 1, cursor: generating ? "not-allowed" : "pointer" }}
-          >
-            {generating ? <Loader2 size={16} className="animate-spin" /> : <FileCheck size={16} />}
-            {generating ? "Generando..." : "Generar Contrato"}
-          </motion.button>
         </div>
+      )
+    }
+
+    return (
+      <div className="p-12 rounded-2xl flex flex-col items-center gap-6 text-center" style={cardStyle}>
+        <motion.div
+          animate={{ rotate: 360 }}
+          transition={{ repeat: Infinity, duration: 1.2, ease: "linear" }}
+        >
+          <Loader2 size={48} style={{ color: "#EA580C" }} />
+        </motion.div>
+
+        <div style={{ minHeight: 44 }} className="flex items-center justify-center">
+          <AnimatePresence mode="wait">
+            <motion.p
+              key={msgIndex}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.3 }}
+              className="text-[14px] text-brand-text"
+            >
+              {PROCESSING_MESSAGES[msgIndex]}
+            </motion.p>
+          </AnimatePresence>
+        </div>
+
+        <p className="text-[11px] text-brand-text/50">Esto puede demorar hasta 60 segundos</p>
       </div>
     )
-  }
-
-  const renderStep3 = () => {
-    if (state.error && !state.reviewFields) return renderStep3Error()
-    if (!state.reviewFields) return renderStep3Loading()
-    if (state.reviewFields) return renderStep3Review(state.reviewFields)
-    return renderStep3Loading()
   }
 
   // ── Step 4: Download ──────────────────────────────────────────────────────
@@ -744,7 +594,7 @@ export function ContratoWizard() {
 
         <AnimatePresence mode="wait">
           <motion.div
-            key={`${state.step}-${state.reviewFields !== null ? "review" : "loading"}`}
+            key={state.step}
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -12 }}

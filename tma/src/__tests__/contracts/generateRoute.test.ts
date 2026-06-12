@@ -22,8 +22,10 @@ vi.mock("@/lib/contracts/fillPlaceholders", () => ({
 }))
 
 // Mock fs so no real files needed
+// writeFileSync must be present so vi.spyOn can attach (CONTR-15 spy test)
 vi.mock("fs", () => ({
   readFileSync: vi.fn().mockReturnValue(Buffer.from("fake-template")),
+  writeFileSync: vi.fn(),
 }))
 
 describe("POST /api/contracts/generate (CONTR-13, CONTR-15)", () => {

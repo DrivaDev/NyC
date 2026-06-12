@@ -10,9 +10,9 @@ See: .planning/PROJECT.md (updated 2026-06-10)
 ## Current Position
 
 Phase: 2 of 5 (Contratos — Pipeline de generación)
-Plan: 0 of TBD in current phase
-Status: Phase 1 complete — ready to plan Phase 2
-Last activity: 2026-06-11 — Phase 1 executed (4/4 plans complete, human UAT pending)
+Plan: 0 of 6 in current phase
+Status: Ready to execute — Phase 2 planned (6 plans, 5 waves)
+Last activity: 2026-06-12 — Phase 2 planned (6 plans, verification passed)
 
 Progress: [██░░░░░░░░] 20%
 

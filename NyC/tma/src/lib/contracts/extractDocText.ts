@@ -74,8 +74,18 @@ export async function processUploadedFile(
   }
 
   if (file.type === "application/pdf") {
-    const text = await extractPdfText(buffer)
-    return { type: "text", text }
+    // Send PDF as native inline data — Gemini 2.5 Flash reads PDFs directly (text + OCR).
+    // pdf-parse fails on browser-exported screenshot PDFs (returns "" or garbled text),
+    // which was causing 0/N fields. Native PDF avoids that completely.
+    return {
+      type: "image",
+      part: {
+        inlineData: {
+          mimeType: "application/pdf",
+          data: buffer.toString("base64"),
+        },
+      },
+    }
   }
 
   if (

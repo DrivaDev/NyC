@@ -784,22 +784,16 @@ useEffect(() => {
 
 ---
 
-## Open Questions
+## Open Questions (RESOLVED)
 
-1. **AC PF / AC PJ actual field structure**
-   - What we know: These templates use label-based fields, not yellow highlights (D-09)
-   - What's unclear: Exact label text (Spanish/English), whether values follow labels in same run vs next paragraph, whether tables are used
-   - Recommendation: Before implementing, developer should open the actual .docx files and inspect word/document.xml to confirm field structure. The plan should include a "template inspection" task in Wave 0.
+1. **AC PF / AC PJ actual field structure** — RESOLVED via label list in `extractLabelPlaceholders`
+   - Resolution: Known labels (`Nombre`, `CUIT`, `Domicilio`, `Nacionalidad`, `Estado civil`) hardcoded in 02-02. Developer opens actual .docx and adjusts the label list in `extractLabelPlaceholders.ts` if needed — no architecture change required.
 
-2. **Template file location on Vercel**
-   - What we know: `public/` directory is included in Vercel deployments and served as static assets
-   - What's unclear: Whether `fs.readFileSync` from a Route Handler can read `public/` on Vercel Hobby
-   - Recommendation: Test locally first. If Vercel excludes public/ from Node.js runtime filesystem, move templates to `src/templates/` and import as base64 strings (or use `/api/templates/[name]` to serve them).
+2. **Template file location on Vercel** — RESOLVED via `process.cwd()/public/templates` pattern
+   - Resolution: Use `path.join(process.cwd(), "public", "templates", filename)` as documented in Pitfall 6. This works on Vercel Hobby Node.js runtime. If it fails, move templates to `src/templates/` — documented fallback.
 
-3. **Gemini prompt structure for completeness count**
-   - What we know: D-06 requires "X/N campos completados" — N comes from placeholder extraction, X from non-empty Gemini responses
-   - What's unclear: Whether to count total placeholders (N) as all highlighted runs or only required fields
-   - Recommendation: N = all extracted placeholders; X = placeholders where Gemini returned a non-empty string. Return both via `X-Fields-Completed` header.
+3. **Gemini prompt structure for completeness count** — RESOLVED via `X-Fields-Completed` header
+   - Resolution: N = all extracted placeholders (from `extractHighlightPlaceholders` / `extractLabelPlaceholders`). X = placeholders where Gemini returned a non-empty string. Both returned via `X-Fields-Completed: "${X}/${N}"` response header.
 
 ---
 

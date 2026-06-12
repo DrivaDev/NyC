@@ -62,7 +62,24 @@ Wave 3 *(blocked on Wave 2 completion)*
   3. Sistema procesa los archivos y envía el prompt a Gemini; campos con información suficiente se completan, campos sin datos quedan vacíos (nunca inventados)
   4. Usuario puede descargar el .docx generado con resaltado amarillo preservado
   5. Ningún archivo subido persiste en el servidor tras la descarga
-**Plans**: TBD
+**Plans**: 6 planes
+Plans:
+Wave 0 *(sin dependencias — ejecutar primero)*
+- [ ] 02-01-PLAN.md — Wave 0: Instalar paquetes (pizzip, @google/generative-ai, mammoth, pdf-parse) + 5 test stubs + fixtures
+
+Wave 1 *(parallel — ambos dependen solo de Wave 0)*
+- [ ] 02-02-PLAN.md — Wave 1a: models.ts + extractPlaceholders.ts + fillPlaceholders.ts
+- [ ] 02-03-PLAN.md — Wave 1b: geminiClient.ts + extractDocText.ts
+
+Wave 2 *(blocked on Wave 1)*
+- [ ] 02-04-PLAN.md — Wave 2: Route Handler POST /api/contracts/generate — orquestación completa
+
+Wave 3 *(blocked on Wave 2)*
+- [ ] 02-05-PLAN.md — Wave 3: /tma/contratos page.tsx + ContratoWizard.tsx (wizard completo 4 pasos)
+
+Wave 4 *(blocked on Wave 3)*
+- [ ] 02-06-PLAN.md — Wave 4: Activar card "Contratos TMA" en TmaPageContent.tsx + checkpoint humano
+
 **UI hint**: yes
 
 ### Phase 3: Contratos — Multi-locador
@@ -105,7 +122,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation & Auth | 4/4 | Complete | 2026-06-11 |
-| 2. Contratos — Pipeline de generación | 0/TBD | Not started | - |
+| 2. Contratos — Pipeline de generación | 0/6 | Not started | - |
 | 3. Contratos — Multi-locador | 0/TBD | Not started | - |
 | 4. Casos — CRUD & Dashboard | 0/TBD | Not started | - |
 | 5. Casos — Estadísticas | 0/TBD | Not started | - |

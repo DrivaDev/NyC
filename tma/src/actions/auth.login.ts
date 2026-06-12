@@ -7,12 +7,15 @@ export async function loginAction(
   _: { error?: string } | undefined,
   formData: FormData
 ): Promise<{ error?: string } | undefined> {
+  const email = formData.get("email")
+  const password = formData.get("password")
+
+  if (typeof email !== "string" || typeof password !== "string") {
+    return { error: "Datos de formulario inválidos" }
+  }
+
   try {
-    await signIn("credentials", {
-      email: formData.get("email") as string,
-      password: formData.get("password") as string,
-      redirectTo: "/tma",
-    })
+    await signIn("credentials", { email, password, redirectTo: "/tma" })
   } catch (error) {
     if (error instanceof AuthError) {
       return { error: "Email o contraseña incorrectos" }

@@ -42,7 +42,7 @@ describe("registerUser — AUTH-01, AUTH-02, AUTH-04", () => {
     formData.append("email", "noauthorized@example.com")
     formData.append("password", "password123")
     const result = await registerUser(undefined, formData)
-    expect(result).toEqual({ error: "Este email no está autorizado" })
+    expect(result).toEqual({ error: "Este email no está autorizado para registrarse" })
   })
 
   it("AUTH-02: no consulta la DB cuando el email no está en la allowlist", async () => {
@@ -94,6 +94,8 @@ describe("registerUser — AUTH-01, AUTH-02, AUTH-04", () => {
     formData.append("email", "nsilva@nyc.com.ar")
     formData.append("password", "password123")
     const result = await registerUser(undefined, formData)
-    expect(result).toEqual({ error: "Este email ya tiene cuenta, iniciá sesión" })
+    // Implementation uses same generic message for both "not in allowlist" and "already exists"
+    // to avoid revealing which allowlist emails are registered (security: D-10)
+    expect(result).toEqual({ error: "Este email no está autorizado para registrarse" })
   })
 })

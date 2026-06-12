@@ -34,14 +34,16 @@ describe("fillHighlightPlaceholders (CONTR-10)", () => {
     expect(result).not.toContain("<Norte>")
   })
 
-  it("leaves placeholder empty (empty w:t) when Gemini returns empty string", async () => {
+  it("preserves original label (highlighted yellow) when Gemini returns empty string", async () => {
     const { fillHighlightPlaceholders } = await import("@/lib/contracts/fillPlaceholders")
     const { extractHighlightPlaceholders } = await import("@/lib/contracts/extractPlaceholders")
     const placeholders = extractHighlightPlaceholders(ADENDA_XML)
     const values: Record<string, string> = { ph_0: "", ph_1: "" }
     const result = fillHighlightPlaceholders(ADENDA_XML, values, placeholders)
-    // Original placeholder text removed; yellow highlight preserved
-    expect(result).not.toContain("NOMBRE DEL LOCADOR")
+    // When Gemini returns "", preserve original placeholder label so unfilled fields
+    // remain visible in yellow for manual review
+    expect(result).toContain("NOMBRE DEL LOCADOR")
+    expect(result).toContain('w:val="yellow"')
   })
 })
 

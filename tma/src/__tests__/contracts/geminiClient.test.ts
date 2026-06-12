@@ -2,15 +2,17 @@ import { describe, it, expect, vi, beforeEach } from "vitest"
 
 // Mock the entire Google Generative AI module
 vi.mock("@google/generative-ai", () => ({
-  GoogleGenerativeAI: vi.fn().mockImplementation(() => ({
-    getGenerativeModel: vi.fn().mockReturnValue({
-      generateContent: vi.fn().mockResolvedValue({
-        response: {
-          text: () => JSON.stringify({ ph_0: "Juan Pérez", ph_1: "", ph_2: "Buenos Aires" }),
-        },
+  GoogleGenerativeAI: vi.fn().mockImplementation(function () {
+    return {
+      getGenerativeModel: vi.fn().mockReturnValue({
+        generateContent: vi.fn().mockResolvedValue({
+          response: {
+            text: () => JSON.stringify({ ph_0: "Juan Pérez", ph_1: "", ph_2: "Buenos Aires" }),
+          },
+        }),
       }),
-    }),
-  })),
+    }
+  }),
 }))
 
 describe("callGemini (CONTR-08, CONTR-09)", () => {

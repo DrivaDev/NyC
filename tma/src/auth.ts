@@ -6,6 +6,14 @@ import bcryptjs from "bcryptjs"
 import { loginSchema } from "@/lib/validations"
 import { AuthError } from "next-auth"
 
+if (!process.env.AUTH_SECRET) {
+  throw new Error("AUTH_SECRET no está definido en las variables de entorno")
+}
+
+// Computed once at module load — ensures bcryptjs.compare always does full KDF work
+// even when a user is not found, preventing timing-based user enumeration.
+const DUMMY_HASH = bcryptjs.hashSync("__timing_sentinel__", 12)
+
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
     Credentials({
@@ -23,9 +31,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         // SEGURIDAD T1: Siempre ejecutar bcryptjs.compare aunque el usuario
         // no exista, para evitar timing attack de enumeración.
         const user = await User.findOne({ email }).lean()
-        const dummyHash =
-          "$2a$12$dummyhashtopreventtimingattackonusernotfound"
-        const passwordHash = user?.passwordHash ?? dummyHash
+        const passwordHash = user?.passwordHash ?? DUMMY_HASH
 
         const valid = await bcryptjs.compare(password, passwordHash)
 

@@ -3,6 +3,7 @@ import { GoogleGenerativeAI } from "@google/generative-ai"
 export interface GeminiPlaceholder {
   id: string
   context: string
+  label?: string  // original highlighted text — the field's own name/label
 }
 
 type InlinePart = {
@@ -22,7 +23,10 @@ export function buildPrompt(
   notes: string
 ): string {
   const fieldsList = placeholders
-    .map(p => `- ID: "${p.id}" | Contexto del campo: "${p.context}"`)
+    .map(p => {
+      const labelPart = p.label ? ` | Etiqueta: "${p.label}"` : ""
+      return `- ID: "${p.id}"${labelPart} | Contexto del párrafo: "${p.context}"`
+    })
     .join("\n")
 
   const docsText =
@@ -34,13 +38,15 @@ export function buildPrompt(
     ? `\n\nNotas adicionales del usuario:\n${notes.trim()}`
     : ""
 
-  return `Sos un asistente especializado en derecho argentino. Tu tarea es completar los campos de un contrato legal usando ÚNICAMENTE la información de los documentos adjuntos.
+  return `Sos un asistente especializado en derecho argentino. Tu tarea es completar los campos de un contrato de locación usando la información de los documentos adjuntos.
 
-INSTRUCCIONES ESTRICTAS:
+INSTRUCCIONES:
 - Devolvé ÚNICAMENTE JSON válido con exactamente las IDs de campo listadas abajo.
-- Para cada campo, devolvé el valor encontrado en los documentos, o "" (string vacío) si no hay información suficiente.
-- NUNCA inventes, inferras ni completes datos que no estén explícitamente en los documentos.
+- Para cada campo, extraé el valor correcto de los documentos. Podés inferir valores razonables del contexto (por ejemplo, si el documento menciona "el inmueble ubicado en Av. Corrientes 1234", el campo "DOMICILIO DEL INMUEBLE" debe ser "Av. Corrientes 1234").
+- NO inventes datos que no tengan ningún respaldo en los documentos. Si genuinamente no hay información, devolvé "".
 - Los valores deben estar en el formato apropiado para un contrato legal argentino.
+- Los campos de fecha van en formato "DD de mes de AAAA" (ej: "15 de junio de 2026").
+- Los montos van con signo de moneda (ej: "$ 150.000" o "USD 2.500").
 
 CAMPOS A COMPLETAR:
 ${fieldsList}
@@ -48,11 +54,11 @@ ${fieldsList}
 DOCUMENTACIÓN DEL ASUNTO:
 ${docsText}${notesSection}
 
-Respondé SÓLO con el JSON. Ejemplo de formato esperado:
+Respondé SÓLO con el JSON. Ejemplo:
 {
   "ph_0": "Juan Carlos Pérez",
-  "ph_1": "",
-  "ph_2": "25 de junio de 2026"
+  "ph_1": "25 de junio de 2026",
+  "ph_2": ""
 }`
 }
 

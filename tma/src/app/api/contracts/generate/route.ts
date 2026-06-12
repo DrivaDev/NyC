@@ -118,6 +118,10 @@ export async function POST(request: NextRequest) {
     )
   }
 
+  // DEBUG — remove after confirming Gemini fills correctly
+  console.log("[generate] placeholders sent:", geminiPlaceholders.length)
+  console.log("[generate] Gemini response:", JSON.stringify(geminiValues, null, 2))
+
   // ── Fill placeholders — reuse already-extracted objects (no second parse) ────
   let modifiedXml: string
   if (model.type === "adenda") {

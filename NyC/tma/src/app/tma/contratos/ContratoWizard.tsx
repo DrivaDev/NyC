@@ -309,7 +309,12 @@ export function ContratoWizard() {
     try {
       const res = await fetch("/api/contracts/generate", { method: "POST", body: fd })
       if (!res.ok) {
-        throw new Error("Error del servidor")
+        let serverMsg = `Error ${res.status}`
+        try {
+          const body = await res.json()
+          if (body?.error) serverMsg = body.error
+        } catch { /* ignore */ }
+        throw new Error(serverMsg)
       }
       const blob = await res.blob()
       const completedHeader = res.headers.get("X-Fields-Completed") ?? "0/0"
@@ -318,11 +323,9 @@ export function ContratoWizard() {
         type: "SET_RESULT",
         result: { blob, completedCount: comp || 0, totalCount: total || 0 },
       })
-    } catch {
-      dispatch({
-        type: "SET_ERROR",
-        error: "Hubo un error al procesar el contrato. Intentá de nuevo.",
-      })
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Error desconocido"
+      dispatch({ type: "SET_ERROR", error: msg })
     }
   }
 

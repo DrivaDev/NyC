@@ -7,7 +7,11 @@ vi.mock("@google/generative-ai", () => ({
       getGenerativeModel: vi.fn().mockReturnValue({
         generateContent: vi.fn().mockResolvedValue({
           response: {
-            text: () => JSON.stringify({ ph_0: "Juan Pérez", ph_1: "", ph_2: "Buenos Aires" }),
+            // New chain-of-thought format: { analisis, campos }
+            text: () => JSON.stringify({
+              analisis: "El documento menciona a Juan Pérez como locador en Buenos Aires.",
+              campos: { ph_0: "Juan Pérez", ph_1: "", ph_2: "Buenos Aires" },
+            }),
           },
         }),
       }),

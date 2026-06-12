@@ -12,6 +12,11 @@ export default auth((req) => {
     )
   }
 
+  // Redirigir usuarios autenticados fuera de /login y /register
+  if ((pathname === "/login" || pathname === "/register") && isLoggedIn) {
+    return NextResponse.redirect(new URL("/tma", req.url))
+  }
+
   // D-11 / AUTH-06: Rutas bajo /tma/* requieren sesión activa
   if (pathname.startsWith("/tma") && !isLoggedIn) {
     return NextResponse.redirect(new URL("/login", req.url))

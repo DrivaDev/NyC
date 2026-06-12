@@ -1,5 +1,13 @@
 import PizZip from "pizzip"
 
+export interface UnderscoredPlaceholder {
+  id: string      // "us_0", "us_1", ... sequential, document order
+  context: string // "...BEFORE[CAMPO]AFTER..." local plain-text context
+  _runStart: number // offset of <w:r> in full XML
+  _runEnd: number   // offset after </w:r>
+  _rprXml: string   // inner content of <w:rPr> from original run
+}
+
 export interface Placeholder {
   id: string        // "ph_0", "ph_1", ... sequential, document order
   context: string   // paragraph plain-text for Gemini context
@@ -82,8 +90,8 @@ function groupText(runs: RunInfo[]): string {
  * knows exactly what each blank represents.
  */
 function extractLocalContext(xml: string, groupStart: number, groupEnd: number): string {
-  const beforeXml = xml.slice(Math.max(0, groupStart - 600), groupStart)
-  const afterXml = xml.slice(groupEnd, Math.min(xml.length, groupEnd + 600))
+  const beforeXml = xml.slice(Math.max(0, groupStart - 1500), groupStart)
+  const afterXml = xml.slice(groupEnd, Math.min(xml.length, groupEnd + 1500))
   const before = beforeXml.replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim().slice(-80)
   const after = afterXml.replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim().slice(0, 80)
   return `...${before}[CAMPO]${after}...`
@@ -183,6 +191,48 @@ export function extractLabelPlaceholders(xml: string): LabelPlaceholder[] {
         break
       }
     }
+  }
+
+  return results
+}
+
+/**
+ * Extract plain underscore placeholders (6+ consecutive underscores in a non-highlighted run).
+ * Used for the letter date header (city, day, month) and other fields that don't use
+ * yellow highlight — these are literal underscore characters in the document text.
+ */
+export function extractUnderscoredPlaceholders(xml: string): UnderscoredPlaceholder[] {
+  const pattern = /<w:r\b[^>]*>[\s\S]*?<\/w:r>/g
+  const results: UnderscoredPlaceholder[] = []
+  let m: RegExpExecArray | null
+  let idx = 0
+
+  while ((m = pattern.exec(xml)) !== null) {
+    const runXml = m[0]
+    // Highlighted runs are handled by extractHighlightPlaceholders — skip
+    if (runXml.includes('w:val="yellow"') || runXml.includes("w:val='yellow'")) continue
+
+    const text = runXml.replace(/<[^>]+>/g, "")
+    // Only process runs that are primarily underscores (6+ consecutive)
+    if (!/_{6,}/.test(text)) continue
+
+    const runStart = m.index
+    const runEnd = m.index + runXml.length
+
+    const beforeXml = xml.slice(Math.max(0, runStart - 1500), runStart)
+    const afterXml = xml.slice(runEnd, Math.min(xml.length, runEnd + 1500))
+    const before = beforeXml.replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim().slice(-80)
+    const after = afterXml.replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim().slice(0, 80)
+
+    const rprMatch = runXml.match(/<w:rPr>([\s\S]*?)<\/w:rPr>/)
+
+    results.push({
+      id: `us_${idx++}`,
+      context: `...${before}[CAMPO]${after}...`,
+      _runStart: runStart,
+      _runEnd: runEnd,
+      _rprXml: rprMatch ? rprMatch[1] : "",
+    })
   }
 
   return results

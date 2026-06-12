@@ -6,13 +6,16 @@ import {
   loadTemplateXml,
   extractHighlightPlaceholders,
   extractLabelPlaceholders,
+  extractUnderscoredPlaceholders,
   type Placeholder,
   type LabelPlaceholder,
+  type UnderscoredPlaceholder,
 } from "@/lib/contracts/extractPlaceholders"
 import { callGemini, type GeminiPlaceholder } from "@/lib/contracts/geminiClient"
 import {
   fillHighlightPlaceholders,
   fillLabelPlaceholders,
+  fillUnderscoredPlaceholders,
   generateDocxBuffer,
 } from "@/lib/contracts/fillPlaceholders"
 import { processUploadedFile } from "@/lib/contracts/extractDocText"
@@ -90,17 +93,23 @@ export async function POST(request: NextRequest) {
   let labelPlaceholders: LabelPlaceholder[] | null = null
   let geminiPlaceholders: GeminiPlaceholder[]
 
+  // Underscore placeholders exist in all template types (e.g. letter date header)
+  const underscoredPlaceholders: UnderscoredPlaceholder[] = extractUnderscoredPlaceholders(xml)
+
   if (model.type === "adenda") {
     highlightPlaceholders = extractHighlightPlaceholders(xml)
     // Placeholder is a superset of GeminiPlaceholder — pass directly
-    geminiPlaceholders = highlightPlaceholders
+    geminiPlaceholders = [
+      ...highlightPlaceholders,
+      ...underscoredPlaceholders.map(u => ({ id: u.id, context: u.context })),
+    ]
   } else {
     // model.type === "ac" — label-based strategy
     labelPlaceholders = extractLabelPlaceholders(xml)
-    geminiPlaceholders = labelPlaceholders.map(lp => ({
-      id: lp.id,
-      context: `${lp.label}: ${lp.context}`,
-    }))
+    geminiPlaceholders = [
+      ...labelPlaceholders.map(lp => ({ id: lp.id, context: `${lp.label}: ${lp.context}` })),
+      ...underscoredPlaceholders.map(u => ({ id: u.id, context: u.context })),
+    ]
   }
 
   const totalCount = geminiPlaceholders.length
@@ -133,6 +142,8 @@ export async function POST(request: NextRequest) {
   } else {
     modifiedXml = fillLabelPlaceholders(xml, geminiValues, labelPlaceholders!)
   }
+  // Underscore placeholders apply on top regardless of template type
+  modifiedXml = fillUnderscoredPlaceholders(modifiedXml, geminiValues, underscoredPlaceholders)
 
   // ── Count completed fields for X-Fields-Completed header ────────────────────
   const completedCount = geminiPlaceholders.filter(

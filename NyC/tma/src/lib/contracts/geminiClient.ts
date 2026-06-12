@@ -13,28 +13,42 @@ type InlinePart = {
   }
 }
 
-// Maps common ALL-CAPS legal placeholder labels to plain descriptions.
-// Gemini performs much better when it knows semantically what each label means.
+// Maps common field types to plain descriptions so Gemini can map semantics to position.
 const FIELD_GLOSSARY = `
-GLOSARIO DE CAMPOS (usalo para interpretar las etiquetas):
-- NOMBRE DEL LOCADOR / NOMBRE: nombre completo (persona física o razón social) del propietario/locador
+GLOSARIO DE CAMPOS (usalo para interpretar la "Posición en el documento" de cada campo):
+- NOMBRE DEL LOCADOR / NOMBRE / RAZÓN SOCIAL: nombre completo (persona física) o razón social (PJ) del propietario/locador
 - CUIT DEL LOCADOR / CUIT: número de CUIT del locador (formato XX-XXXXXXXX-X)
 - DOMICILIO DEL LOCADOR / DOMICILIO: domicilio legal completo del locador
 - ESTADO CIVIL / EST. CIVIL: estado civil (soltero/a, casado/a, etc.)
 - NACIONALIDAD: nacionalidad del locador
 - DNI / D.N.I.: número de documento nacional de identidad
-- NOMBRE DEL LOCATARIO: empresa locataria (generalmente Nicholson & Cano S.A. u otra empresa del grupo)
-- CUIT DEL LOCATARIO: CUIT de la empresa locataria
 - COD. SITIO / CÓDIGO DE SITIO: código numérico que identifica el sitio/antena (ej: 12345)
-- DIRECCIÓN / DOMICILIO DEL INMUEBLE: dirección completa del inmueble o sitio
-- LOCALIDAD / CIUDAD: ciudad o localidad donde se ubica el inmueble
-- PROVINCIA: provincia donde se ubica el inmueble
-- FECHA DE INICIO / FECHA DE COMIENZO: fecha en que comienza el contrato o período
-- FECHA DE VENCIMIENTO / FECHA DE FIN: fecha en que vence el contrato o período
-- PLAZO / PERÍODO: duración del contrato (ej: "24 meses", "2 años")
-- CANON / MONTO / ALQUILER: importe mensual del alquiler en pesos o dólares
-- AJUSTE / ACTUALIZACIÓN: periodicidad y mecanismo de ajuste del canon
-- REPRESENTANTE / APODERADO: nombre del representante legal o apoderado`
+- DIRECCIÓN / DOMICILIO DEL INMUEBLE / CALLE: dirección completa del inmueble o sitio
+- LOCALIDAD / CIUDAD DEL INMUEBLE: ciudad o localidad donde se ubica el inmueble
+- PROVINCIA DEL INMUEBLE: provincia donde se ubica el inmueble
+- FECHA DE INICIO / FECHA DE COMIENZO: fecha en que comienza el contrato o período ("DD de mes de AAAA")
+- FECHA DE VENCIMIENTO / FECHA DE FIN: fecha en que vence el contrato
+- PLAZO / PERÍODO / MESES: duración del contrato (solo el número, ej: "36")
+- CANON MENSUAL / MONTO MENSUAL: importe mensual del alquiler en pesos o dólares
+- CANON ANUAL / PRECIO ANUAL: importe anual del alquiler (canon mensual × 12)
+- CANON ANUAL EN PALABRAS: el canon anual expresado en letras en MAYÚSCULAS (ej: 14.200 → "CATORCE MIL DOSCIENTOS")
+- CANON TOTAL DEL PLAZO: suma total por todo el plazo (canon anual × años de plazo)
+- CANON TOTAL EN PALABRAS: el canon total expresado en letras en MAYÚSCULAS (ej: 42.600 → "CUARENTA Y DOS MIL SEISCIENTOS")
+- REPRESENTANTE / APODERADO: nombre completo del representante legal o apoderado de la locadora
+- CARGO / CARÁCTER DEL REPRESENTANTE: rol o cargo del representante en la empresa (ej: Apoderado, Gerente, Director, Presidente)
+- CIUDAD DE LA CARTA / LUGAR: ciudad donde se emite la carta (generalmente la misma del inmueble)
+- DÍA DE LA CARTA: número del día en que se emite la carta
+- MES DE LA CARTA: nombre del mes en que se emite la carta (en español, ej: "agosto")
+- FECHA ACTA DIRECTORIO: fecha del acta de directorio que autoriza al representante
+- FECHA PROPUESTA ANTERIOR: fecha en que se firmó o envió el contrato original
+- ALTA MERCURIO - NOMBRE: primer nombre del representante que se dará de alta en Mercurio-Proveedores
+- ALTA MERCURIO - APELLIDO: apellido del representante para Mercurio
+- ALTA MERCURIO - MÓVIL: número de teléfono celular del representante
+- ALTA MERCURIO - DNI: DNI del representante (persona física) para Mercurio
+- ALTA MERCURIO - CUIL: CUIL del representante (formato XX-XXXXXXXX-X, diferente al CUIT de la empresa)
+- ALTA MERCURIO - MAIL: correo electrónico del representante para Mercurio
+- ALTA MERCURIO - CUIT EMPRESA: CUIT de la empresa locadora que emitirá las facturas
+- ALTA MERCURIO - RAZÓN SOCIAL EMPRESA: nombre de la empresa locadora que factura`
 
 /**
  * Build the Gemini prompt using chain-of-thought: analyze documents first,
@@ -80,8 +94,13 @@ PASO 1 — ANÁLISIS: Leé los documentos e identificá toda la información dis
 PASO 2 — MAPEO: Usá lo identificado en el Paso 1 para completar exactamente estos campos.
 Reglas:
 - Si encontrás el dato, usalo aunque esté en otro orden o formato
-- Fechas: formato "DD de mes de AAAA" (ej: "15 de junio de 2026")
-- Montos: incluí signo de moneda (ej: "$ 150.000" o "USD 2.500")
+- Fechas completas: formato "DD de mes de AAAA" (ej: "15 de junio de 2026")
+- Montos numéricos: solo el número si el contexto ya tiene "U$S" o "$" antes del campo (ej: "14.200", no "USD 14.200")
+- Montos en palabras: si el campo pide el equivalente en letras de un monto, calculalo en MAYÚSCULAS (ej: 14.200 = "CATORCE MIL DOSCIENTOS"; 42.600 = "CUARENTA Y DOS MIL SEISCIENTOS")
+- Canon anual = canon mensual × 12; canon total = canon anual × años del plazo
+- Ciudad de la carta: usá la misma ciudad del inmueble
+- Día y mes de la carta: usá el día y mes de inicio del contrato
+- Tabla Alta Mercurio: completá con los datos del representante de la locadora (nombre, apellido, DNI, mail, etc.)
 - Si no encontrás información para un campo: ""
 - No inventes datos sin respaldo en los documentos
 

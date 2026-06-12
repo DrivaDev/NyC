@@ -1,5 +1,5 @@
 import PizZip from "pizzip"
-import type { Placeholder, LabelPlaceholder } from "./extractPlaceholders"
+import type { Placeholder, LabelPlaceholder, UnderscoredPlaceholder } from "./extractPlaceholders"
 
 /**
  * Fill highlighted run placeholders in OOXML XML string (Adenda strategy).
@@ -34,6 +34,26 @@ export function fillHighlightPlaceholders(
     // Collapse entire run group into one run with original formatting + new text
     const newRun = `<w:r><w:rPr>${ph._rprXml}</w:rPr><w:t xml:space="preserve">${escapeXml(fillText)}</w:t></w:r>`
     result = result.slice(0, ph._startPos) + newRun + result.slice(ph._endPos)
+  }
+  return result
+}
+
+/**
+ * Fill plain underscore placeholders (city/day/month date header and similar fields).
+ * Keeps original underscores if Gemini returns "" (field stays visually blank).
+ */
+export function fillUnderscoredPlaceholders(
+  xml: string,
+  values: Record<string, string>,
+  placeholders: UnderscoredPlaceholder[]
+): string {
+  let result = xml
+  for (let i = placeholders.length - 1; i >= 0; i--) {
+    const ph = placeholders[i]
+    const value = values[ph.id]
+    if (!value || !value.trim()) continue
+    const newRun = `<w:r><w:rPr>${ph._rprXml}</w:rPr><w:t xml:space="preserve"> ${escapeXml(value.trim())} </w:t></w:r>`
+    result = result.slice(0, ph._runStart) + newRun + result.slice(ph._runEnd)
   }
   return result
 }

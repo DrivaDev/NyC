@@ -78,13 +78,6 @@ export function TmaPageContent() {
                       </p>
                     </div>
 
-                    {/* Badge — Disponible */}
-                    <span
-                      className="self-start text-[11px] font-medium px-2.5 py-1 rounded-full"
-                      style={{ backgroundColor: "#EA580C", color: "#FFFFFF" }}
-                    >
-                      Disponible
-                    </span>
                   </div>
                 </motion.div>
               </Link>

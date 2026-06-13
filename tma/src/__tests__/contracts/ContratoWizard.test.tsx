@@ -13,21 +13,12 @@ describe("ContratoWizard (UI-06)", () => {
     expect(screen.getAllByRole("button")).toBeDefined()
   })
 
-  it("'Continuar a Documentación' is disabled until a model is selected", async () => {
+  it("clicking a model card advances directly to step 2", async () => {
     const { ContratoWizard } = await import("@/app/tma/contratos/ContratoWizard")
     render(<ContratoWizard />)
-    const continueBtn = screen.getByText("Continuar a Documentación")
-    expect(continueBtn.closest("button")).toBeDisabled()
-  })
-
-  it("advances to step 2 when a model is selected and Continuar clicked", async () => {
-    const { ContratoWizard } = await import("@/app/tma/contratos/ContratoWizard")
-    render(<ContratoWizard />)
-    // Click first model card
+    // Click first model card — should go straight to step 2
     const cards = screen.getAllByRole("button")
     fireEvent.click(cards[0])
-    const continueBtn = screen.getByText("Continuar a Documentación")
-    fireEvent.click(continueBtn)
     await waitFor(() => {
       expect(screen.getByText("Cargá la documentación del asunto")).toBeInTheDocument()
     })

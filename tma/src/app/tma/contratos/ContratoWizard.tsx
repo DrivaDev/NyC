@@ -326,8 +326,6 @@ export function ContratoWizard() {
 
   // ── Step 1: Model selection ───────────────────────────────────────────────
 
-  const step1RequiredFulfilled = state.model !== null
-
   const renderStep1 = () => (
     <div className="flex flex-col gap-8">
       <h2 className="text-[20px] font-bold text-brand-title text-center">
@@ -353,7 +351,7 @@ export function ContratoWizard() {
                     transition={{ duration: 0.25, ease: "easeOut", delay: groupIdx * models.length * 0.05 + cardIdx * 0.05 }}
                     whileHover={{ scale: 1.025, y: -3 }}
                     whileTap={{ scale: 0.98 }}
-                    onClick={() => dispatch({ type: "SELECT_MODEL", model: m })}
+                    onClick={() => { dispatch({ type: "SELECT_MODEL", model: m }); dispatch({ type: "NEXT_STEP" }) }}
                     className="text-left h-full p-6 flex flex-col gap-4 rounded-2xl focus:outline-none"
                     style={{ ...cardStyle, outline: isSelected ? "2px solid #EA580C" : "none", outlineOffset: isSelected ? 2 : 0 }}
                   >
@@ -381,17 +379,6 @@ export function ContratoWizard() {
         )
       })}
 
-      <div className="flex justify-end mt-2">
-        <button
-          type="button"
-          disabled={!step1RequiredFulfilled}
-          onClick={() => dispatch({ type: "NEXT_STEP" })}
-          className="px-6 py-3 rounded-xl text-[14px] font-bold text-white transition-all duration-200"
-          style={{ backgroundColor: "#EA580C", opacity: step1RequiredFulfilled ? 1 : 0.45, cursor: step1RequiredFulfilled ? "pointer" : "not-allowed" }}
-        >
-          Continuar a Documentación
-        </button>
-      </div>
     </div>
   )
 
@@ -453,7 +440,7 @@ export function ContratoWizard() {
           className="px-6 py-3 rounded-xl text-[14px] font-bold text-white transition-all duration-200"
           style={{ backgroundColor: "#EA580C", opacity: step2RequiredFulfilled ? 1 : 0.45, cursor: step2RequiredFulfilled ? "pointer" : "not-allowed" }}
         >
-          Generar con Gemini
+          Generar contrato
         </button>
       </div>
     </div>

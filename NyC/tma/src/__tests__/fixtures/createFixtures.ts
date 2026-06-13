@@ -25,21 +25,29 @@ const ADENDA_XML = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
   </w:body>
 </w:document>`
 
-// Minimal OOXML for AC PF/PJ — label-based fields (no yellow highlight)
+// Minimal OOXML for AC PF/PJ — label paragraphs are yellow-highlighted and end with ":"
+// This matches the real AC template structure where the LABEL is highlighted, not the value.
+// The value gets appended as a new run just before </w:p>.
 const AC_PF_XML = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
   <w:body>
     <w:p>
-      <w:r><w:t>Nombre:</w:t></w:r>
-      <w:r><w:t> </w:t></w:r>
+      <w:r>
+        <w:rPr><w:highlight w:val="yellow"/></w:rPr>
+        <w:t>Nombre:</w:t>
+      </w:r>
     </w:p>
     <w:p>
-      <w:r><w:t>CUIT:</w:t></w:r>
-      <w:r><w:t> </w:t></w:r>
+      <w:r>
+        <w:rPr><w:highlight w:val="yellow"/></w:rPr>
+        <w:t>CUIT:</w:t>
+      </w:r>
     </w:p>
     <w:p>
-      <w:r><w:t>Domicilio:</w:t></w:r>
-      <w:r><w:t> </w:t></w:r>
+      <w:r>
+        <w:rPr><w:highlight w:val="yellow"/></w:rPr>
+        <w:t>Domicilio:</w:t>
+      </w:r>
     </w:p>
     <w:sectPr/>
   </w:body>

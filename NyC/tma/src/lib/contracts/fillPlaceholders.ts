@@ -32,7 +32,7 @@ export function fillHighlightPlaceholders(
       value !== undefined && value.trim() !== "" ? value : ph.label
 
     // Collapse entire run group into one run with original formatting + new text
-    const newRun = `<w:r><w:rPr>${ph._rprXml}</w:rPr><w:t xml:space="preserve">${escapeXml(fillText)}</w:t></w:r>`
+    const newRun = `<w:r><w:rPr>${stripUnderline(ph._rprXml)}</w:rPr><w:t xml:space="preserve">${escapeXml(fillText)}</w:t></w:r>`
     result = result.slice(0, ph._startPos) + newRun + result.slice(ph._endPos)
   }
   return result
@@ -52,16 +52,21 @@ export function fillUnderscoredPlaceholders(
     const ph = placeholders[i]
     const value = values[ph.id]
     if (!value || !value.trim()) continue
-    const newRun = `<w:r><w:rPr>${ph._rprXml}</w:rPr><w:t xml:space="preserve"> ${escapeXml(value.trim())} </w:t></w:r>`
+    const newRun = `<w:r><w:rPr>${stripUnderline(ph._rprXml)}</w:rPr><w:t xml:space="preserve"> ${escapeXml(value.trim())} </w:t></w:r>`
     result = result.slice(0, ph._runStart) + newRun + result.slice(ph._runEnd)
   }
   return result
 }
 
 /**
- * Fill label-based placeholders for AC PF/PJ templates (D-09).
- * For each label match, replaces the <w:t> content of the run immediately
- * following the label run in the same paragraph.
+ * Fill label-based placeholders for AC PF/PJ templates.
+ *
+ * In AC templates each form field is a yellow-highlighted paragraph ending with ":".
+ * Filling inserts a new <w:r> run with the value just before </w:p>, appending the
+ * value text to the label on the same line. Underline is stripped from the rPr so
+ * the filled value has no underline (only the label remains underlined).
+ *
+ * Uses position-based replacement (reverse order) to preserve indices.
  */
 export function fillLabelPlaceholders(
   xml: string,
@@ -69,15 +74,14 @@ export function fillLabelPlaceholders(
   placeholders: LabelPlaceholder[]
 ): string {
   let result = xml
-  // Process in reverse order to preserve string indices
+  // Process in reverse order so earlier _insertPos values stay valid
   for (let i = placeholders.length - 1; i >= 0; i--) {
     const ph = placeholders[i]
-    const value = values[ph.id] ?? ""
-    // Find the label run followed by a value run in the same paragraph context
-    const labelRegex = new RegExp(
-      `(<w:t[^>]*>${escapeRegex(ph.label)}:?\\s*<\\/w:t>\\s*)(<w:r\\b[^>]*>[\\s\\S]*?<w:t[^>]*>)[\\s\\S]*?(<\\/w:t>[\\s\\S]*?<\\/w:r>)`
-    )
-    result = result.replace(labelRegex, `$1$2${escapeXml(value)}$3`)
+    const value = values[ph.id]
+    if (!value || !value.trim()) continue
+
+    const newRun = `<w:r><w:rPr>${stripUnderline(ph._rprXml)}</w:rPr><w:t xml:space="preserve"> ${escapeXml(value.trim())}</w:t></w:r>`
+    result = result.slice(0, ph._insertPos) + newRun + result.slice(ph._insertPos)
   }
   return result
 }
@@ -89,6 +93,11 @@ export function fillLabelPlaceholders(
 export function generateDocxBuffer(zip: PizZip, modifiedXml: string): Buffer {
   zip.file("word/document.xml", modifiedXml)
   return zip.generate({ type: "nodebuffer" }) as Buffer
+}
+
+/** Strip underline from rPr so inserted values don't inherit label underline styling. */
+function stripUnderline(rprXml: string): string {
+  return rprXml.replace(/<w:u\b[^>]*\/?>/g, "")
 }
 
 /**
@@ -104,6 +113,3 @@ export function escapeXml(str: string): string {
     .replace(/'/g, "&apos;")
 }
 
-function escapeRegex(str: string): string {
-  return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
-}

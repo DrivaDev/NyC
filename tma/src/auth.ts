@@ -1,4 +1,5 @@
 import NextAuth from "next-auth"
+import type { Session } from "next-auth"
 import Credentials from "next-auth/providers/credentials"
 import { authConfig } from "./auth.config"
 import { connectDB } from "@/lib/mongodb"
@@ -15,7 +16,7 @@ if (!process.env.AUTH_SECRET) {
 // even when a user is not found, preventing timing-based user enumeration.
 const DUMMY_HASH = bcryptjs.hashSync("__timing_sentinel__", 12)
 
-export const { handlers, signIn, signOut, auth } = NextAuth({
+const _nextAuth = NextAuth({
   ...authConfig,
   providers: [
     Credentials({
@@ -46,3 +47,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     }),
   ],
 })
+
+export const { handlers, signIn, signOut } = _nextAuth
+// Re-exported with a simplified type so test mocks can use mockResolvedValueOnce(null).
+// At runtime auth() still invokes the full NextAuth session resolver.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const auth: (...args: any[]) => Promise<Session | null> = _nextAuth.auth as any

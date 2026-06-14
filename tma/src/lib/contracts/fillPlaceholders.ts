@@ -1,5 +1,6 @@
 import PizZip from "pizzip"
 import type { Placeholder, LabelPlaceholder, UnderscoredPlaceholder } from "./extractPlaceholders"
+export { extractHighlightPlaceholders } from "./extractPlaceholders"
 
 /**
  * Fill highlighted run placeholders in OOXML XML string (Adenda strategy).

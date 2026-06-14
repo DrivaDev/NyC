@@ -294,15 +294,18 @@ export function ContratoWizard() {
       ])
     : PROCESSING_MESSAGES
 
-  // Cycle processing messages while generating
+  // Cycle processing messages while generating.
+  // msgIndex resets to 0 on unmount via the cleanup; step 3 is entered once per flow.
   useEffect(() => {
     const isLoading = state.step === 3 && !state.error
     if (!isLoading) return
-    setMsgIndex(0)
     const interval = setInterval(() => {
       setMsgIndex(i => Math.min(i + 1, processingMessages.length - 1))
     }, 4000)
-    return () => clearInterval(interval)
+    return () => {
+      clearInterval(interval)
+      setMsgIndex(0)
+    }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.step, state.error])
 

@@ -26,11 +26,17 @@ interface GenerationResult {
   totalCount: number
 }
 
+interface LocadorEntry {
+  id: string      // local React key (crypto.randomUUID())
+  files: File[]
+  open: boolean   // collapsible open/closed state
+}
+
 interface WizardState {
   step: WizardStep
   model: ContractModel | null
   siteFiles: File[]
-  personFiles: File[]
+  locadores: LocadorEntry[]
   notes: string
   result: GenerationResult | null
   error: string | null
@@ -39,7 +45,10 @@ interface WizardState {
 type WizardAction =
   | { type: "SELECT_MODEL"; model: ContractModel }
   | { type: "SET_SITE_FILES"; files: File[] }
-  | { type: "SET_PERSON_FILES"; files: File[] }
+  | { type: "ADD_LOCADOR" }
+  | { type: "REMOVE_LOCADOR"; id: string }
+  | { type: "SET_LOCADOR_FILES"; id: string; files: File[] }
+  | { type: "TOGGLE_LOCADOR"; id: string }
   | { type: "SET_NOTES"; notes: string }
   | { type: "NEXT_STEP" }
   | { type: "PREV_STEP" }
@@ -53,7 +62,7 @@ const initialState: WizardState = {
   step: 1,
   model: null,
   siteFiles: [],
-  personFiles: [],
+  locadores: [{ id: crypto.randomUUID(), files: [], open: true }],
   notes: "",
   result: null,
   error: null,
@@ -65,8 +74,14 @@ function wizardReducer(state: WizardState, action: WizardAction): WizardState {
       return { ...state, model: action.model }
     case "SET_SITE_FILES":
       return { ...state, siteFiles: action.files }
-    case "SET_PERSON_FILES":
-      return { ...state, personFiles: action.files }
+    case "ADD_LOCADOR":
+      return { ...state, locadores: [...state.locadores, { id: crypto.randomUUID(), files: [], open: true }] }
+    case "REMOVE_LOCADOR":
+      return { ...state, locadores: state.locadores.filter(l => l.id !== action.id) }
+    case "SET_LOCADOR_FILES":
+      return { ...state, locadores: state.locadores.map(l => l.id === action.id ? { ...l, files: action.files } : l) }
+    case "TOGGLE_LOCADOR":
+      return { ...state, locadores: state.locadores.map(l => l.id === action.id ? { ...l, open: !l.open } : l) }
     case "SET_NOTES":
       return { ...state, notes: action.notes }
     case "NEXT_STEP":
@@ -82,7 +97,7 @@ function wizardReducer(state: WizardState, action: WizardAction): WizardState {
     case "RETRY":
       return { ...state, error: null }
     case "RESET":
-      return initialState
+      return { ...initialState, locadores: [{ id: crypto.randomUUID(), files: [], open: true }] }
     default:
       return state
   }
@@ -271,15 +286,24 @@ export function ContratoWizard() {
   const [msgIndex, setMsgIndex] = useState(0)
   const modelGroups = getModelsByGroup()
 
+  // Dynamic processing messages: per-locador for AC multi-locador
+  const processingMessages = (state.model?.type === "ac" && state.locadores.length > 1)
+    ? state.locadores.flatMap((_, i) => [
+        `Analizando documentación del Locador ${i + 1}...`,
+        `Completando datos del Locador ${i + 1}...`,
+      ])
+    : PROCESSING_MESSAGES
+
   // Cycle processing messages while generating
   useEffect(() => {
     const isLoading = state.step === 3 && !state.error
     if (!isLoading) return
     setMsgIndex(0)
     const interval = setInterval(() => {
-      setMsgIndex(i => Math.min(i + 1, PROCESSING_MESSAGES.length - 1))
+      setMsgIndex(i => Math.min(i + 1, processingMessages.length - 1))
     }, 4000)
     return () => clearInterval(interval)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.step, state.error])
 
   // Auto-run generate when entering step 3
@@ -295,7 +319,10 @@ export function ContratoWizard() {
     fd.append("modelId", state.model!.id)
     fd.append("notes", state.notes)
     state.siteFiles.forEach(f => fd.append("siteFiles", f))
-    state.personFiles.forEach(f => fd.append("personFiles", f))
+    fd.append("locadorCount", String(state.locadores.length))
+    state.locadores.forEach((loc, i) => {
+      loc.files.forEach(f => fd.append(`personFiles_${i}`, f))
+    })
 
     try {
       const res = await fetch("/api/contracts/generate", { method: "POST", body: fd })
@@ -385,9 +412,10 @@ export function ContratoWizard() {
   // ── Step 2: Document upload ───────────────────────────────────────────────
 
   const isAdenda = state.model?.type === "adenda"
+  const allLocadoresFilled = state.locadores.every(l => l.files.length > 0)
   const step2RequiredFulfilled = isAdenda
-    ? state.siteFiles.length > 0 && state.personFiles.length > 0
-    : state.personFiles.length > 0
+    ? state.siteFiles.length > 0 && allLocadoresFilled
+    : allLocadoresFilled
 
   const renderStep2 = () => (
     <div className="p-8 rounded-2xl flex flex-col gap-6" style={cardStyle}>
@@ -404,12 +432,64 @@ export function ContratoWizard() {
         />
       )}
 
-      <FileUploadZone
-        label="Personas relacionadas"
-        files={state.personFiles}
-        onChange={files => dispatch({ type: "SET_PERSON_FILES", files })}
-        required
-      />
+      <div className="flex flex-col gap-3">
+        <div className="flex items-center justify-between">
+          <label className="text-[14px] font-bold text-brand-text">Locadores</label>
+          <button
+            type="button"
+            onClick={() => dispatch({ type: "ADD_LOCADOR" })}
+            className="text-[12px] font-bold rounded-lg px-3 py-1.5 transition-colors"
+            style={{ backgroundColor: "#EA580C", color: "#FFFFFF" }}
+          >
+            + Agregar locador
+          </button>
+        </div>
+
+        <AnimatePresence initial={false}>
+          {state.locadores.map((loc, i) => (
+            <motion.div
+              key={loc.id}
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.25, ease: "easeOut" }}
+              className="rounded-xl overflow-hidden"
+              style={{ border: "1px solid #FECBA1", background: "#FFF7ED" }}
+            >
+              <div className="flex items-center justify-between px-4 py-2">
+                <button
+                  type="button"
+                  onClick={() => dispatch({ type: "TOGGLE_LOCADOR", id: loc.id })}
+                  className="text-[13px] font-bold text-brand-title"
+                >
+                  {loc.open ? "▾" : "▸"} Locador {i + 1}
+                </button>
+                {state.locadores.length > 1 && (
+                  <button
+                    type="button"
+                    onClick={() => dispatch({ type: "REMOVE_LOCADOR", id: loc.id })}
+                    aria-label={`Quitar Locador ${i + 1}`}
+                    className="text-[12px] rounded-full w-6 h-6 flex items-center justify-center transition-colors"
+                    style={{ backgroundColor: "#FED7AA", color: "#9A3412" }}
+                  >
+                    −
+                  </button>
+                )}
+              </div>
+              {loc.open && (
+                <div className="px-4 pb-4">
+                  <FileUploadZone
+                    label="Personas relacionadas"
+                    files={loc.files}
+                    onChange={files => dispatch({ type: "SET_LOCADOR_FILES", id: loc.id, files })}
+                    required
+                  />
+                </div>
+              )}
+            </motion.div>
+          ))}
+        </AnimatePresence>
+      </div>
 
       <div className="flex flex-col gap-2">
         <label className="text-[14px] font-bold text-brand-text">Notas</label>
@@ -496,7 +576,7 @@ export function ContratoWizard() {
               transition={{ duration: 0.3 }}
               className="text-[14px] text-brand-text"
             >
-              {PROCESSING_MESSAGES[msgIndex]}
+              {processingMessages[msgIndex]}
             </motion.p>
           </AnimatePresence>
         </div>

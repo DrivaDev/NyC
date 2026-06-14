@@ -1,3 +1,4 @@
+// @vitest-environment node
 import { describe, it, expect, vi } from "vitest"
 
 // Mock auth to return a session (avoid NextAuth dep in unit test)

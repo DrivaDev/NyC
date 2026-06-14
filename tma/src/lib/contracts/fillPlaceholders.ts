@@ -103,10 +103,20 @@ function stripUnderline(rprXml: string): string {
 
 /**
  * Escape XML reserved characters for safe insertion into <w:t> content.
- * Order matters: & must be escaped FIRST to avoid double-escaping.
+ * Also strips characters that are invalid in XML 1.0 (e.g. control chars
+ * that LLMs occasionally embed in output). Order matters: & first.
+ *
+ * Valid XML 1.0 chars: U+0009, U+000A, U+000D, U+0020–U+D7FF, U+E000–U+FFFD.
  */
 export function escapeXml(str: string): string {
-  return str
+  // Strip XML 1.0 invalid chars via char codes to avoid regex encoding pitfalls
+  let sanitized = ""
+  for (let i = 0; i < str.length; i++) {
+    const c = str.charCodeAt(i)
+    if (c <= 0x0008 || c === 0x000B || c === 0x000C || (c >= 0x000E && c <= 0x001F) || c === 0xFFFE || c === 0xFFFF) continue
+    sanitized += str[i]
+  }
+  return sanitized
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")

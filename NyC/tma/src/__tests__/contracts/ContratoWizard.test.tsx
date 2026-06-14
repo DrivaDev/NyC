@@ -43,3 +43,51 @@ describe("ContratoWizard (UI-06)", () => {
     expect(screen.getByText("Seleccioná el modelo de contrato")).toBeInTheDocument()
   })
 })
+
+describe("ContratoWizard multi-locador step 2 (CONTR-11, CONTR-12)", () => {
+  it("step 2 shows a '+ Agregar locador' button", async () => {
+    const { ContratoWizard } = await import("@/app/tma/contratos/ContratoWizard")
+    render(<ContratoWizard />)
+    // Navigate to step 2 by clicking first model card
+    const cards = screen.getAllByRole("button")
+    fireEvent.click(cards[0])
+    await waitFor(() => {
+      expect(screen.getByText("Cargá la documentación del asunto")).toBeInTheDocument()
+    })
+    expect(screen.getByText(/Agregar locador/i)).toBeInTheDocument()
+  })
+
+  it("clicking '+ Agregar locador' adds a second locador section", async () => {
+    const { ContratoWizard } = await import("@/app/tma/contratos/ContratoWizard")
+    render(<ContratoWizard />)
+    const cards = screen.getAllByRole("button")
+    fireEvent.click(cards[0])
+    await waitFor(() => {
+      expect(screen.getByText("Cargá la documentación del asunto")).toBeInTheDocument()
+    })
+    const addButton = screen.getByText(/Agregar locador/i)
+    fireEvent.click(addButton)
+    await waitFor(() => {
+      expect(screen.getByText(/Locador 2/i)).toBeInTheDocument()
+    })
+  })
+
+  it("Generar contrato button is disabled until every locador has files", async () => {
+    const { ContratoWizard } = await import("@/app/tma/contratos/ContratoWizard")
+    render(<ContratoWizard />)
+    const cards = screen.getAllByRole("button")
+    fireEvent.click(cards[0])
+    await waitFor(() => {
+      expect(screen.getByText("Cargá la documentación del asunto")).toBeInTheDocument()
+    })
+    // Add a second locador
+    const addButton = screen.getByText(/Agregar locador/i)
+    fireEvent.click(addButton)
+    await waitFor(() => {
+      expect(screen.getByText(/Locador 2/i)).toBeInTheDocument()
+    })
+    // Generar button should be disabled — Locador 2 has no files
+    const generateButton = screen.getByRole("button", { name: /Generar contrato/i })
+    expect(generateButton).toBeDisabled()
+  })
+})

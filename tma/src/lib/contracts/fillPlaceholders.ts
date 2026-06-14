@@ -147,11 +147,29 @@ export function cloneLocadorRow(xml: string, locadorCount: number): string {
   let idSeed = 0xa0000000 // start above typical document-generated paraIds
   const nextId = () => `${(idSeed++).toString(16).toUpperCase().padStart(8, "0")}`
 
+  // Find max bookmark ID in full document so clones get unique IDs (OOXML forbids duplicate w:id)
+  let maxBmId = 0
+  for (const m of xml.matchAll(/<w:bookmark(?:Start|End)\b[^>]*\bw:id="(\d+)"/g)) {
+    const id = parseInt(m[1], 10)
+    if (id > maxBmId) maxBmId = id
+  }
+
   let clones = ""
   for (let i = 1; i < locadorCount; i++) {
     let clone = originalRow
     clone = clone.replace(/w14:paraId="[^"]+"/g, () => `w14:paraId="${nextId()}"`)
     clone = clone.replace(/w14:textId="[^"]+"/g, () => `w14:textId="${nextId()}"`)
+    // Remap bookmark IDs: collect unique IDs in this clone, assign fresh ones
+    const bmIds = new Set([...clone.matchAll(/<w:bookmarkStart\b[^>]*\bw:id="(\d+)"/g)].map(m => m[1]))
+    const bmIdMap = new Map<string, string>()
+    for (const id of bmIds) {
+      bmIdMap.set(id, String(++maxBmId))
+    }
+    if (bmIdMap.size > 0) {
+      clone = clone.replace(/(<w:bookmark(?:Start|End)\b[^>]*\bw:id=")(\d+)"/g, (_, prefix, id) =>
+        `${prefix}${bmIdMap.get(id) ?? id}"`
+      )
+    }
     clones += clone
   }
 

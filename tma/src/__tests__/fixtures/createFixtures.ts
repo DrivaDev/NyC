@@ -1,21 +1,23 @@
 import PizZip from "pizzip"
 
 // Minimal OOXML with one <w:tbl>, one <w:tr>, 8 yellow-highlighted label paragraphs
-// each with unique w14:paraId — used for cloneLocadorRow unit tests (CONTR-11)
+// each with unique w14:paraId — used for cloneLocadorRow unit tests (CONTR-11).
+// Labels must match extractLabelPlaceholders KNOWN_LABELS (case-insensitive, colon stripped)
+// so the "fieldCount * N" test returns 8*N entries.
 const AC_PF_TABLE_XML = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:w14="http://schemas.microsoft.com/office/word/2010/wordml">
   <w:body>
     <w:tbl>
       <w:tr w:rsidR="007E5BE5" w14:paraId="42028EB9" w14:textId="77777777">
         <w:tc>
-          <w:p w14:paraId="00000001" w14:textId="00000001"><w:r><w:rPr><w:highlight w:val="yellow"/></w:rPr><w:t>Nombre y Apellido:</w:t></w:r></w:p>
-          <w:p w14:paraId="00000002" w14:textId="00000002"><w:r><w:rPr><w:highlight w:val="yellow"/></w:rPr><w:t>Domicilio:</w:t></w:r></w:p>
-          <w:p w14:paraId="00000003" w14:textId="00000003"><w:r><w:rPr><w:highlight w:val="yellow"/></w:rPr><w:t>Ciudad:</w:t></w:r></w:p>
-          <w:p w14:paraId="00000004" w14:textId="00000004"><w:r><w:rPr><w:highlight w:val="yellow"/></w:rPr><w:t>País:</w:t></w:r></w:p>
-          <w:p w14:paraId="00000005" w14:textId="00000005"><w:r><w:rPr><w:highlight w:val="yellow"/></w:rPr><w:t>Código Postal:</w:t></w:r></w:p>
-          <w:p w14:paraId="00000006" w14:textId="00000006"><w:r><w:rPr><w:highlight w:val="yellow"/></w:rPr><w:t>Número de teléfono:</w:t></w:r></w:p>
-          <w:p w14:paraId="00000007" w14:textId="00000007"><w:r><w:rPr><w:highlight w:val="yellow"/></w:rPr><w:t>Dirección de correo electrónico:</w:t></w:r></w:p>
-          <w:p w14:paraId="00000008" w14:textId="00000008"><w:r><w:rPr><w:highlight w:val="yellow"/></w:rPr><w:t>DNI/CUIT:</w:t></w:r></w:p>
+          <w:p w14:paraId="00000001" w14:textId="00000001"><w:r><w:rPr><w:highlight w:val="yellow"/></w:rPr><w:t>Nombre:</w:t></w:r></w:p>
+          <w:p w14:paraId="00000002" w14:textId="00000002"><w:r><w:rPr><w:highlight w:val="yellow"/></w:rPr><w:t>CUIT:</w:t></w:r></w:p>
+          <w:p w14:paraId="00000003" w14:textId="00000003"><w:r><w:rPr><w:highlight w:val="yellow"/></w:rPr><w:t>Domicilio:</w:t></w:r></w:p>
+          <w:p w14:paraId="00000004" w14:textId="00000004"><w:r><w:rPr><w:highlight w:val="yellow"/></w:rPr><w:t>Nacionalidad:</w:t></w:r></w:p>
+          <w:p w14:paraId="00000005" w14:textId="00000005"><w:r><w:rPr><w:highlight w:val="yellow"/></w:rPr><w:t>Estado civil:</w:t></w:r></w:p>
+          <w:p w14:paraId="00000006" w14:textId="00000006"><w:r><w:rPr><w:highlight w:val="yellow"/></w:rPr><w:t>Cargo:</w:t></w:r></w:p>
+          <w:p w14:paraId="00000007" w14:textId="00000007"><w:r><w:rPr><w:highlight w:val="yellow"/></w:rPr><w:t>Empresa:</w:t></w:r></w:p>
+          <w:p w14:paraId="00000008" w14:textId="00000008"><w:r><w:rPr><w:highlight w:val="yellow"/></w:rPr><w:t>Denominación:</w:t></w:r></w:p>
         </w:tc>
       </w:tr>
     </w:tbl>

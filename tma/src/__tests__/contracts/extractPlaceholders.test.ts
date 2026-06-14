@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest"
-import { ADENDA_XML, AC_PF_XML, createAdendaFixture } from "../fixtures/createFixtures"
+import { ADENDA_XML, AC_PF_XML, AC_PF_TABLE_XML, createAdendaFixture } from "../fixtures/createFixtures"
 
 describe("extractHighlightPlaceholders (CONTR-07)", () => {
   it("returns array with one entry per yellow-highlighted run", async () => {
@@ -47,5 +47,20 @@ describe("extractLabelPlaceholders — AC PF/PJ (D-09)", () => {
     const ids = placeholders.map(p => p.label)
     expect(ids).toContain("Nombre")
     expect(ids).toContain("CUIT")
+  })
+})
+
+describe("extractLabelPlaceholders on multi-locador cloned XML (CONTR-11)", () => {
+  it("assigns sequential lph_ ids across cloned rows so row 1 fields do not collide with row 0", async () => {
+    const { cloneLocadorRow } = await import("@/lib/contracts/fillPlaceholders")
+    const { extractLabelPlaceholders } = await import("@/lib/contracts/extractPlaceholders")
+    const cloned = cloneLocadorRow(AC_PF_TABLE_XML, 2)
+    const placeholders = extractLabelPlaceholders(cloned)
+    const ids = placeholders.map(p => p.id)
+    // Row 0 has lph_0..lph_7, row 1 has lph_8..lph_15
+    expect(ids).toContain("lph_0")
+    expect(ids).toContain("lph_8")
+    // All IDs must be unique
+    expect(new Set(ids).size).toBe(ids.length)
   })
 })

@@ -95,11 +95,11 @@ Wave 1 *(sin dependencias — ejecutar primero)*
 - [x] 03-01-PLAN.md — Wave 0/TDD: fixture AC multi-fila + tests RED (cloneLocadorRow, pluralizeLocadorRefs, route multi-locador, wizard +/− locador) ✓ 2026-06-14
 
 Wave 2 *(parallel — ambos dependen solo de 03-01)*
-- [ ] 03-02-PLAN.md — Backend: cloneLocadorRow (CONTR-11) + pluralizeLocadorRefs (CONTR-12) en fillPlaceholders.ts
-- [ ] 03-03-PLAN.md — Frontend: ContratoWizard.tsx step 2 con secciones colapsables de locador (+/−), validación y FormData locadorCount/personFiles_N
+- [x] 03-02-PLAN.md — Backend: cloneLocadorRow (CONTR-11) + pluralizeLocadorRefs (CONTR-12) en fillPlaceholders.ts ✓ 2026-06-14
+- [x] 03-03-PLAN.md — Frontend: ContratoWizard.tsx step 2 con secciones colapsables de locador (+/−), validación y FormData locadorCount/personFiles_N ✓ 2026-06-14
 
 Wave 3 *(blocked on 03-02 + 03-03)*
-- [ ] 03-04-PLAN.md — Route: orquestación multi-locador (AC N llamadas + clonado, Adenda pluralize + 1 llamada), caps DoS
+- [x] 03-04-PLAN.md — Route: orquestación multi-locador (AC N llamadas + clonado, Adenda pluralize + 1 llamada), caps DoS ✓ 2026-06-14
 
 Wave 4 *(blocked on 03-04)*
 - [ ] 03-05-PLAN.md — Verificación GREEN del suite + checkpoint humano (Word abre AC 2-locador sin "reparar")
@@ -138,6 +138,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 |-------|----------------|--------|-----------|
 | 1. Foundation & Auth | 4/4 | Complete | 2026-06-11 |
 | 2. Contratos — Pipeline de generación | 0/6 | Not started | - |
-| 3. Contratos — Multi-locador | 1/5 | In progress | - |
+| 3. Contratos — Multi-locador | 4/5 | In progress | - |
 | 4. Casos — CRUD & Dashboard | 0/TBD | Not started | - |
 | 5. Casos — Estadísticas | 0/TBD | Not started | - |

@@ -158,4 +158,24 @@ export function cloneLocadorRow(xml: string, locadorCount: number): string {
   return xml.slice(0, tblEndIdx) + clones + xml.slice(tblEndIdx)
 }
 
+/**
+ * Adapt nominative singular references to plural for multi-locador Adenda models (CONTR-12, D-07).
+ *
+ * Only the nominative forms are touched: "el LOCADOR" → "los LOCADORES" and
+ * "El LOCADOR" → "Los LOCADORES". Prepositional contractions ("del LOCADOR",
+ * "al LOCADOR") are intentionally left untouched per D-07 to avoid altering
+ * clauses, numbering, or structure. The leading \b word boundary prevents the
+ * regex from matching the "el LOCADOR" substring inside "del LOCADOR".
+ *
+ * Applied to the raw template XML BEFORE placeholder extraction and Gemini (D-08),
+ * so Gemini receives already-plural prose and cannot reintroduce the singular form.
+ *
+ * @param xml The template document.xml string
+ * @returns   XML with nominative LOCADOR references pluralized
+ */
+export function pluralizeLocadorRefs(xml: string): string {
+  return xml
+    .replace(/\bEl LOCADOR\b/g, "Los LOCADORES")
+    .replace(/\bel LOCADOR\b/g, "los LOCADORES")
+}
 

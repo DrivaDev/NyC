@@ -92,7 +92,7 @@ Wave 4 *(blocked on Wave 3)*
 **Plans**: 5 planes
 Plans:
 Wave 1 *(sin dependencias — ejecutar primero)*
-- [ ] 03-01-PLAN.md — Wave 0/TDD: fixture AC multi-fila + tests RED (cloneLocadorRow, pluralizeLocadorRefs, route multi-locador, wizard +/− locador)
+- [x] 03-01-PLAN.md — Wave 0/TDD: fixture AC multi-fila + tests RED (cloneLocadorRow, pluralizeLocadorRefs, route multi-locador, wizard +/− locador) ✓ 2026-06-14
 
 Wave 2 *(parallel — ambos dependen solo de 03-01)*
 - [ ] 03-02-PLAN.md — Backend: cloneLocadorRow (CONTR-11) + pluralizeLocadorRefs (CONTR-12) en fillPlaceholders.ts
@@ -138,6 +138,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 |-------|----------------|--------|-----------|
 | 1. Foundation & Auth | 4/4 | Complete | 2026-06-11 |
 | 2. Contratos — Pipeline de generación | 0/6 | Not started | - |
-| 3. Contratos — Multi-locador | 0/5 | Not started | - |
+| 3. Contratos — Multi-locador | 1/5 | In progress | - |
 | 4. Casos — CRUD & Dashboard | 0/TBD | Not started | - |
 | 5. Casos — Estadísticas | 0/TBD | Not started | - |

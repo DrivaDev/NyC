@@ -113,3 +113,49 @@ export function escapeXml(str: string): string {
     .replace(/'/g, "&apos;")
 }
 
+/**
+ * Clone the locador identification row in the first <w:tbl> N-1 times (CONTR-11).
+ *
+ * The AC PF / AC PJ templates have the locador identification data in the FIRST
+ * <w:tbl>, which contains exactly one <w:tr>. For N locadores we append N-1 copies
+ * of that row just before </w:tbl>. Each clone gets fresh w14:paraId and w14:textId
+ * values so Word does not silently "repair" the document (duplicate paraIds are
+ * invalid per the OOXML schema).
+ *
+ * Placeholder IDs are NOT in the template — they are assigned later by
+ * extractLabelPlaceholders running on the resulting multi-row XML, which yields
+ * sequential lph_0..lph_(fieldCount*N-1). The caller maps each locador's range.
+ *
+ * @param xml          The template document.xml string
+ * @param locadorCount Total number of locadores (N). N<=1 returns xml unchanged.
+ * @returns            XML with the locador row repeated N times
+ */
+export function cloneLocadorRow(xml: string, locadorCount: number): string {
+  if (locadorCount <= 1) return xml
+
+  const tblStart = xml.indexOf("<w:tbl>")
+  if (tblStart === -1) throw new Error("Plantilla sin <w:tbl> — no es un modelo AC válido")
+  const tblEndIdx = xml.indexOf("</w:tbl>", tblStart)
+  if (tblEndIdx === -1) throw new Error("Plantilla con <w:tbl> sin cierre </w:tbl>")
+
+  const tblXml = xml.slice(tblStart, tblEndIdx)
+  const trMatch = tblXml.match(/<w:tr\b[\s\S]*?<\/w:tr>/)
+  if (!trMatch) throw new Error("No se encontró <w:tr> en la tabla de identificación de locadores")
+  const originalRow = trMatch[0]
+
+  let idSeed = 0xa0000000 // start above typical document-generated paraIds
+  const nextId = () => `${(idSeed++).toString(16).toUpperCase().padStart(8, "0")}`
+
+  let clones = ""
+  for (let i = 1; i < locadorCount; i++) {
+    let clone = originalRow
+    clone = clone.replace(/w14:paraId="[^"]+"/g, () => `w14:paraId="${nextId()}"`)
+    clone = clone.replace(/w14:textId="[^"]+"/g, () => `w14:textId="${nextId()}"`)
+    clones += clone
+  }
+
+  // Insert clones immediately before </w:tbl> so they become additional rows
+  return xml.slice(0, tblEndIdx) + clones + xml.slice(tblEndIdx)
+}
+
+

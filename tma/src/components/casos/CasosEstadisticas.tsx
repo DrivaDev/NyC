@@ -30,13 +30,14 @@ const PERIODS: { value: Period; label: string; days: number }[] = [
 export function CasosEstadisticas() {
   const [casos, setCasos] = useState<CasoData[]>([])
   const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState(false)
   const [period, setPeriod] = useState<Period>("1m")
 
   useEffect(() => {
     fetch("/api/casos")
-      .then(r => r.json())
+      .then(r => { if (!r.ok) throw new Error(); return r.json() })
       .then((data: CasoData[]) => { setCasos(data); setLoading(false) })
-      .catch(() => setLoading(false))
+      .catch(() => { setLoadError(true); setLoading(false) })
   }, [])
 
   const now = new Date()
@@ -62,6 +63,12 @@ export function CasosEstadisticas() {
         className="max-w-[860px] mx-auto flex flex-col gap-8"
       >
         <h1 className="text-[28px] font-bold text-brand-title">Estadísticas</h1>
+
+        {loadError && (
+          <div className="bg-red-50 border border-red-200 rounded-lg px-4 py-3 text-[13px] text-red-700">
+            No se pudieron cargar las estadísticas. Recargá la página.
+          </div>
+        )}
 
         {/* Card: asuntos en período */}
         <div

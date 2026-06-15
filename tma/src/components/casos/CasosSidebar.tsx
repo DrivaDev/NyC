@@ -16,7 +16,7 @@ function SidebarContent({ pathname, onClose }: { pathname: string; onClose?: () 
   return (
     <div className="flex flex-col h-full py-6">
       <div className="px-6 mb-8">
-        <h2 className="text-[17px] font-bold text-brand-title">Casos TMA</h2>
+        <h2 className="text-[17px] font-bold text-brand-title">Asuntos</h2>
       </div>
       <nav className="flex-1 px-2 flex flex-col gap-1">
         {navItems.map(item => (

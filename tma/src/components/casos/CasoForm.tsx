@@ -136,9 +136,11 @@ export function CasoForm() {
                   Fecha de ingreso
                 </label>
                 <input
-                  type="date"
+                  type="text"
                   value={values.fechaIngreso}
                   onChange={handleChange("fechaIngreso")}
+                  placeholder="dd/mm/aaaa"
+                  maxLength={10}
                   className={inputClass("fechaIngreso")}
                 />
                 {errors.fechaIngreso && (
@@ -152,9 +154,11 @@ export function CasoForm() {
                   Fecha de vencimiento
                 </label>
                 <input
-                  type="date"
+                  type="text"
                   value={values.fechaVencimiento}
                   onChange={handleChange("fechaVencimiento")}
+                  placeholder="dd/mm/aaaa"
+                  maxLength={10}
                   className={inputClass("fechaVencimiento")}
                 />
                 {errors.fechaVencimiento && (

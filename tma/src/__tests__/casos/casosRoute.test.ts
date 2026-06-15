@@ -85,8 +85,8 @@ describe("POST /api/casos — CASOS-01", () => {
       method: "POST",
       body: JSON.stringify({
         nombre: "Test Caso",
-        fechaIngreso: "2026-06-15",
-        fechaVencimiento: "2026-12-31",
+        fechaIngreso: "15/06/2026",
+        fechaVencimiento: "31/12/2026",
         responsable: "Rivera",
       }),
     })

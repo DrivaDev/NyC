@@ -43,7 +43,7 @@ export function CasosSidebar() {
     <>
       {/* Desktop: aside fijo — visible en md+ */}
       <aside
-        className="hidden md:flex w-60 shrink-0 flex-col min-h-screen bg-white border-r border-[#FECBA1]"
+        className="hidden md:flex w-60 shrink-0 flex-col sticky top-0 h-screen overflow-y-auto bg-white border-r border-[#FECBA1]"
       >
         <SidebarContent pathname={pathname} />
       </aside>

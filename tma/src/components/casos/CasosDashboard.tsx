@@ -131,19 +131,19 @@ export function CasosDashboard() {
             </div>
           )}
 
-          {/* Filtros */}
+          {/* Filtros + ordenamiento */}
           <CasosFilterBar
             filterNombre={filterNombre}
             filterResponsable={filterResponsable}
             onNombreChange={setFilterNombre}
             onResponsableChange={setFilterResponsable}
+            sortDir={sortDir}
+            onSortToggle={() => setSortDir(d => d === "asc" ? "desc" : "asc")}
           />
 
           {/* Tabla */}
           <CasosTable
             casos={sortedCasos}
-            sortDir={sortDir}
-            onSortToggle={() => setSortDir(d => d === "asc" ? "desc" : "asc")}
             onDeleteRequest={handleDeleteRequest}
             loading={loading}
             hasActiveFilter={hasActiveFilter}

@@ -15,10 +15,18 @@ export const registerSchema = z.object({
 export type LoginSchema = z.infer<typeof loginSchema>
 export type RegisterSchema = z.infer<typeof registerSchema>
 
+const dateRegex = /^\d{2}\/\d{2}\/\d{4}$/
+
+function isValidDDMMYYYY(val: string): boolean {
+  if (!dateRegex.test(val)) return false
+  const [dd, mm] = val.split("/").map(Number)
+  return dd >= 1 && dd <= 31 && mm >= 1 && mm <= 12
+}
+
 export const casoSchema = z.object({
   nombre: z.string().min(1, "El nombre del asunto es obligatorio."),
-  fechaIngreso: z.string().min(1, "La fecha de ingreso es obligatoria."),
-  fechaVencimiento: z.string().min(1, "La fecha de vencimiento es obligatoria."),
+  fechaIngreso: z.string().refine(isValidDDMMYYYY, "Ingresá una fecha válida (dd/mm/aaaa)."),
+  fechaVencimiento: z.string().refine(isValidDDMMYYYY, "Ingresá una fecha válida (dd/mm/aaaa)."),
   responsable: z.string().min(1, "El responsable es obligatorio."),
 })
 

@@ -7,6 +7,11 @@ import mongoose from "mongoose"
 
 export const dynamic = "force-dynamic"
 
+function parseDDMMYYYY(s: string): Date {
+  const [dd, mm, yyyy] = s.split("/")
+  return new Date(`${yyyy}-${mm}-${dd}T12:00:00`)
+}
+
 export async function GET() {
   const session = await auth()
   if (!session) {
@@ -37,8 +42,8 @@ export async function POST(request: NextRequest) {
   const caso = await Caso.create({
     nombre: result.data.nombre,
     responsable: result.data.responsable,
-    fechaIngreso: new Date(result.data.fechaIngreso + "T12:00:00"),
-    fechaVencimiento: new Date(result.data.fechaVencimiento + "T12:00:00"),
+    fechaIngreso: parseDDMMYYYY(result.data.fechaIngreso),
+    fechaVencimiento: parseDDMMYYYY(result.data.fechaVencimiento),
   })
   return NextResponse.json(caso, { status: 201 })
 }

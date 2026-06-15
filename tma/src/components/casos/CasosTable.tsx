@@ -1,7 +1,7 @@
 "use client"
 
 import { motion, AnimatePresence } from "motion/react"
-import { ChevronUp, ChevronDown, Trash2, Briefcase, SearchX } from "lucide-react"
+import { Trash2, Briefcase, SearchX } from "lucide-react"
 
 // ICaso sin mongoose.Document para uso en Client Component
 interface CasoRow {
@@ -14,8 +14,6 @@ interface CasoRow {
 
 interface CasosTableProps {
   casos: CasoRow[]         // ya filtrados y ordenados
-  sortDir: "asc" | "desc"
-  onSortToggle: () => void
   onDeleteRequest: (id: string, nombre: string) => void
   loading: boolean
   hasActiveFilter: boolean  // true si filterNombre || filterResponsable no están vacíos
@@ -34,8 +32,6 @@ function formatDate(dateStr: string | Date): string {
 
 export function CasosTable({
   casos,
-  sortDir,
-  onSortToggle,
   onDeleteRequest,
   loading,
   hasActiveFilter,
@@ -64,18 +60,8 @@ export function CasosTable({
             <th className="text-left px-4 py-3 text-[13px] font-normal text-brand-title w-36">
               Fecha de ingreso
             </th>
-            <th
-              className="text-left px-4 py-3 text-[13px] font-normal text-brand-title w-40 cursor-pointer select-none hover:text-brand-primary transition-colors"
-              onClick={onSortToggle}
-            >
-              <span className="flex items-center gap-1">
-                Fecha de vencimiento
-                {sortDir === "asc" ? (
-                  <ChevronUp size={14} className="text-brand-primary" />
-                ) : (
-                  <ChevronDown size={14} className="text-brand-primary" />
-                )}
-              </span>
+            <th className="text-left px-4 py-3 text-[13px] font-normal text-brand-title w-40">
+              Fecha de vencimiento
             </th>
             <th className="text-left px-4 py-3 text-[13px] font-normal text-brand-title w-36">
               Responsable

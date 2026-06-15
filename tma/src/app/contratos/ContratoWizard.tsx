@@ -285,6 +285,7 @@ function WizardStepIndicator({ currentStep }: { currentStep: WizardStep }) {
 export function ContratoWizard() {
   const [state, dispatch] = useReducer(wizardReducer, initialState)
   const [msgIndex, setMsgIndex] = useState(0)
+  const [locadorAdded, setLocadorAdded] = useState(false)
   const modelGroups = getModelsByGroup()
 
   // Dynamic processing messages: per-locador for AC multi-locador
@@ -439,14 +440,25 @@ export function ContratoWizard() {
       <div className="flex flex-col gap-3">
         <div className="flex items-center justify-between">
           <label className="text-[14px] font-bold text-brand-text">Locadores</label>
-          <button
+          <motion.button
             type="button"
-            onClick={() => dispatch({ type: "ADD_LOCADOR" })}
-            className="text-[12px] font-bold rounded-lg px-3 py-1.5 transition-colors"
-            style={{ backgroundColor: "#78ccd0", color: "#FFFFFF" }}
+            onClick={() => {
+              dispatch({ type: "ADD_LOCADOR" })
+              setLocadorAdded(true)
+              setTimeout(() => setLocadorAdded(false), 800)
+            }}
+            whileTap={{ scale: 0.92 }}
+            animate={locadorAdded ? { scale: [1, 1.08, 1] } : {}}
+            transition={{ duration: 0.25 }}
+            className="text-[12px] font-bold rounded-lg px-3 py-1.5"
+            style={{
+              backgroundColor: locadorAdded ? "#1e2352" : "#78ccd0",
+              color: "#FFFFFF",
+              transition: "background-color 0.2s",
+            }}
           >
-            + Agregar locador
-          </button>
+            {locadorAdded ? "✓ Agregado" : "+ Agregar locador"}
+          </motion.button>
         </div>
 
         <AnimatePresence initial={false}>

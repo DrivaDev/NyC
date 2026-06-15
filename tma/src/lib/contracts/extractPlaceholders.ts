@@ -93,10 +93,12 @@ function groupText(runs: RunInfo[]): string {
  * knows exactly what each blank represents.
  */
 function extractLocalContext(xml: string, groupStart: number, groupEnd: number): string {
-  const beforeXml = xml.slice(Math.max(0, groupStart - 1500), groupStart)
+  // 4000-char window on the BEFORE side so table-cell label text (Mercurio rows, etc.)
+  // is captured even when the label lives in a separate cell column with verbose XML overhead.
+  const beforeXml = xml.slice(Math.max(0, groupStart - 4000), groupStart)
   const afterXml = xml.slice(groupEnd, Math.min(xml.length, groupEnd + 1500))
-  const before = beforeXml.replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim().slice(-80)
-  const after = afterXml.replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim().slice(0, 80)
+  const before = beforeXml.replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim().slice(-120)
+  const after = afterXml.replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim().slice(0, 120)
   return `...${before}[CAMPO]${after}...`
 }
 
@@ -224,10 +226,10 @@ export function extractUnderscoredPlaceholders(xml: string): UnderscoredPlacehol
     const runStart = m.index
     const runEnd = m.index + runXml.length
 
-    const beforeXml = xml.slice(Math.max(0, runStart - 1500), runStart)
+    const beforeXml = xml.slice(Math.max(0, runStart - 4000), runStart)
     const afterXml = xml.slice(runEnd, Math.min(xml.length, runEnd + 1500))
-    const before = beforeXml.replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim().slice(-80)
-    const after = afterXml.replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim().slice(0, 80)
+    const before = beforeXml.replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim().slice(-120)
+    const after = afterXml.replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim().slice(0, 120)
 
     const rprMatch = runXml.match(/<w:rPr>([\s\S]*?)<\/w:rPr>/)
 

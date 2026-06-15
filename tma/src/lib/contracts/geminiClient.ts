@@ -16,39 +16,53 @@ type InlinePart = {
 // Maps common field types to plain descriptions so Gemini can map semantics to position.
 const FIELD_GLOSSARY = `
 GLOSARIO DE CAMPOS (usalo para interpretar la "Posición en el documento" de cada campo):
+
+— IDENTIFICACIÓN DE PARTES —
 - NOMBRE DEL LOCADOR / NOMBRE / RAZÓN SOCIAL: nombre completo (persona física) o razón social (PJ) del propietario/locador
-- CUIT DEL LOCADOR / CUIT: número de CUIT del locador (formato XX-XXXXXXXX-X)
+- CUIT DEL LOCADOR / CUIT: número de CUIT del locador (11 dígitos sin guiones, ej: 27252640555)
 - DOMICILIO DEL LOCADOR / DOMICILIO: domicilio legal completo del locador
-- ESTADO CIVIL / EST. CIVIL: estado civil (soltero/a, casado/a, etc.)
-- NACIONALIDAD: nacionalidad del locador
-- DNI / D.N.I.: número de documento nacional de identidad
-- COD. SITIO / CÓDIGO DE SITIO: código numérico que identifica el sitio/antena (ej: 12345)
-- DIRECCIÓN / DOMICILIO DEL INMUEBLE / CALLE: dirección completa del inmueble o sitio
+- DNI / D.N.I.: número de documento nacional de identidad del locador
+
+— SITIO / INMUEBLE —
+- COD. SITIO / CÓDIGO DE SITIO: código alfanumérico del sitio/antena (ej: BS316). En el sistema aparece como "Código de Sitio".
+- CÓDIGO DE EMPLAZAMIENTO / COD. EMPLAZ.: código de emplazamiento ARBA (ej: ARBA11514). En el sistema aparece como "Código de Emplazamiento".
+- N° ASUNTO / NÚMERO DE ASUNTO: número del expediente en el sistema de gestión SIN puntos ni comas (ej: si el sistema muestra "1.803.619" → usar "1803619"). En el sistema aparece como "Número".
+- NOMBRE FANTASÍA DEL SITIO: nombre comercial del sitio (ej: FLORENCIO VARELA). En el sistema aparece como "Nombre fantasía del Sitio".
+- REF. / CÓDIGO OFERTA (campo compuesto): construído combinando CÓD.SITIO + CÓD.EMPLAZ. + N°ASUNTO, formato exacto: "{COD_SITIO} – {COD_EMPLAZ} – {N_ASUNTO_SIN_PUNTOS}" (ej: "BS316 – ARBA11514 – 1803619")
+- ENCABEZADO ADENDA / TÍTULO PROPUESTA (campo compuesto): combina CÓD.SITIO + NOMBRE_FANTASÍA + CÓD.EMPLAZ. + N°ASUNTO, formato: "{COD_SITIO} – {NOMBRE_FANTASÍA} – {COD_EMPLAZ} – {N_ASUNTO}" (ej: "BS316 – FLORENCIO VARELA – ARBA11514 – 1803619")
+- DIRECCIÓN COMPLETA DEL INMUEBLE (campo único en la carta introductoria, contexto "sito en[CAMPO]tengo el agrado"): incluir en UN SOLO campo: calle y número, Localidad de X, Provincia de Y, y entre paréntesis la Nomenclatura Catastral. Ej: "Avenida Eva Perón N°6044, Localidad de Florencio Varela, Provincia de Buenos Aires (Nomenclatura Catastral: Circunscripción II, Parcela 584)"
+- CALLE / DIRECCIÓN DEL INMUEBLE (en la Propuesta, campos separados): solo la calle y número del inmueble/sitio
 - LOCALIDAD / CIUDAD DEL INMUEBLE: ciudad o localidad donde se ubica el inmueble
 - PROVINCIA DEL INMUEBLE: provincia donde se ubica el inmueble
-- FECHA DE INICIO / FECHA DE COMIENZO: fecha en que comienza el contrato o período ("DD de mes de AAAA")
-- FECHA DE VENCIMIENTO / FECHA DE FIN: fecha en que vence el contrato
-- PLAZO / PERÍODO / MESES: duración del contrato (solo el número, ej: "36")
-- CANON MENSUAL / MONTO MENSUAL: importe mensual del alquiler en pesos o dólares
-- CANON ANUAL / PRECIO ANUAL: importe anual del alquiler (canon mensual × 12)
-- CANON ANUAL EN PALABRAS: el canon anual expresado en letras en MAYÚSCULAS (ej: 14.200 → "CATORCE MIL DOSCIENTOS")
-- CANON TOTAL DEL PLAZO: suma total por todo el plazo (canon anual × años de plazo)
-- CANON TOTAL EN PALABRAS: el canon total expresado en letras en MAYÚSCULAS (ej: 42.600 → "CUARENTA Y DOS MIL SEISCIENTOS")
-- REPRESENTANTE / APODERADO: nombre completo del representante legal o apoderado de la locadora
-- CARGO / CARÁCTER DEL REPRESENTANTE: rol o cargo del representante en la empresa (ej: Apoderado, Gerente, Director, Presidente)
-- CIUDAD DE LA CARTA / LUGAR: ciudad donde se emite la carta (generalmente la misma del inmueble)
-- DÍA DE LA CARTA: número del día en que se emite la carta
-- MES DE LA CARTA: nombre del mes en que se emite la carta (en español, ej: "agosto")
-- FECHA ACTA DIRECTORIO: fecha del acta de directorio que autoriza al representante
-- FECHA PROPUESTA ANTERIOR: fecha en que se firmó o envió el contrato original
-- ALTA MERCURIO - NOMBRE: primer nombre del representante que se dará de alta en Mercurio-Proveedores
-- ALTA MERCURIO - APELLIDO: apellido del representante para Mercurio
-- ALTA MERCURIO - MÓVIL: número de teléfono celular del representante
-- ALTA MERCURIO - DNI: DNI del representante (persona física) para Mercurio
-- ALTA MERCURIO - CUIL: CUIL del representante (formato XX-XXXXXXXX-X, diferente al CUIT de la empresa)
-- ALTA MERCURIO - MAIL: correo electrónico del representante para Mercurio
-- ALTA MERCURIO - CUIT EMPRESA: CUIT de la empresa locadora que emitirá las facturas
-- ALTA MERCURIO - RAZÓN SOCIAL EMPRESA: nombre de la empresa locadora que factura`
+- NOMENCLATURA CATASTRAL / PARCELA: datos catastrales del inmueble (Circunscripción, Parcela, Sección, Manzana según disponibilidad). En el sistema aparecen como "Datos catastrales".
+
+— FECHAS Y PLAZOS —
+- FECHA DE INICIO / FECHA DE COMIENZO: fecha en que comienza el NUEVO período (ej: "1 de mayo de 2026"). En el sistema: "Fecha de inicio".
+- FECHA DE VENCIMIENTO / FECHA DE FIN: fecha en que vence el período (ej: "31 de julio de 2026"). En el sistema: "Fecha de finalización".
+- PLAZO / PERÍODO / MESES: duración en meses del período (solo el número, ej: "3"). En el sistema: "Vigencia total en meses".
+- FECHA PROPUESTA ANTERIOR: fecha en que el locador envió la propuesta original que ahora se renueva. Es la "Fecha de Inicio Vigencia Contrato Anterior" EN EL SISTEMA menos 1 día (ej: si el contrato anterior inició el 1/5/2025 → la propuesta fue enviada el "30 de abril de 2025").
+
+— MONTOS Y PAGOS —
+- CANON / MONTO DEL ALQUILER: importe total pactado para este período. En el sistema: "Monto Total Canon" o "Monto anual" (para extensiones cortas puede ser el monto proporcional). Si hay observación "ES UN PAGO TOTAL POR LOS X MESES", ese es el canon a pagar.
+- CANON EN PALABRAS: el monto anterior expresado en letras en MINÚSCULAS (ej: 2.250.000 → "dos millones doscientos cincuenta mil")
+- CANON ANUAL BASE / PRECIO ANUAL: importe anual base del alquiler (para calcular proporcionales). En el sistema puede estar en las observaciones como "BASE ANUAL DE $ X".
+- CANON ANUAL EN PALABRAS: el canon anual base expresado en letras en MAYÚSCULAS
+- CANON TOTAL DEL PLAZO: suma total a pagar por todo el período (= canon mensual × meses)
+- CANON TOTAL EN PALABRAS: el canon total expresado en letras en MAYÚSCULAS
+- DATOS BANCARIOS COMPLETOS (campo compuesto, contexto "cuenta que designa la Locadora:[CAMPO]"): incluir en UN SOLO campo toda la información bancaria en formato: "Banco {BANCO}, Sucursal {N°_SUC} – {NOMBRE_SUC}, Cuenta Corriente/Caja de Ahorro N°{NRO_CUENTA}, a nombre de {TITULAR}, CBU {CBU}, y CUIT N°{CUIT_CUENTA}". En el sistema: "Banco", "Sucursal", "Tipo de cuenta", "Cuenta", "CBU", "CUIL/CUIT", "Cesión de Contrato a" (el titular de la cuenta).
+
+— MERCURIO / PROVEEDOR —
+- ALTA MERCURIO - NOMBRE: primer nombre de la persona que usará Mercurio-Proveedores (el sistema indica "Nombre de la persona que será usuaria en Mercurio"). En el sistema: campo "Nombre" de la sección "Fact. Mercurio".
+- ALTA MERCURIO - APELLIDO: apellido de esa persona. En el sistema: campo "Apellido" de "Fact. Mercurio".
+- ALTA MERCURIO - MÓVIL: teléfono celular de esa persona. En el sistema: campo "Móvil" de "Fact. Mercurio".
+- ALTA MERCURIO - DNI: DNI de esa persona. En el sistema: campo "DNI" de "Fact. Mercurio".
+- ALTA MERCURIO - CUIL: CUIL de esa persona (11 dígitos sin guiones). En el sistema: campo "CUIL" de "Fact. Mercurio".
+- ALTA MERCURIO - MAIL: correo electrónico donde Mercurio enviará las comunicaciones. En el sistema: campo "Mail donde serán recibidas las comunicaciones de M..." de "Fact. Mercurio".
+- ALTA MERCURIO - CUIT EMPRESA: CUIT de la empresa que emitirá las facturas (11 dígitos sin guiones). En el sistema: campo "CUIT de la empresa que factura" de "Fact. Mercurio".
+- ALTA MERCURIO - RAZÓN SOCIAL EMPRESA: nombre de la empresa/persona que factura. En el sistema: campo "Razón Social que factura" de "Fact. Mercurio".
+
+— FIRMA DE LA CARTA —
+- NOMBRE DEL PROPIETARIO (campo de firma en la carta introductoria, contexto "__________[CAMPO]"): nombre completo del propietario que firma, seguido de " – Propietario" o " – Propietaria". Para multi-locador, el primer locador mencionado. Ej: "Roberto Fabián Zanet – Propietario".`
 
 /**
  * Build the Gemini prompt using chain-of-thought: analyze documents first,
@@ -136,22 +150,28 @@ INSTRUCCIONES — Seguí estos dos pasos:
 
 PASO 1 — ANÁLISIS: Leé los documentos e identificá toda la información disponible:
 • Partes: nombre completo, CUIT, DNI, domicilio, estado civil, nacionalidad, rol (locador/locatario)
-• Inmueble/sitio: dirección, código de sitio, localidad, provincia, nomenclatura catastral (Parcela, Circunscripción, Sección)
-• Fechas: inicio, vencimiento, firma de la propuesta anterior, plazos
-• Montos: canon mensual, anual, total del plazo, moneda
+• Inmueble/sitio: nombre fantasía, dirección (calle y N°), localidad, provincia, nomenclatura catastral (Parcela, Circunscripción, Sección, Manzana) — copiá los números exactamente
+• Códigos: Código de Sitio, Código de Emplazamiento, Número de Asunto (sin puntos)
+• Fechas: inicio del NUEVO período, fin del nuevo período, fecha de la Propuesta Anterior (= día antes del inicio del contrato anterior)
+• Montos: "Monto Total Canon" o "Monto anual" del período actual; observá si hay base anual indicada en observaciones
+• Datos bancarios: banco, sucursal (número y nombre), tipo de cuenta, N° de cuenta, CBU, CUIT de la cuenta, titular (cesionario del contrato)
+• Mercurio: nombre, apellido, DNI, móvil, CUIL, mail, CUIT empresa, razón social — de la sección "Fact. Mercurio" o equivalente
 ${locadorCount && locadorCount > 1 ? `• Locadores: listá CADA propietario con su nombre completo, porcentaje de titularidad, CUIT, DNI, teléfono, domicilio, email` : ""}
 
 PASO 2 — MAPEO: Usá lo identificado en el Paso 1 para completar exactamente estos campos.
 Reglas:
 - Si encontrás el dato, usalo aunque esté en otro orden o formato
-- Copiá los números exactamente tal como aparecen en los documentos — no transponer dígitos (ej: Parcela 548 ≠ 584)
+- NUNCA transponer dígitos — copiá números exactamente como aparecen (Parcela 584 no es 548)
 - Fechas completas: formato "DD de mes de AAAA" (ej: "15 de junio de 2026")
-- Montos numéricos: solo el número si el contexto ya tiene "U$S" o "$" antes del campo (ej: "14.200", no "USD 14.200")
-- Montos en palabras: si el campo pide el equivalente en letras de un monto, calculalo en MAYÚSCULAS (ej: 14.200 = "CATORCE MIL DOSCIENTOS"; 42.600 = "CUARENTA Y DOS MIL SEISCIENTOS")
-- Canon anual = canon mensual × 12; canon total = canon anual × años del plazo
-- Ciudad de la carta: usá la misma ciudad del inmueble
-- Día y mes de la carta: usá el día y mes de inicio del contrato
-- Tabla Alta Mercurio: completá con los datos del representante de la locadora (nombre, apellido, DNI, mail, etc.)
+- Montos con puntos de miles: "2.250.000" (no "2250000")
+- Montos en palabras: en minúsculas (ej: 2.250.000 → "dos millones doscientos cincuenta mil")
+- Campo REF./CÓDIGO OFERTA (contexto "Código Oferta:[CAMPO]" o similares): formato "{CÓD_SITIO} – {CÓD_EMPLAZ} – {N°ASUNTO}" donde el N° ASUNTO NO lleva puntos (ej: "BS316 – ARBA11514 – 1803619")
+- Campo ENCABEZADO ADENDA (contexto "ADENDA POR EXTENSION DEL PLAZO[CAMPO]"): formato "{CÓD_SITIO} – {NOMBRE_FANTASÍA} – {CÓD_EMPLAZ} – {N°ASUNTO}" (ej: "BS316 – FLORENCIO VARELA – ARBA11514 – 1803619")
+- Campo dirección del inmueble en la CARTA (contexto "sito en la calle[CAMPO]tengo el agrado"): un único valor que incluye calle, localidad, provincia Y nomenclatura catastral, ej: "Avenida Eva Perón N°6044, Localidad de Florencio Varela, Provincia de Buenos Aires (Nomenclatura Catastral: Circunscripción II, Parcela 584)"
+- Campo datos bancarios (contexto "cuenta que designa la Locadora:[CAMPO]"): un único valor con banco + sucursal + tipo + N°cuenta + titular + CBU + CUIT, ej: "Banco Macro, Sucursal 468 – Martinez Alto, Cuenta Corriente N°346800766793100, a nombre de Vanina Andrea Zanet, CBU 2850468530007667931006, y CUIT N°27252640555"
+- Campo firma (contexto "_______[CAMPO]" al final de la carta): nombre del signatario + " – Propietario/a" (ej: "Roberto Fabián Zanet – Propietario")
+- Tabla Alta Mercurio (campos con contexto "Mercurio" o "CUIL", "Razón Social que factura", etc.): completá con los datos exactos de la sección "Fact. Mercurio" del sistema
+- Canon total del período: si las observaciones dicen "ES UN PAGO TOTAL POR LOS X MESES", ese es el precio a usar para la suma total. El campo "El precio del alquiler se pacta en la suma de $[CAMPO]" debe tener ese total (ej: 2.250.000)
 - Si no encontrás información para un campo: ""
 - No inventes datos sin respaldo en los documentos
 ${multiLocadorSection}

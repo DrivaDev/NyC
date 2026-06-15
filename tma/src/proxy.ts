@@ -9,7 +9,11 @@ export default auth((req) => {
   const isLoggedIn = !!req.auth
   const { pathname } = req.nextUrl
 
-  const isPublic = pathname === "/login" || pathname === "/register" || pathname === "/forgot-password"
+  const isPublic =
+    pathname === "/login" ||
+    pathname === "/register" ||
+    pathname === "/forgot-password" ||
+    pathname === "/reset-password"
 
   if (!isPublic && !isLoggedIn) {
     return NextResponse.redirect(new URL("/login", req.url))

@@ -51,22 +51,29 @@ export function CasosTable({
 
   return (
     <div className="overflow-x-auto rounded-xl border border-[#FECBA1] bg-white">
-      <table className="w-full text-[13px] text-brand-text">
+      <table className="w-full text-[13px] text-brand-text table-fixed">
+        <colgroup>
+          <col className="w-[34%]" />
+          <col className="w-[16%]" />
+          <col className="w-[16%]" />
+          <col className="w-[22%]" />
+          <col className="w-[12%]" />
+        </colgroup>
         <thead>
           <tr className="border-b border-[#FECBA1] bg-[#FFF7ED]">
-            <th className="text-left px-4 py-3 text-[13px] font-normal text-brand-title">
+            <th className="text-left px-4 py-3 text-[13px] font-normal text-brand-title whitespace-nowrap overflow-hidden text-ellipsis">
               Nombre
             </th>
-            <th className="text-left px-4 py-3 text-[13px] font-normal text-brand-title w-36">
+            <th className="text-left px-4 py-3 text-[13px] font-normal text-brand-title whitespace-nowrap">
               Fecha de ingreso
             </th>
-            <th className="text-left px-4 py-3 text-[13px] font-normal text-brand-title w-40">
+            <th className="text-left px-4 py-3 text-[13px] font-normal text-brand-title whitespace-nowrap">
               Fecha de vencimiento
             </th>
-            <th className="text-left px-4 py-3 text-[13px] font-normal text-brand-title w-36">
+            <th className="text-left px-4 py-3 text-[13px] font-normal text-brand-title whitespace-nowrap overflow-hidden text-ellipsis">
               Responsable
             </th>
-            <th className="text-left px-4 py-3 text-[13px] font-normal text-brand-title w-16">
+            <th className="text-left px-4 py-3 text-[13px] font-normal text-brand-title whitespace-nowrap">
               Acciones
             </th>
           </tr>

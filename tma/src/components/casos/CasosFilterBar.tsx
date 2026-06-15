@@ -44,8 +44,10 @@ export function CasosFilterBar({
         className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-[#FECBA1] bg-white text-[13px] text-brand-title hover:bg-brand-accent/20 transition-colors duration-150 whitespace-nowrap"
         aria-label={`Ordenar por vencimiento ${sortDir === "asc" ? "descendente" : "ascendente"}`}
       >
-        {sortDir === "asc" ? <ChevronUp size={14} className="text-brand-primary" /> : <ChevronDown size={14} className="text-brand-primary" />}
-        Vencimiento
+        {sortDir === "asc"
+          ? <><ChevronUp size={14} className="text-brand-primary" /> Venc. más próximo</>
+          : <><ChevronDown size={14} className="text-brand-primary" /> Venc. más lejano</>
+        }
       </button>
     </div>
   )

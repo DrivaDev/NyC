@@ -14,7 +14,7 @@ const modules = [
   },
   {
     title: "Contratos TMA",
-    description: "Generación automática de contratos vía Gemini",
+    description: "Generación automática de contratos",
     Icon: FileText,
     delay: 0.2,
     href: "/contratos", // activated in Phase 2

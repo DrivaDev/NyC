@@ -108,7 +108,7 @@ function wizardReducer(state: WizardState, action: WizardAction): WizardState {
 const PROCESSING_MESSAGES = [
   "Analizando documentación...",
   "Identificando campos del contrato...",
-  "Consultando a Gemini...",
+  "Procesando información...",
   "Completando el documento...",
 ]
 
@@ -654,7 +654,7 @@ export function ContratoWizard() {
             Contratos TMA
           </h1>
           <p className="text-[14px] text-brand-text/60">
-            Generá contratos completados automáticamente con Gemini
+            Generá contratos completados automáticamente
           </p>
         </motion.div>
 

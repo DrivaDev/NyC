@@ -289,3 +289,59 @@ export function pluralizeLocadorRefs(xml: string): string {
     .replace(/\bel LOCADOR\b/g, "los LOCADORES")
 }
 
+/**
+ * Clone the signature block (underline paragraph + name placeholder paragraph) once
+ * per extra locador so each person gets their own signature space (CONTR-12 / D-07).
+ *
+ * Strategy: find the yellow-highlighted "(nombre del propietario)" paragraph, then
+ * locate the immediately preceding paragraph (the decorative underscore line), and
+ * duplicate the pair N-1 times right after the original pair. extractHighlightPlaceholders
+ * runs afterwards and assigns sequential ph_N ids to each cloned name field.
+ *
+ * @param xml          Template document.xml string
+ * @param locadorCount Total locadores; 1 → no-op
+ */
+export function cloneSignatureBlocks(xml: string, locadorCount: number): string {
+  if (locadorCount <= 1) return xml
+
+  // Find the yellow-highlighted signature name paragraph
+  const paraPattern = /<w:p\b[^>]*>[\s\S]*?<\/w:p>/g
+  let m: RegExpExecArray | null
+  let sigParaStart = -1
+  let sigParaEnd = -1
+
+  while ((m = paraPattern.exec(xml)) !== null) {
+    if (!m[0].includes('w:val="yellow"') && !m[0].includes("w:val='yellow'")) continue
+    const text = m[0].replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim().toLowerCase()
+    if (text.includes("nombre del propietario")) {
+      sigParaStart = m.index
+      sigParaEnd = m.index + m[0].length
+      break
+    }
+  }
+
+  if (sigParaStart === -1) return xml
+
+  // Find the preceding paragraph (the decorative underscore line)
+  const before = xml.slice(0, sigParaStart)
+  const prevParaStart = before.lastIndexOf("<w:p ")
+  if (prevParaStart === -1) return xml
+
+  const blockStart = prevParaStart
+  const blockEnd = sigParaEnd
+  const block = xml.slice(blockStart, blockEnd)
+
+  let idSeed = 0xb0000000
+  const nextId = () => `${(idSeed++).toString(16).toUpperCase().padStart(8, "0")}`
+
+  let clones = ""
+  for (let i = 1; i < locadorCount; i++) {
+    let clone = block
+    clone = clone.replace(/w14:paraId="[^"]+"/g, () => `w14:paraId="${nextId()}"`)
+    clone = clone.replace(/w14:textId="[^"]+"/g, () => `w14:textId="${nextId()}"`)
+    clones += clone
+  }
+
+  return xml.slice(0, blockEnd) + clones + xml.slice(blockEnd)
+}
+

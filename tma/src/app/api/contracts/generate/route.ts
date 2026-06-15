@@ -11,6 +11,7 @@ import {
   type LabelPlaceholder,
   type UnderscoredPlaceholder,
 } from "@/lib/contracts/extractPlaceholders"
+// extractUnderscoredPlaceholders kept for AC flow; Adenda uses highlight-only strategy
 import { callGemini, type GeminiPlaceholder } from "@/lib/contracts/geminiClient"
 import {
   applySplices,
@@ -20,6 +21,7 @@ import {
   generateDocxBuffer,
   cloneLocadorRow,
   pluralizeLocadorRefs,
+  cloneSignatureBlocks,
 } from "@/lib/contracts/fillPlaceholders"
 import { processUploadedFile } from "@/lib/contracts/extractDocText"
 
@@ -120,35 +122,22 @@ export async function POST(request: NextRequest) {
     // CONTR-12 / D-08: pluralize BEFORE extraction when multi-locador
     if (locadorCount > 1) {
       xml = pluralizeLocadorRefs(xml)
+      xml = cloneSignatureBlocks(xml, locadorCount)
     }
-    underscoredPlaceholders = extractUnderscoredPlaceholders(xml)
+    // Adenda strategy: highlight-only. Underscore fields (date header) are NOT filled —
+    // they are not yellow-highlighted and should remain blank for manual completion.
     highlightPlaceholders = extractHighlightPlaceholders(xml)
-    geminiPlaceholders = [
-      ...highlightPlaceholders,
-      ...underscoredPlaceholders.map(u => ({ id: u.id, context: u.context })),
-    ]
+    geminiPlaceholders = highlightPlaceholders
     // D-09: single Gemini call with ALL locadores' files concatenated
     const allFiles = locadorFileSets.flat()
     const { texts, images: baseImages } = await processFiles([...siteFiles, ...allFiles])
     const { texts: factTexts, images: factImages } = await processFiles(facturacionFiles)
     const images = [...factImages, ...baseImages]
     if (factTexts.length > 0) texts.unshift(`=== DATOS DE FACTURACIÓN / ALTA USUARIO MERCURIO – PROVEEDORES ===\n${factTexts.join("\n")}`)
-    // Build letter date in Spanish for the date-header us_ fields
-    const now = new Date()
-    const letterDate = now.toLocaleDateString("es-AR", {
-      day: "numeric",
-      month: "long",
-      year: "numeric",
-      timeZone: "America/Argentina/Buenos_Aires",
-    })
     geminiValues = parsedFieldValues
       ? parsedFieldValues
-      : await callGemini(geminiPlaceholders, texts, images, notes, locadorCount, letterDate)
-    // Single combined pass — chaining separate fills corrupts byte offsets (see applySplices)
-    modifiedXml = applySplices(xml, [
-      ...buildHighlightSplices(geminiValues, highlightPlaceholders),
-      ...buildUnderscoredSplices(geminiValues, underscoredPlaceholders),
-    ])
+      : await callGemini(geminiPlaceholders, texts, images, notes, locadorCount)
+    modifiedXml = applySplices(xml, buildHighlightSplices(geminiValues, highlightPlaceholders))
   } else {
     // model.type === "ac" — label-based strategy (CONTR-11)
     // CONTR-11: extract original row once to learn fieldCount, then clone N-1 times

@@ -10,7 +10,7 @@ const modules = [
     description: "Gestión de asuntos y seguimiento de causas",
     Icon: Briefcase,
     delay: 0.1,
-    href: null, // disabled — Phase 4
+    href: "/tma/casos",
   },
   {
     title: "Contratos TMA",

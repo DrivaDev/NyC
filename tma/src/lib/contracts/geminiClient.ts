@@ -76,7 +76,8 @@ export function buildPrompt(
   placeholders: GeminiPlaceholder[],
   extractedTexts: string[],
   notes: string,
-  locadorCount?: number
+  locadorCount?: number,
+  letterDate?: string  // e.g. "15 de junio de 2026" — used for date header us_ fields
 ): string {
   const fieldsList = placeholders
     .map(p => {
@@ -93,6 +94,10 @@ export function buildPrompt(
 
   const notesSection = notes.trim()
     ? `\n\nDATOS ADICIONALES PROVISTOS:\n${notes.trim()}`
+    : ""
+
+  const letterDateSection = letterDate
+    ? `\n\nFECHA DE CONFECCIÓN DE LA CARTA (hoy): ${letterDate}`
     : ""
 
   // Extra instructions injected when there are multiple locadores in an Adenda.
@@ -144,7 +149,7 @@ E) FIRMA DEL LOCADOR
 ${FIELD_GLOSSARY}
 
 DOCUMENTACIÓN DEL ASUNTO:
-${docsText}${notesSection}
+${docsText}${notesSection}${letterDateSection}
 
 INSTRUCCIONES — Seguí estos dos pasos:
 
@@ -171,7 +176,14 @@ Reglas:
 - Campo datos bancarios (contexto "cuenta que designa la Locadora:[CAMPO]"): un único valor con banco + sucursal + tipo + N°cuenta + titular + CBU + CUIT, ej: "Banco Macro, Sucursal 468 – Martinez Alto, Cuenta Corriente N°346800766793100, a nombre de Vanina Andrea Zanet, CBU 2850468530007667931006, y CUIT N°27252640555"
 - Campo firma (contexto "_______[CAMPO]" al final de la carta): nombre del signatario + " – Propietario/a" (ej: "Roberto Fabián Zanet – Propietario")
 - Tabla Alta Mercurio (campos con contexto "Mercurio" o "CUIL", "Razón Social que factura", etc.): completá con los datos exactos de la sección "Fact. Mercurio" del sistema
+- CAMPO "ALTA MERCURIO - CUIT EMPRESA" (contexto "CUIT de la empresa que factura[CAMPO]"): usar el valor EXACTO del campo "CUIT de la empresa que factura" del sistema. NO usar el CUIT individual de ningún locador a menos que coincida con ese campo.
+- CAMPO "ALTA MERCURIO - RAZÓN SOCIAL EMPRESA" (contexto "Razón Social que factura[CAMPO]"): usar el valor EXACTO del campo "Razón Social que factura" del sistema. NO derivarlo de los nombres de los locadores.
 - Canon total del período: si las observaciones dicen "ES UN PAGO TOTAL POR LOS X MESES", ese es el precio a usar para la suma total. El campo "El precio del alquiler se pacta en la suma de $[CAMPO]" debe tener ese total (ej: 2.250.000)
+- Campos us_N del ENCABEZADO de la carta (contexto "[CAMPO], ___ de ___ 2026" o similar): son TRES campos separados para Ciudad, Día y Mes. Rellenar así:
+  * us_N con contexto ANTES que solo tiene guiones o inicio de párrafo → CIUDAD: "Ciudad Autónoma de Buenos Aires"
+  * us_N con contexto ANTES que termina en "______," (coma) → DÍA: solo el número del día (ej: "${letterDate ? letterDate.split(" ")[0] : "15"}")
+  * us_N con contexto "de ___[CAMPO]___ 2026" o similar → MES: solo el nombre del mes (ej: "${letterDate ? letterDate.split(" ")[2] : "junio"}")
+  * NUNCA poner en un campo us_N de fecha: el nombre de ciudad, una fecha completa, ni la "Propuesta Anterior"
 - Si no encontrás información para un campo: ""
 - No inventes datos sin respaldo en los documentos
 ${multiLocadorSection}
@@ -219,7 +231,8 @@ export async function callGemini(
   extractedTexts: string[],
   imageParts: InlinePart[],
   notes: string,
-  locadorCount?: number
+  locadorCount?: number,
+  letterDate?: string
 ): Promise<Record<string, string>> {
   const apiKey = process.env.GEMINI_API_KEY
   if (!apiKey) {
@@ -230,7 +243,7 @@ export async function callGemini(
   // No responseMimeType — text mode lets Gemini reason before producing JSON
   const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" })
 
-  const prompt = buildPrompt(placeholders, extractedTexts, notes, locadorCount)
+  const prompt = buildPrompt(placeholders, extractedTexts, notes, locadorCount, letterDate)
   const contentParts: Array<{ text: string } | InlinePart> = [
     { text: prompt },
     ...imageParts,

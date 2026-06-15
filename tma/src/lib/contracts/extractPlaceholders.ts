@@ -226,6 +226,21 @@ export function extractUnderscoredPlaceholders(xml: string): UnderscoredPlacehol
     const runStart = m.index
     const runEnd = m.index + runXml.length
 
+    // Skip decorative signature/separator underscores: find containing paragraph and
+    // check if it has ANY readable text besides underscores. Pure-underscore paragraphs
+    // (signature lines, decorative rules) should not be sent to Gemini as fillable fields.
+    const paraStartIdx = xml.lastIndexOf("<w:p ", runStart)
+    const paraEndIdx = xml.indexOf("</w:p>", runStart) + "</w:p>".length
+    if (paraStartIdx !== -1 && paraEndIdx > paraStartIdx) {
+      const paraText = xml
+        .slice(paraStartIdx, paraEndIdx)
+        .replace(/<[^>]+>/g, "")
+        .replace(/_+/g, "")
+        .replace(/\s+/g, "")
+        .trim()
+      if (!paraText) continue // purely decorative — skip
+    }
+
     const beforeXml = xml.slice(Math.max(0, runStart - 4000), runStart)
     const afterXml = xml.slice(runEnd, Math.min(xml.length, runEnd + 1500))
     const before = beforeXml.replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim().slice(-120)

@@ -129,9 +129,17 @@ export async function POST(request: NextRequest) {
     // D-09: single Gemini call with ALL locadores' files concatenated
     const allFiles = locadorFileSets.flat()
     const { texts, images } = await processFiles([...siteFiles, ...allFiles])
+    // Build letter date in Spanish for the date-header us_ fields
+    const now = new Date()
+    const letterDate = now.toLocaleDateString("es-AR", {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+      timeZone: "America/Argentina/Buenos_Aires",
+    })
     geminiValues = parsedFieldValues
       ? parsedFieldValues
-      : await callGemini(geminiPlaceholders, texts, images, notes, locadorCount)
+      : await callGemini(geminiPlaceholders, texts, images, notes, locadorCount, letterDate)
     // Single combined pass — chaining separate fills corrupts byte offsets (see applySplices)
     modifiedXml = applySplices(xml, [
       ...buildHighlightSplices(geminiValues, highlightPlaceholders),

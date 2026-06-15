@@ -3,6 +3,35 @@ import type { Placeholder, LabelPlaceholder, UnderscoredPlaceholder } from "./ex
 export { extractHighlightPlaceholders } from "./extractPlaceholders"
 
 /**
+ * A single XML edit: replace the region [start, end) with `replacement`.
+ * For pure insertions, start === end (zero-width).
+ */
+export interface Splice {
+  start: number
+  end: number
+  replacement: string
+}
+
+/**
+ * Apply a batch of splices to an XML string in ONE pass.
+ *
+ * CRITICAL: all splice offsets are computed against the SAME original string.
+ * Applying them descending by start position keeps every not-yet-applied offset
+ * valid (we only ever mutate regions AFTER the ones still pending). This is the
+ * ONLY correct way to combine highlight + underscored + label fills — chaining
+ * separate passes corrupts the document because each pass shifts byte offsets the
+ * next pass still assumes are original (root cause of the "<w:sz w:" truncation).
+ */
+export function applySplices(xml: string, splices: Splice[]): string {
+  const sorted = [...splices].sort((a, b) => b.start - a.start)
+  let result = xml
+  for (const s of sorted) {
+    result = result.slice(0, s.start) + s.replacement + result.slice(s.end)
+  }
+  return result
+}
+
+/**
  * Fill highlighted run placeholders in OOXML XML string (Adenda strategy).
  *
  * Uses position-based replacement: each Placeholder stores _startPos/_endPos
@@ -18,45 +47,53 @@ export { extractHighlightPlaceholders } from "./extractPlaceholders"
  * @param placeholders Array from extractHighlightPlaceholders (carries position data)
  * @returns            Modified XML string with replacements applied
  */
+export function buildHighlightSplices(
+  values: Record<string, string>,
+  placeholders: Placeholder[]
+): Splice[] {
+  return placeholders.map(ph => {
+    const value = values[ph.id]
+    // If Gemini filled it use the value; otherwise keep original label (highlighted yellow)
+    const fillText =
+      value !== undefined && value.trim() !== "" ? value : ph.label
+    // Collapse entire run group into one run with original formatting + new text
+    const newRun = `<w:r><w:rPr>${stripUnderline(ph._rprXml)}</w:rPr><w:t xml:space="preserve">${escapeXml(fillText)}</w:t></w:r>`
+    return { start: ph._startPos, end: ph._endPos, replacement: newRun }
+  })
+}
+
 export function fillHighlightPlaceholders(
   xml: string,
   values: Record<string, string>,
   placeholders: Placeholder[]
 ): string {
-  let result = xml
-  // Reverse order to preserve string indices of earlier placeholders
-  for (let i = placeholders.length - 1; i >= 0; i--) {
-    const ph = placeholders[i]
-    const value = values[ph.id]
-    // If Gemini filled it use the value; otherwise keep original label (highlighted yellow)
-    const fillText =
-      value !== undefined && value.trim() !== "" ? value : ph.label
-
-    // Collapse entire run group into one run with original formatting + new text
-    const newRun = `<w:r><w:rPr>${stripUnderline(ph._rprXml)}</w:rPr><w:t xml:space="preserve">${escapeXml(fillText)}</w:t></w:r>`
-    result = result.slice(0, ph._startPos) + newRun + result.slice(ph._endPos)
-  }
-  return result
+  return applySplices(xml, buildHighlightSplices(values, placeholders))
 }
 
 /**
  * Fill plain underscore placeholders (city/day/month date header and similar fields).
  * Keeps original underscores if Gemini returns "" (field stays visually blank).
  */
+export function buildUnderscoredSplices(
+  values: Record<string, string>,
+  placeholders: UnderscoredPlaceholder[]
+): Splice[] {
+  const splices: Splice[] = []
+  for (const ph of placeholders) {
+    const value = values[ph.id]
+    if (!value || !value.trim()) continue
+    const newRun = `<w:r><w:rPr>${stripUnderline(ph._rprXml)}</w:rPr><w:t xml:space="preserve"> ${escapeXml(value.trim())} </w:t></w:r>`
+    splices.push({ start: ph._runStart, end: ph._runEnd, replacement: newRun })
+  }
+  return splices
+}
+
 export function fillUnderscoredPlaceholders(
   xml: string,
   values: Record<string, string>,
   placeholders: UnderscoredPlaceholder[]
 ): string {
-  let result = xml
-  for (let i = placeholders.length - 1; i >= 0; i--) {
-    const ph = placeholders[i]
-    const value = values[ph.id]
-    if (!value || !value.trim()) continue
-    const newRun = `<w:r><w:rPr>${stripUnderline(ph._rprXml)}</w:rPr><w:t xml:space="preserve"> ${escapeXml(value.trim())} </w:t></w:r>`
-    result = result.slice(0, ph._runStart) + newRun + result.slice(ph._runEnd)
-  }
-  return result
+  return applySplices(xml, buildUnderscoredSplices(values, placeholders))
 }
 
 /**
@@ -69,22 +106,27 @@ export function fillUnderscoredPlaceholders(
  *
  * Uses position-based replacement (reverse order) to preserve indices.
  */
+export function buildLabelSplices(
+  values: Record<string, string>,
+  placeholders: LabelPlaceholder[]
+): Splice[] {
+  const splices: Splice[] = []
+  for (const ph of placeholders) {
+    const value = values[ph.id]
+    if (!value || !value.trim()) continue
+    const newRun = `<w:r><w:rPr>${stripUnderline(ph._rprXml)}</w:rPr><w:t xml:space="preserve"> ${escapeXml(value.trim())}</w:t></w:r>`
+    // Zero-width insertion just before </w:p>
+    splices.push({ start: ph._insertPos, end: ph._insertPos, replacement: newRun })
+  }
+  return splices
+}
+
 export function fillLabelPlaceholders(
   xml: string,
   values: Record<string, string>,
   placeholders: LabelPlaceholder[]
 ): string {
-  let result = xml
-  // Process in reverse order so earlier _insertPos values stay valid
-  for (let i = placeholders.length - 1; i >= 0; i--) {
-    const ph = placeholders[i]
-    const value = values[ph.id]
-    if (!value || !value.trim()) continue
-
-    const newRun = `<w:r><w:rPr>${stripUnderline(ph._rprXml)}</w:rPr><w:t xml:space="preserve"> ${escapeXml(value.trim())}</w:t></w:r>`
-    result = result.slice(0, ph._insertPos) + newRun + result.slice(ph._insertPos)
-  }
-  return result
+  return applySplices(xml, buildLabelSplices(values, placeholders))
 }
 
 /**

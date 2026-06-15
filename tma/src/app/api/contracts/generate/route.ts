@@ -13,9 +13,10 @@ import {
 } from "@/lib/contracts/extractPlaceholders"
 import { callGemini, type GeminiPlaceholder } from "@/lib/contracts/geminiClient"
 import {
-  fillHighlightPlaceholders,
-  fillLabelPlaceholders,
-  fillUnderscoredPlaceholders,
+  applySplices,
+  buildHighlightSplices,
+  buildLabelSplices,
+  buildUnderscoredSplices,
   generateDocxBuffer,
   cloneLocadorRow,
   pluralizeLocadorRefs,
@@ -131,8 +132,11 @@ export async function POST(request: NextRequest) {
     geminiValues = parsedFieldValues
       ? parsedFieldValues
       : await callGemini(geminiPlaceholders, texts, images, notes)
-    modifiedXml = fillHighlightPlaceholders(xml, geminiValues, highlightPlaceholders)
-    modifiedXml = fillUnderscoredPlaceholders(modifiedXml, geminiValues, underscoredPlaceholders)
+    // Single combined pass — chaining separate fills corrupts byte offsets (see applySplices)
+    modifiedXml = applySplices(xml, [
+      ...buildHighlightSplices(geminiValues, highlightPlaceholders),
+      ...buildUnderscoredSplices(geminiValues, underscoredPlaceholders),
+    ])
   } else {
     // model.type === "ac" — label-based strategy (CONTR-11)
     // CONTR-11: extract original row once to learn fieldCount, then clone N-1 times
@@ -174,8 +178,11 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    modifiedXml = fillLabelPlaceholders(xml, geminiValues, labelPlaceholders)
-    modifiedXml = fillUnderscoredPlaceholders(modifiedXml, geminiValues, underscoredPlaceholders)
+    // Single combined pass — chaining separate fills corrupts byte offsets (see applySplices)
+    modifiedXml = applySplices(xml, [
+      ...buildLabelSplices(geminiValues, labelPlaceholders),
+      ...buildUnderscoredSplices(geminiValues, underscoredPlaceholders),
+    ])
 
     // totals for header
     geminiPlaceholders = [

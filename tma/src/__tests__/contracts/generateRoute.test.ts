@@ -31,9 +31,10 @@ vi.mock("@/lib/contracts/geminiClient", () => ({
 }))
 
 vi.mock("@/lib/contracts/fillPlaceholders", () => ({
-  fillHighlightPlaceholders: vi.fn().mockReturnValue("<w:document/>"),
-  fillLabelPlaceholders: vi.fn().mockReturnValue("<w:document/>"),
-  fillUnderscoredPlaceholders: vi.fn().mockReturnValue("<w:document/>"),
+  applySplices: vi.fn().mockReturnValue("<w:document/>"),
+  buildHighlightSplices: vi.fn().mockReturnValue([]),
+  buildLabelSplices: vi.fn().mockReturnValue([]),
+  buildUnderscoredSplices: vi.fn().mockReturnValue([]),
   generateDocxBuffer: vi.fn().mockReturnValue(Buffer.from("fake-docx")),
   cloneLocadorRow: vi.fn((xml: string) => xml),
   pluralizeLocadorRefs: vi.fn((xml: string) => xml),

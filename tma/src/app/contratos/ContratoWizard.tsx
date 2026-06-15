@@ -37,6 +37,7 @@ interface WizardState {
   model: ContractModel | null
   siteFiles: File[]
   locadores: LocadorEntry[]
+  facturacion: string
   notes: string
   result: GenerationResult | null
   error: string | null
@@ -49,6 +50,7 @@ type WizardAction =
   | { type: "REMOVE_LOCADOR"; id: string }
   | { type: "SET_LOCADOR_FILES"; id: string; files: File[] }
   | { type: "TOGGLE_LOCADOR"; id: string }
+  | { type: "SET_FACTURACION"; facturacion: string }
   | { type: "SET_NOTES"; notes: string }
   | { type: "NEXT_STEP" }
   | { type: "PREV_STEP" }
@@ -63,6 +65,7 @@ const initialState: WizardState = {
   model: null,
   siteFiles: [],
   locadores: [{ id: crypto.randomUUID(), files: [], open: true }],
+  facturacion: "",
   notes: "",
   result: null,
   error: null,
@@ -82,6 +85,8 @@ function wizardReducer(state: WizardState, action: WizardAction): WizardState {
       return { ...state, locadores: state.locadores.map(l => l.id === action.id ? { ...l, files: action.files } : l) }
     case "TOGGLE_LOCADOR":
       return { ...state, locadores: state.locadores.map(l => l.id === action.id ? { ...l, open: !l.open } : l) }
+    case "SET_FACTURACION":
+      return { ...state, facturacion: action.facturacion }
     case "SET_NOTES":
       return { ...state, notes: action.notes }
     case "NEXT_STEP":
@@ -97,7 +102,7 @@ function wizardReducer(state: WizardState, action: WizardAction): WizardState {
     case "RETRY":
       return { ...state, error: null }
     case "RESET":
-      return { ...initialState, locadores: [{ id: crypto.randomUUID(), files: [], open: true }] }
+      return { ...initialState, locadores: [{ id: crypto.randomUUID(), files: [], open: true }], facturacion: "", notes: "" }
     default:
       return state
   }
@@ -321,6 +326,7 @@ export function ContratoWizard() {
     const fd = new FormData()
     fd.append("modelId", state.model!.id)
     fd.append("notes", state.notes)
+    fd.append("facturacion", state.facturacion)
     state.siteFiles.forEach(f => fd.append("siteFiles", f))
     fd.append("locadorCount", String(state.locadores.length))
     state.locadores.forEach((loc, i) => {
@@ -492,6 +498,23 @@ export function ContratoWizard() {
             </motion.div>
           ))}
         </AnimatePresence>
+      </div>
+
+      <div className="flex flex-col gap-2">
+        <label className="text-[14px] font-bold text-brand-text">Facturación</label>
+        <p className="text-[11px] text-brand-text/60">
+          Datos de Alta de Usuario Mercurio – Proveedores (nombre, apellido, DNI, CUIL, móvil, mail, CUIT empresa, razón social)
+        </p>
+        <textarea
+          rows={5}
+          value={state.facturacion}
+          onChange={e => dispatch({ type: "SET_FACTURACION", facturacion: e.target.value })}
+          placeholder={"Ej:\nNombre: Roberto\nApellido: Zanet\nDNI: 22213175\nCUIL: 20222131759\nMóvil: 1150114359\nMail: vanina_z@hotmail.com\nCUIT empresa: 27252640555\nRazón Social: VANINA ANDREA ZANET"}
+          className="resize-y rounded-xl font-[Sora] text-[13px] text-brand-text focus:outline-none transition-colors"
+          style={{ minHeight: 112, padding: "12px 16px", border: "1px solid #a8dbde", background: "#f0f9fa" }}
+          onFocus={e => { e.target.style.borderColor = "#78ccd0" }}
+          onBlur={e => { e.target.style.borderColor = "#a8dbde" }}
+        />
       </div>
 
       <div className="flex flex-col gap-2">

@@ -4,7 +4,6 @@ import { useState, useEffect } from "react"
 import { motion } from "motion/react"
 import Link from "next/link"
 import { PlusCircle } from "lucide-react"
-import { CasosSidebar } from "./CasosSidebar"
 import { CasosFilterBar } from "./CasosFilterBar"
 import { CasosTable } from "./CasosTable"
 import { ConfirmDialog } from "./ConfirmDialog"
@@ -94,12 +93,7 @@ export function CasosDashboard() {
   const hasActiveFilter = filterNombre.trim() !== "" || filterResponsable.trim() !== ""
 
   return (
-    <div className="flex min-h-screen bg-brand-background">
-      {/* Sidebar */}
-      <CasosSidebar />
-
-      {/* Contenido principal */}
-      <main className="flex-1 p-8 overflow-x-hidden">
+    <div className="p-8">
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
@@ -149,7 +143,6 @@ export function CasosDashboard() {
             hasActiveFilter={hasActiveFilter}
           />
         </motion.div>
-      </main>
 
       {/* Dialog de confirmación (D-10) */}
       {pendingDelete && (

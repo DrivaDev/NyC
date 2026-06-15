@@ -6,7 +6,7 @@ global.fetch = vi.fn()
 
 describe("ContratoWizard (UI-06)", () => {
   it("renders step 1 — model selection grid on mount", async () => {
-    const { ContratoWizard } = await import("@/app/tma/contratos/ContratoWizard")
+    const { ContratoWizard } = await import("@/app/contratos/ContratoWizard")
     render(<ContratoWizard />)
     expect(screen.getByText("Seleccioná el modelo de contrato")).toBeInTheDocument()
     // 10 model cards should be visible
@@ -14,7 +14,7 @@ describe("ContratoWizard (UI-06)", () => {
   })
 
   it("clicking a model card advances directly to step 2", async () => {
-    const { ContratoWizard } = await import("@/app/tma/contratos/ContratoWizard")
+    const { ContratoWizard } = await import("@/app/contratos/ContratoWizard")
     render(<ContratoWizard />)
     // Click first model card — should go straight to step 2
     const cards = screen.getAllByRole("button")
@@ -27,7 +27,7 @@ describe("ContratoWizard (UI-06)", () => {
   it("preserves uploaded files in state after simulated error (D-08)", async () => {
     // Mock fetch to fail
     vi.mocked(global.fetch).mockRejectedValueOnce(new Error("Network error"))
-    const { ContratoWizard } = await import("@/app/tma/contratos/ContratoWizard")
+    const { ContratoWizard } = await import("@/app/contratos/ContratoWizard")
     render(<ContratoWizard />)
     // Navigate to step 2, attach a file, proceed to step 3, trigger error, verify Reintentar
     // files still listed — tested via component state assertions
@@ -37,7 +37,7 @@ describe("ContratoWizard (UI-06)", () => {
 
   it("shows error state in step 3 when fetch fails", async () => {
     vi.mocked(global.fetch).mockRejectedValue(new Error("API error"))
-    const { ContratoWizard } = await import("@/app/tma/contratos/ContratoWizard")
+    const { ContratoWizard } = await import("@/app/contratos/ContratoWizard")
     // Wire up to step 3 via useReducer dispatch — tested after implementation
     render(<ContratoWizard />)
     expect(screen.getByText("Seleccioná el modelo de contrato")).toBeInTheDocument()
@@ -46,7 +46,7 @@ describe("ContratoWizard (UI-06)", () => {
 
 describe("ContratoWizard multi-locador step 2 (CONTR-11, CONTR-12)", () => {
   it("step 2 shows a '+ Agregar locador' button", async () => {
-    const { ContratoWizard } = await import("@/app/tma/contratos/ContratoWizard")
+    const { ContratoWizard } = await import("@/app/contratos/ContratoWizard")
     render(<ContratoWizard />)
     // Navigate to step 2 by clicking first model card
     const cards = screen.getAllByRole("button")
@@ -58,7 +58,7 @@ describe("ContratoWizard multi-locador step 2 (CONTR-11, CONTR-12)", () => {
   })
 
   it("clicking '+ Agregar locador' adds a second locador section", async () => {
-    const { ContratoWizard } = await import("@/app/tma/contratos/ContratoWizard")
+    const { ContratoWizard } = await import("@/app/contratos/ContratoWizard")
     render(<ContratoWizard />)
     const cards = screen.getAllByRole("button")
     fireEvent.click(cards[0])
@@ -73,7 +73,7 @@ describe("ContratoWizard multi-locador step 2 (CONTR-11, CONTR-12)", () => {
   })
 
   it("Generar contrato button is disabled until every locador has files", async () => {
-    const { ContratoWizard } = await import("@/app/tma/contratos/ContratoWizard")
+    const { ContratoWizard } = await import("@/app/contratos/ContratoWizard")
     render(<ContratoWizard />)
     const cards = screen.getAllByRole("button")
     fireEvent.click(cards[0])

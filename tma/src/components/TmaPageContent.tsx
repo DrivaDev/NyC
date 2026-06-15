@@ -10,14 +10,14 @@ const modules = [
     description: "Gestión de asuntos y seguimiento de causas",
     Icon: Briefcase,
     delay: 0.1,
-    href: "/tma/casos",
+    href: "/casos",
   },
   {
     title: "Contratos TMA",
     description: "Generación automática de contratos vía Gemini",
     Icon: FileText,
     delay: 0.2,
-    href: "/tma/contratos", // activated in Phase 2
+    href: "/contratos", // activated in Phase 2
   },
 ]
 

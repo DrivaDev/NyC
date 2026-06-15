@@ -15,7 +15,7 @@ export async function loginAction(
   }
 
   try {
-    await signIn("credentials", { email, password, redirectTo: "/tma" })
+    await signIn("credentials", { email, password, redirectTo: "/" })
   } catch (error) {
     if (error instanceof AuthError) {
       return { error: "Email o contraseña incorrectos" }

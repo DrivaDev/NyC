@@ -61,7 +61,7 @@ export async function registerUser(
   // 5. Auto-login tras registro exitoso (D-04)
   // CRÍTICO: signIn lanza NEXT_REDIRECT — re-lanzar todo excepto AuthError
   try {
-    await signIn("credentials", { email, password, redirectTo: "/tma" })
+    await signIn("credentials", { email, password, redirectTo: "/" })
   } catch (error) {
     if (error instanceof AuthError) {
       return { error: "Error al iniciar sesión automáticamente. Intentá loguearte manualmente." }

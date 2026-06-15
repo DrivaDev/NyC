@@ -20,8 +20,11 @@ export interface Placeholder {
 
 export interface LabelPlaceholder {
   id: string
-  label: string
-  context: string
+  label: string     // semantic label WITHOUT colon (e.g. "Domicilio")
+  context: string   // full paragraph text WITH colon (e.g. "Domicilio:") — sent to Gemini
+  // Internal — used by fillLabelPlaceholders for position-based insertion
+  _insertPos: number  // offset where new value run is inserted (just before </w:p>)
+  _rprXml: string     // inner <w:rPr> from first run in paragraph (formats the value run)
 }
 
 export function loadTemplateXml(filename: string): { zip: PizZip; xml: string } {
@@ -150,47 +153,49 @@ export function extractHighlightPlaceholders(xml: string): Placeholder[] {
 
 /**
  * Extract label-based fields from OOXML XML string (AC PF/PJ strategy).
+ *
+ * In AC templates the LABELS themselves are yellow-highlighted and underlined.
+ * Each form field is a paragraph whose entire text is highlighted and ends with ":".
+ * The value is appended AFTER the label text within the same paragraph.
+ *
+ * This replaces the old KNOWN_LABELS allowlist approach which only caught ~3 fields
+ * and was designed for a different template structure.
  */
 export function extractLabelPlaceholders(xml: string): LabelPlaceholder[] {
-  const KNOWN_LABELS = [
-    "Nombre",
-    "CUIT",
-    "Domicilio",
-    "Nacionalidad",
-    "Estado civil",
-    "Cargo",
-    "Empresa",
-    "Denominación",
-    "Representante",
-  ]
-
-  const paragraphPattern = /<w:p\b[^>]*>([\s\S]*?)<\/w:p>/g
+  const paragraphPattern = /<w:p\b[^>]*>[\s\S]*?<\/w:p>/g
   const results: LabelPlaceholder[] = []
-  let pMatch: RegExpExecArray | null
-  let index = 0
+  let m: RegExpExecArray | null
+  let idx = 0
 
-  while ((pMatch = paragraphPattern.exec(xml)) !== null) {
-    const paraContent = pMatch[1]
-    const tPattern = /<w:t[^>]*>([\s\S]*?)<\/w:t>/g
-    let tMatch: RegExpExecArray | null
+  while ((m = paragraphPattern.exec(xml)) !== null) {
+    const paraXml = m[0]
 
-    while ((tMatch = tPattern.exec(paraContent)) !== null) {
-      const raw = tMatch[1].trim()
-      const labelText = raw.replace(/:$/, "").trim()
+    // Only process paragraphs that have yellow-highlighted runs
+    if (!paraXml.includes('w:val="yellow"') && !paraXml.includes("w:val='yellow'")) continue
 
-      const matched = KNOWN_LABELS.find(
-        l => l.toLowerCase() === labelText.toLowerCase()
-      )
+    // Extract plain text from all <w:t> elements in this paragraph
+    const text = paraXml.replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim()
 
-      if (matched) {
-        results.push({
-          id: `lph_${index++}`,
-          label: matched,
-          context: paraContent.replace(/<[^>]+>/g, "").trim(),
-        })
-        break
-      }
-    }
+    // Must end with ":" — that's what makes it a form field label
+    if (!text.endsWith(":")) continue
+
+    const label = text.replace(/:+\s*$/, "").trim()
+    if (!label) continue
+
+    // _insertPos: just before </w:p> — this is where the value run goes
+    const pEnd = m.index + m[0].length
+    const insertPos = pEnd - "</w:p>".length
+
+    // rPr from first run in paragraph — preserves yellow + underline formatting on value
+    const rprMatch = paraXml.match(/<w:rPr>([\s\S]*?)<\/w:rPr>/)
+
+    results.push({
+      id: `lph_${idx++}`,
+      label,
+      context: text,   // "Domicilio:" or full verbose label
+      _insertPos: insertPos,
+      _rprXml: rprMatch ? rprMatch[1] : "",
+    })
   }
 
   return results

@@ -1,43 +1,47 @@
-import { describe, it, expect, vi } from "vitest"
+import { describe, it, expect } from "vitest"
 
 // El middleware de NextAuth v5 usa `auth` como wrapper — difícil de unit-testear
 // directamente la función default export. Testeamos la lógica de negocio
 // verificando las condiciones de redirect.
 
 describe("middleware — AUTH-06 (lógica de protección de rutas)", () => {
-  it("AUTH-06: pathname /tma sin sesión debe requerir redirect a /login", () => {
-    // Verificamos la lógica de decisión del middleware
+  it("AUTH-06: pathname /casos sin sesión debe requerir redirect a /login", () => {
     const isLoggedIn = false
-    const pathname = "/tma"
-    const shouldRedirectToLogin = pathname.startsWith("/tma") && !isLoggedIn
+    const pathname = "/casos"
+    const isPublic = pathname === "/login" || pathname === "/register"
+    const shouldRedirectToLogin = !isPublic && !isLoggedIn
     expect(shouldRedirectToLogin).toBe(true)
   })
 
-  it("AUTH-06: pathname /tma con sesión activa debe permitir acceso", () => {
+  it("AUTH-06: pathname /casos con sesión activa debe permitir acceso", () => {
     const isLoggedIn = true
-    const pathname = "/tma"
-    const shouldRedirectToLogin = pathname.startsWith("/tma") && !isLoggedIn
+    const pathname = "/casos"
+    const isPublic = pathname === "/login" || pathname === "/register"
+    const shouldRedirectToLogin = !isPublic && !isLoggedIn
     expect(shouldRedirectToLogin).toBe(false)
   })
 
   it("AUTH-05: pathname / sin sesión debe redirigir a /login", () => {
     const isLoggedIn = false
     const pathname = "/"
-    const redirectTarget = pathname === "/" ? (isLoggedIn ? "/tma" : "/login") : null
-    expect(redirectTarget).toBe("/login")
+    const isPublic = pathname === "/login" || pathname === "/register"
+    const shouldRedirectToLogin = !isPublic && !isLoggedIn
+    expect(shouldRedirectToLogin).toBe(true)
   })
 
-  it("AUTH-05: pathname / con sesión debe redirigir a /tma", () => {
+  it("AUTH-05: pathname / con sesión debe permitir acceso (la página maneja auth)", () => {
     const isLoggedIn = true
     const pathname = "/"
-    const redirectTarget = pathname === "/" ? (isLoggedIn ? "/tma" : "/login") : null
-    expect(redirectTarget).toBe("/tma")
+    const isPublic = pathname === "/login" || pathname === "/register"
+    const shouldRedirectToLogin = !isPublic && !isLoggedIn
+    expect(shouldRedirectToLogin).toBe(false)
   })
 
-  it("AUTH-06: pathname /tma/casos con sesión activa debe permitir acceso", () => {
+  it("AUTH-06: pathname /casos/nuevo con sesión activa debe permitir acceso", () => {
     const isLoggedIn = true
-    const pathname = "/tma/casos"
-    const shouldRedirectToLogin = pathname.startsWith("/tma") && !isLoggedIn
+    const pathname = "/casos/nuevo"
+    const isPublic = pathname === "/login" || pathname === "/register"
+    const shouldRedirectToLogin = !isPublic && !isLoggedIn
     expect(shouldRedirectToLogin).toBe(false)
   })
 })

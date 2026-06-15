@@ -4,7 +4,7 @@ import "@testing-library/jest-dom"
 
 // Mock next/navigation — CasosSidebar usa usePathname para determinar el ítem activo
 vi.mock("next/navigation", () => ({
-  usePathname: vi.fn().mockReturnValue("/tma/casos"),
+  usePathname: vi.fn().mockReturnValue("/casos"),
   useRouter: vi.fn().mockReturnValue({ push: vi.fn() }),
 }))
 

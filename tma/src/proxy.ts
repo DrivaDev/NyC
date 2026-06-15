@@ -9,18 +9,14 @@ export default auth((req) => {
   const isLoggedIn = !!req.auth
   const { pathname } = req.nextUrl
 
-  if (pathname === "/") {
-    return NextResponse.redirect(
-      new URL(isLoggedIn ? "/tma" : "/login", req.url)
-    )
-  }
+  const isPublic = pathname === "/login" || pathname === "/register"
 
-  if ((pathname === "/login" || pathname === "/register") && isLoggedIn) {
-    return NextResponse.redirect(new URL("/tma", req.url))
-  }
-
-  if (pathname.startsWith("/tma") && !isLoggedIn) {
+  if (!isPublic && !isLoggedIn) {
     return NextResponse.redirect(new URL("/login", req.url))
+  }
+
+  if (isPublic && isLoggedIn) {
+    return NextResponse.redirect(new URL("/", req.url))
   }
 
   return NextResponse.next()

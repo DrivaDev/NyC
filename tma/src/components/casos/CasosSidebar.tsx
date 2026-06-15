@@ -7,8 +7,8 @@ import { usePathname } from "next/navigation"
 import { SidebarNavItem } from "./SidebarNavItem"
 
 const navItems = [
-  { label: "Dashboard", icon: LayoutDashboard, href: "/tma/casos", badge: undefined },
-  { label: "Nuevo asunto", icon: PlusCircle, href: "/tma/casos/nuevo", badge: undefined },
+  { label: "Dashboard", icon: LayoutDashboard, href: "/casos", badge: undefined },
+  { label: "Nuevo asunto", icon: PlusCircle, href: "/casos/nuevo", badge: undefined },
   { label: "Estadísticas", icon: BarChart2, href: null, badge: "Próximamente" },
 ] as const
 

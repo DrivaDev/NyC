@@ -121,7 +121,7 @@ export function CasoForm() {
       })
 
       if (res.ok) {
-        router.push("/tma/casos")
+        router.push("/casos")
       } else {
         setServerError("No se pudo guardar el asunto. Intentá nuevamente.")
       }
@@ -151,7 +151,7 @@ export function CasoForm() {
         >
           <h1 className="text-[28px] font-bold text-brand-title mb-1">Nuevo Asunto</h1>
           <Link
-            href="/tma/casos"
+            href="/casos"
             className="text-[13px] text-brand-primary hover:underline underline-offset-2 block mb-8"
           >
             ← Volver al Dashboard

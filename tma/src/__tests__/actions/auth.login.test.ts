@@ -25,7 +25,7 @@ describe("loginAction — AUTH-03", () => {
     vi.clearAllMocks()
   })
 
-  it("AUTH-03: signIn se llama con 'credentials' y redirectTo '/tma' cuando hay credenciales", async () => {
+  it("AUTH-03: signIn se llama con 'credentials' y redirectTo '/' cuando hay credenciales", async () => {
     const { signIn } = await import("@/auth")
     vi.mocked(signIn).mockResolvedValue(undefined as never)
     const formData = new FormData()
@@ -35,7 +35,7 @@ describe("loginAction — AUTH-03", () => {
     expect(signIn).toHaveBeenCalledWith("credentials", {
       email: "nsilva@nyc.com.ar",
       password: "password123",
-      redirectTo: "/tma",
+      redirectTo: "/",
     })
   })
 

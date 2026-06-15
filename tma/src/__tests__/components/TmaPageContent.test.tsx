@@ -18,15 +18,15 @@ describe("TmaPageContent — UI-04", () => {
     expect(screen.getByText("Casos TMA")).toBeInTheDocument()
   })
 
-  it("el card 'Casos TMA' tiene href='/tma/casos' (activado en Phase 4)", () => {
+  it("el card 'Casos TMA' tiene href='/casos'", () => {
     render(<TmaPageContent />)
     const link = screen.getByRole("link", { name: /Casos TMA/i })
-    expect(link).toHaveAttribute("href", "/tma/casos")
+    expect(link).toHaveAttribute("href", "/casos")
   })
 
-  it("el card 'Contratos TMA' tiene href='/tma/contratos'", () => {
+  it("el card 'Contratos TMA' tiene href='/contratos'", () => {
     render(<TmaPageContent />)
     const link = screen.getByRole("link", { name: /Contratos TMA/i })
-    expect(link).toHaveAttribute("href", "/tma/contratos")
+    expect(link).toHaveAttribute("href", "/contratos")
   })
 })

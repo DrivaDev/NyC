@@ -116,7 +116,21 @@ Wave 4 *(blocked on 03-04)*
   3. Usuario puede buscar asuntos por nombre parcial y por responsable parcial
   4. Usuario puede ordenar la tabla por fechaVencimiento (ascendente y descendente)
   5. Usuario puede eliminar un asunto de la tabla y desaparece inmediatamente
-**Plans**: TBD
+**Plans**: 5 planes
+Plans:
+Wave 0 *(sin dependencias — crear tests RED primero)*
+- [ ] 04-01-PLAN.md — Wave 0: 5 archivos de test stub RED (casosRoute, casoSchema, casosFiltrado, CasosSidebar, TmaPageContent)
+
+Wave 1 *(parallel — ambos dependen solo de Wave 0)*
+- [ ] 04-02-PLAN.md — Wave 1a: Backend — Caso.ts model + casoSchema en validations.ts + route.ts (GET/POST/DELETE)
+- [ ] 04-03-PLAN.md — Wave 1b: Componentes UI — SidebarNavItem + CasosSidebar + CasosFilterBar + ConfirmDialog
+
+Wave 2 *(blocked on Wave 1a + 1b)*
+- [ ] 04-04-PLAN.md — Wave 2: CasosTable + CasosDashboard + CasoForm + páginas /tma/casos y /tma/casos/nuevo + activar card TmaPageContent
+
+Wave 3 *(blocked on Wave 2)*
+- [ ] 04-05-PLAN.md — Wave 3: Suite GREEN + checkpoint humano (5 escenarios de UI)
+
 **UI hint**: yes
 
 ### Phase 5: Casos — Estadísticas
@@ -139,5 +153,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 | 1. Foundation & Auth | 4/4 | Complete | 2026-06-11 |
 | 2. Contratos — Pipeline de generación | 0/6 | Not started | - |
 | 3. Contratos — Multi-locador | 4/5 | In progress | - |
-| 4. Casos — CRUD & Dashboard | 0/TBD | Not started | - |
+| 4. Casos — CRUD & Dashboard | 0/5 | Ready to execute | - |
 | 5. Casos — Estadísticas | 0/TBD | Not started | - |

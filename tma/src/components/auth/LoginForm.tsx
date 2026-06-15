@@ -76,6 +76,11 @@ export function LoginForm() {
           Registrate
         </Link>
       </p>
+      <p className="text-[11px] text-brand-text/60 text-center mt-2">
+        <Link href="/forgot-password" className="hover:text-brand-primary transition-colors">
+          ¿Olvidaste tu contraseña?
+        </Link>
+      </p>
     </motion.div>
   )
 }

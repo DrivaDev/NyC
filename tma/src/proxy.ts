@@ -9,7 +9,7 @@ export default auth((req) => {
   const isLoggedIn = !!req.auth
   const { pathname } = req.nextUrl
 
-  const isPublic = pathname === "/login" || pathname === "/register"
+  const isPublic = pathname === "/login" || pathname === "/register" || pathname === "/forgot-password"
 
   if (!isPublic && !isLoggedIn) {
     return NextResponse.redirect(new URL("/login", req.url))
@@ -23,5 +23,5 @@ export default auth((req) => {
 })
 
 export const config = {
-  matcher: ["/((?!api/auth|_next/static|_next/image|favicon.ico).*)"],
+  matcher: ["/((?!api/auth|_next/static|_next/image|favicon\\.ico|.*\\.\\w+).*)"],
 }

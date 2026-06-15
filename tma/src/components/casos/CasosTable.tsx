@@ -53,10 +53,10 @@ export function CasosTable({
     <div className="overflow-x-auto rounded-xl border border-[#FECBA1] bg-white">
       <table className="w-full text-[13px] text-brand-text table-fixed">
         <colgroup>
-          <col className="w-[34%]" />
-          <col className="w-[16%]" />
-          <col className="w-[16%]" />
-          <col className="w-[22%]" />
+          <col className="w-[30%]" />
+          <col className="w-[17%]" />
+          <col className="w-[20%]" />
+          <col className="w-[21%]" />
           <col className="w-[12%]" />
         </colgroup>
         <thead>

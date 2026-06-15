@@ -34,7 +34,15 @@ export function CasoForm() {
 
   const handleChange = (field: keyof FormValues) => (e: React.ChangeEvent<HTMLInputElement>) => {
     setValues(v => ({ ...v, [field]: e.target.value }))
-    // Limpiar error del campo al editar
+    if (errors[field]) setErrors(prev => ({ ...prev, [field]: undefined }))
+  }
+
+  const handleDateChange = (field: "fechaIngreso" | "fechaVencimiento") => (e: React.ChangeEvent<HTMLInputElement>) => {
+    const digits = e.target.value.replace(/\D/g, "").slice(0, 8)
+    let formatted = digits
+    if (digits.length > 2) formatted = `${digits.slice(0, 2)}/${digits.slice(2)}`
+    if (digits.length > 4) formatted = `${digits.slice(0, 2)}/${digits.slice(2, 4)}/${digits.slice(4)}`
+    setValues(v => ({ ...v, [field]: formatted }))
     if (errors[field]) setErrors(prev => ({ ...prev, [field]: undefined }))
   }
 
@@ -122,7 +130,6 @@ export function CasoForm() {
                   type="text"
                   value={values.nombre}
                   onChange={handleChange("nombre")}
-                  placeholder="Ej: García c/ López s/ daños"
                   className={inputClass("nombre")}
                 />
                 {errors.nombre && (
@@ -137,8 +144,9 @@ export function CasoForm() {
                 </label>
                 <input
                   type="text"
+                  inputMode="numeric"
                   value={values.fechaIngreso}
-                  onChange={handleChange("fechaIngreso")}
+                  onChange={handleDateChange("fechaIngreso")}
                   placeholder="dd/mm/aaaa"
                   maxLength={10}
                   className={inputClass("fechaIngreso")}
@@ -155,8 +163,9 @@ export function CasoForm() {
                 </label>
                 <input
                   type="text"
+                  inputMode="numeric"
                   value={values.fechaVencimiento}
-                  onChange={handleChange("fechaVencimiento")}
+                  onChange={handleDateChange("fechaVencimiento")}
                   placeholder="dd/mm/aaaa"
                   maxLength={10}
                   className={inputClass("fechaVencimiento")}

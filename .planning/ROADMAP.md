@@ -131,6 +131,13 @@ Wave 2 *(blocked on Wave 1a + 1b)*
 Wave 3 *(blocked on Wave 2)*
 - [ ] 04-05-PLAN.md — Wave 3: Suite GREEN + checkpoint humano (5 escenarios de UI)
 
+**Cross-cutting constraints:**
+- `auth()` de NextAuth v5 en cada Route Handler y Server Component — 401 si no hay sesión
+- `mongoose.isValidObjectId(id)` en DELETE antes de tocar DB
+- `motion/react` (no `framer-motion`) para todas las animaciones
+- Tailwind v4: colores SOLO en `@theme {}` de globals.css
+- TextureCard / TextureButton de cult-ui — no plain `<button>` sin wrapper
+
 **UI hint**: yes
 
 ### Phase 5: Casos — Estadísticas

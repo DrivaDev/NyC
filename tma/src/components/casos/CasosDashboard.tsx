@@ -107,7 +107,7 @@ export function CasosDashboard() {
         >
           {/* Header */}
           <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
-            <h1 className="text-[28px] font-bold text-brand-title">Dashboard de Asuntos</h1>
+            <h1 className="text-[28px] font-bold text-brand-title">Asuntos</h1>
             <Link
               href="/casos/nuevo"
               className="flex items-center gap-2 px-4 py-2 rounded-lg bg-brand-primary text-white text-[13px] font-normal hover:bg-brand-primary/90 transition-colors duration-150"

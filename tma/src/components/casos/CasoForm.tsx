@@ -20,8 +20,19 @@ interface FieldErrors {
   responsable?: string
 }
 
-function formatDateDigits(digits: string): string {
-  const d = digits.slice(0, 8)
+function formatDateDigits(rawDigits: string): string {
+  let d = rawDigits.slice(0, 8)
+
+  if (d.length >= 2) {
+    const day = parseInt(d.slice(0, 2), 10)
+    if (day > 31) d = "31" + d.slice(2)
+  }
+
+  if (d.length >= 4) {
+    const month = parseInt(d.slice(2, 4), 10)
+    if (month > 12) d = d.slice(0, 2) + "12" + d.slice(4)
+  }
+
   if (d.length <= 2) return d
   if (d.length <= 4) return `${d.slice(0, 2)}/${d.slice(2)}`
   return `${d.slice(0, 2)}/${d.slice(2, 4)}/${d.slice(4)}`

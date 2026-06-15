@@ -37,7 +37,6 @@ interface WizardState {
   model: ContractModel | null
   siteFiles: File[]
   locadores: LocadorEntry[]
-  facturacionFiles: File[]
   notes: string
   result: GenerationResult | null
   error: string | null
@@ -50,7 +49,6 @@ type WizardAction =
   | { type: "REMOVE_LOCADOR"; id: string }
   | { type: "SET_LOCADOR_FILES"; id: string; files: File[] }
   | { type: "TOGGLE_LOCADOR"; id: string }
-  | { type: "SET_FACTURACION_FILES"; files: File[] }
   | { type: "SET_NOTES"; notes: string }
   | { type: "NEXT_STEP" }
   | { type: "PREV_STEP" }
@@ -65,7 +63,6 @@ const initialState: WizardState = {
   model: null,
   siteFiles: [],
   locadores: [{ id: crypto.randomUUID(), files: [], open: true }],
-  facturacionFiles: [],
   notes: "",
   result: null,
   error: null,
@@ -85,8 +82,6 @@ function wizardReducer(state: WizardState, action: WizardAction): WizardState {
       return { ...state, locadores: state.locadores.map(l => l.id === action.id ? { ...l, files: action.files } : l) }
     case "TOGGLE_LOCADOR":
       return { ...state, locadores: state.locadores.map(l => l.id === action.id ? { ...l, open: !l.open } : l) }
-    case "SET_FACTURACION_FILES":
-      return { ...state, facturacionFiles: action.files }
     case "SET_NOTES":
       return { ...state, notes: action.notes }
     case "NEXT_STEP":
@@ -102,7 +97,7 @@ function wizardReducer(state: WizardState, action: WizardAction): WizardState {
     case "RETRY":
       return { ...state, error: null }
     case "RESET":
-      return { ...initialState, locadores: [{ id: crypto.randomUUID(), files: [], open: true }], facturacionFiles: [], notes: "" }
+      return { ...initialState, locadores: [{ id: crypto.randomUUID(), files: [], open: true }], notes: "" }
     default:
       return state
   }
@@ -327,7 +322,6 @@ export function ContratoWizard() {
     const fd = new FormData()
     fd.append("modelId", state.model!.id)
     fd.append("notes", state.notes)
-    state.facturacionFiles.forEach(f => fd.append("facturacionFiles", f))
     state.siteFiles.forEach(f => fd.append("siteFiles", f))
     fd.append("locadorCount", String(state.locadores.length))
     state.locadores.forEach((loc, i) => {
@@ -501,13 +495,6 @@ export function ContratoWizard() {
         </AnimatePresence>
       </div>
 
-      <FileUploadZone
-        label="Facturación"
-        files={state.facturacionFiles}
-        onChange={files => dispatch({ type: "SET_FACTURACION_FILES", files })}
-        hint="Screenshot con datos de Alta Usuario Mercurio – Proveedores"
-      />
-
       <div className="flex flex-col gap-2">
         <label className="text-[14px] font-bold text-brand-text">Notas</label>
         <textarea
@@ -605,10 +592,7 @@ export function ContratoWizard() {
 
   // ── Step 4: Download ──────────────────────────────────────────────────────
 
-  const renderStep4 = () => {
-    const { completedCount = 0, totalCount = 0 } = state.result ?? {}
-
-    return (
+  const renderStep4 = () => (
       <div className="p-12 rounded-2xl flex flex-col items-center gap-6 text-center" style={cardStyle}>
         <motion.div
           initial={{ scale: 0.6, opacity: 0 }}
@@ -617,13 +601,6 @@ export function ContratoWizard() {
         >
           <CheckCircle size={48} style={{ color: "#1e2352" }} />
         </motion.div>
-
-        <span
-          className="text-[11px] font-bold rounded-full"
-          style={{ backgroundColor: "#a8dbde", color: "#1e2352", padding: "4px 12px" }}
-        >
-          {completedCount} de {totalCount} campos completados
-        </span>
 
         <p className="text-[20px] font-bold text-brand-title">
           Tu contrato está listo
@@ -650,7 +627,6 @@ export function ContratoWizard() {
         </button>
       </div>
     )
-  }
 
   // ── Render ─────────────────────────────────────────────────────────────────
 

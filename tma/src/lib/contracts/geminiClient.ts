@@ -150,8 +150,6 @@ ${docsText}${notesSection}
 
 INSTRUCCIONES — Seguí estos dos pasos:
 
-NOTA: Si entre los documentos hay una sección que empieza con "=== DATOS DE FACTURACIÓN / ALTA USUARIO MERCURIO", usá esos datos con MÁXIMA PRIORIDAD para todos los campos de Alta Mercurio. No los inferás de otros documentos si esa sección existe.
-
 PASO 1 — ANÁLISIS: Leé los documentos e identificá toda la información disponible:
 • Partes: nombre completo, CUIT, DNI, domicilio, estado civil, nacionalidad, rol (locador/locatario)
 • Inmueble/sitio: nombre fantasía, dirección (calle y N°), localidad, provincia, nomenclatura catastral (Parcela, Circunscripción, Sección, Manzana) — copiá los números exactamente

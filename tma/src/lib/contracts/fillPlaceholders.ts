@@ -334,12 +334,15 @@ export function cloneSignatureBlocks(xml: string, locadorCount: number): string 
   let idSeed = 0xb0000000
   const nextId = () => `${(idSeed++).toString(16).toUpperCase().padStart(8, "0")}`
 
+  // A minimal blank paragraph inserted between signature blocks for visual spacing
+  const spacer = `<w:p w14:paraId="${(idSeed++).toString(16).toUpperCase().padStart(8, "0")}" w14:textId="77777777" w:rsidR="00000000" w:rsidRDefault="00000000"/>`
+
   let clones = ""
   for (let i = 1; i < locadorCount; i++) {
     let clone = block
     clone = clone.replace(/w14:paraId="[^"]+"/g, () => `w14:paraId="${nextId()}"`)
     clone = clone.replace(/w14:textId="[^"]+"/g, () => `w14:textId="${nextId()}"`)
-    clones += clone
+    clones += spacer + clone
   }
 
   return xml.slice(0, blockEnd) + clones + xml.slice(blockEnd)

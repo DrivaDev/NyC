@@ -59,11 +59,7 @@ export async function POST(request: NextRequest) {
 
   const modelId = (formData.get("modelId") as string | null) ?? ""
   const notes = (formData.get("notes") as string | null) ?? ""
-  const facturacionRaw = (formData.get("facturacion") as string | null) ?? ""
-  // Labeled so Gemini knows this is the Mercurio billing section, not generic context
-  const facturacionText = facturacionRaw.trim()
-    ? `=== DATOS DE FACTURACIÓN / ALTA USUARIO MERCURIO – PROVEEDORES ===\n${facturacionRaw.trim()}`
-    : ""
+  const facturacionFiles = formData.getAll("facturacionFiles") as File[]
 
   // ── Security: validate modelId against MODELS map — never use raw input in path (T-02-02) ─
   const model = getModelById(modelId)
@@ -85,7 +81,7 @@ export async function POST(request: NextRequest) {
   }
 
   // ── DoS protection: cap TOTAL files across siteFiles + all locadores ─────────
-  const totalFiles = siteFiles.length + locadorFileSets.reduce((s, f) => s + f.length, 0)
+  const totalFiles = siteFiles.length + facturacionFiles.length + locadorFileSets.reduce((s, f) => s + f.length, 0)
   if (totalFiles > 20) {
     return NextResponse.json({ error: "Demasiados archivos adjuntos" }, { status: 400 })
   }
@@ -133,8 +129,10 @@ export async function POST(request: NextRequest) {
     ]
     // D-09: single Gemini call with ALL locadores' files concatenated
     const allFiles = locadorFileSets.flat()
-    const { texts: rawTexts, images } = await processFiles([...siteFiles, ...allFiles])
-    const texts = facturacionText ? [facturacionText, ...rawTexts] : rawTexts
+    const { texts, images: baseImages } = await processFiles([...siteFiles, ...allFiles])
+    const { texts: factTexts, images: factImages } = await processFiles(facturacionFiles)
+    const images = [...factImages, ...baseImages]
+    if (factTexts.length > 0) texts.unshift(`=== DATOS DE FACTURACIÓN / ALTA USUARIO MERCURIO – PROVEEDORES ===\n${factTexts.join("\n")}`)
     // Build letter date in Spanish for the date-header us_ fields
     const now = new Date()
     const letterDate = now.toLocaleDateString("es-AR", {
@@ -164,11 +162,18 @@ export async function POST(request: NextRequest) {
     if (parsedFieldValues) {
       Object.assign(geminiValues, parsedFieldValues)
     } else {
+      // Process facturacion files once, shared across all locador calls
+      const { texts: factTexts, images: factImages } = await processFiles(facturacionFiles)
+      const factTextBlock = factTexts.length > 0
+        ? `=== DATOS DE FACTURACIÓN / ALTA USUARIO MERCURIO – PROVEEDORES ===\n${factTexts.join("\n")}`
+        : ""
+
       // D-04: one Gemini call per locador; parallel (Pitfall 4 — within 60s for <=10)
       const perLocador = await Promise.all(
         locadorFileSets.map(async (files, i) => {
-          const { texts: rawTexts, images } = await processFiles(files)
-          const texts = facturacionText ? [facturacionText, ...rawTexts] : rawTexts
+          const { texts: rawTexts, images: rawImages } = await processFiles(files)
+          const texts = factTextBlock ? [factTextBlock, ...rawTexts] : rawTexts
+          const images = [...factImages, ...rawImages]
           // Send this locador's fields, but remap absolute ids to lph_0..fieldCount-1
           // so each call is independent of row position.
           const slice = labelPlaceholders!.slice(i * fieldCount, (i + 1) * fieldCount)
@@ -184,8 +189,9 @@ export async function POST(request: NextRequest) {
       // Underscore fields (e.g. letter date header) — run a lightweight extra mapping
       // only if underscoredPlaceholders is non-empty:
       if (underscoredPlaceholders.length > 0) {
-        const { texts: rawUsTexts, images: usImages } = await processFiles(locadorFileSets[0] ?? [])
-        const usTexts = facturacionText ? [facturacionText, ...rawUsTexts] : rawUsTexts
+        const { texts: rawUsTexts, images: rawUsImages } = await processFiles(locadorFileSets[0] ?? [])
+        const usTexts = factTextBlock ? [factTextBlock, ...rawUsTexts] : rawUsTexts
+        const usImages = [...factImages, ...rawUsImages]
         const usVals = await callGemini(
           underscoredPlaceholders.map(u => ({ id: u.id, context: u.context })),
           usTexts, usImages, notes

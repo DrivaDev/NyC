@@ -39,8 +39,8 @@ export function applySplices(xml: string, splices: Splice[]): string {
  * for formatting reasons). The whole group is collapsed into one run with the
  * Gemini value and the original <w:rPr> (including w:highlight).
  *
- * If Gemini returns "" for a field, the original placeholder label is kept (still
- * highlighted yellow) so unfilled fields remain visually obvious.
+ * Gemini returning "" removes the field entirely (good for optional clauses like Energía).
+ * Gemini not returning a key at all keeps the original label highlighted yellow for review.
  *
  * @param xml          The original document.xml string
  * @param values       Map of placeholder_id → string value from Gemini
@@ -53,11 +53,14 @@ export function buildHighlightSplices(
 ): Splice[] {
   return placeholders.map(ph => {
     const value = values[ph.id]
-    // If Gemini filled it use the value; otherwise keep original label (highlighted yellow)
-    const fillText =
-      value !== undefined && value.trim() !== "" ? value : ph.label
+    // "" from Gemini = intentional blank (e.g. optional Energía clause → removed from output).
+    // undefined (key absent from Gemini JSON) = Gemini skipped it → keep label so it stays
+    // highlighted yellow and visible for manual review.
+    const fillText = value !== undefined ? value : ph.label
     // Collapse entire run group into one run with original formatting + new text
-    const newRun = `<w:r><w:rPr>${stripUnderline(ph._rprXml)}</w:rPr><w:t xml:space="preserve">${escapeXml(fillText)}</w:t></w:r>`
+    const newRun = value !== undefined && value.trim() === ""
+      ? ""  // truly remove the run when Gemini explicitly blanks it
+      : `<w:r><w:rPr>${stripUnderline(ph._rprXml)}</w:rPr><w:t xml:space="preserve">${escapeXml(fillText)}</w:t></w:r>`
     return { start: ph._startPos, end: ph._endPos, replacement: newRun }
   })
 }

@@ -131,7 +131,7 @@ export async function POST(request: NextRequest) {
     const { texts, images } = await processFiles([...siteFiles, ...allFiles])
     geminiValues = parsedFieldValues
       ? parsedFieldValues
-      : await callGemini(geminiPlaceholders, texts, images, notes)
+      : await callGemini(geminiPlaceholders, texts, images, notes, locadorCount)
     // Single combined pass — chaining separate fills corrupts byte offsets (see applySplices)
     modifiedXml = applySplices(xml, [
       ...buildHighlightSplices(geminiValues, highlightPlaceholders),

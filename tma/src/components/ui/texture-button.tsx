@@ -10,7 +10,7 @@ const buttonVariantsOuter = cva("", {
   variants: {
     variant: {
       primary:
-        "w-full border border-[1px] dark:border-[2px] border-black/10 dark:border-black bg-gradient-to-b from-black/70 to-black dark:from-white dark:to-white/80 p-[1px] transition duration-300 ease-in-out ",
+        "w-full border border-[1px] border-[#1e2352]/20 bg-gradient-to-b from-[#78ccd0]/80 to-[#1e2352] p-[1px] transition duration-300 ease-in-out ",
       accent:
         "w-full border-[1px] dark:border-[2px] border-black/10 dark:border-neutral-950 bg-gradient-to-b from-indigo-300/90 to-indigo-500 dark:from-indigo-200/70 dark:to-indigo-500 p-[1px] transition duration-300 ease-in-out ",
       destructive:
@@ -40,7 +40,7 @@ const innerDivVariants = cva(
     variants: {
       variant: {
         primary:
-          "gap-2 bg-gradient-to-b from-neutral-800 to-black  dark:from-neutral-200 dark:to-neutral-50 text-sm text-white/90 dark:text-black/80 transition duration-300 ease-in-out  hover:from-stone-800 hover:to-neutral-800/70 dark:hover:from-stone-200 dark:hover:to-neutral-200 dark:active:from-stone-300 dark:active:to-neutral-300 active:bg-gradient-to-b active:from-black active:to-black ",
+          "gap-2 bg-gradient-to-b from-[#78ccd0] to-[#1e2352] text-sm text-white/95 transition duration-300 ease-in-out hover:from-[#5ec8cc] hover:to-[#2a3380] active:from-[#4ab8bc] active:to-[#1e2352]",
         accent:
           "gap-2 bg-gradient-to-b from-indigo-400 to-indigo-600 text-sm text-white/90 transition duration-300 ease-in-out hover:bg-gradient-to-b hover:from-indigo-400/70 hover:to-indigo-600/70 dark:hover:from-indigo-400/70 dark:hover:to-indigo-600/70 active:bg-gradient-to-b active:from-indigo-400/80 active:to-indigo-600/80 dark:active:from-indigo-400 dark:active:to-indigo-600",
         destructive:

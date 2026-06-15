@@ -20,6 +20,20 @@ interface FieldErrors {
   responsable?: string
 }
 
+function formatDateDigits(digits: string): string {
+  const d = digits.slice(0, 8)
+  if (d.length <= 2) return d
+  if (d.length <= 4) return `${d.slice(0, 2)}/${d.slice(2)}`
+  return `${d.slice(0, 2)}/${d.slice(2, 4)}/${d.slice(4)}`
+}
+
+function getTodayDDMMYYYY(): string {
+  const t = new Date()
+  const dd = String(t.getDate()).padStart(2, "0")
+  const mm = String(t.getMonth() + 1).padStart(2, "0")
+  return `${dd}/${mm}/${t.getFullYear()}`
+}
+
 export function CasoForm() {
   const router = useRouter()
   const [values, setValues] = useState<FormValues>({
@@ -37,20 +51,45 @@ export function CasoForm() {
     if (errors[field]) setErrors(prev => ({ ...prev, [field]: undefined }))
   }
 
-  const handleDateChange = (field: "fechaIngreso" | "fechaVencimiento") => (e: React.ChangeEvent<HTMLInputElement>) => {
-    const digits = e.target.value.replace(/\D/g, "").slice(0, 8)
-    let formatted = digits
-    if (digits.length > 2) formatted = `${digits.slice(0, 2)}/${digits.slice(2)}`
-    if (digits.length > 4) formatted = `${digits.slice(0, 2)}/${digits.slice(2, 4)}/${digits.slice(4)}`
-    setValues(v => ({ ...v, [field]: formatted }))
+  const handleDateKeyDown = (field: "fechaIngreso" | "fechaVencimiento") => (e: React.KeyboardEvent<HTMLInputElement>) => {
+    const digits = values[field].replace(/\D/g, "")
+
+    if (e.key === "Backspace" || e.key === "Delete") {
+      e.preventDefault()
+      setValues(v => ({ ...v, [field]: formatDateDigits(digits.slice(0, -1)) }))
+      if (errors[field]) setErrors(prev => ({ ...prev, [field]: undefined }))
+      return
+    }
+
+    if (/^\d$/.test(e.key)) {
+      if (digits.length >= 8) { e.preventDefault(); return }
+      e.preventDefault()
+      setValues(v => ({ ...v, [field]: formatDateDigits(digits + e.key) }))
+      if (errors[field]) setErrors(prev => ({ ...prev, [field]: undefined }))
+      return
+    }
+
+    if (!["Tab", "ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Home", "End"].includes(e.key)) {
+      e.preventDefault()
+    }
+  }
+
+  const handleDatePaste = (field: "fechaIngreso" | "fechaVencimiento") => (e: React.ClipboardEvent<HTMLInputElement>) => {
+    e.preventDefault()
+    const digits = e.clipboardData.getData("text").replace(/\D/g, "")
+    setValues(v => ({ ...v, [field]: formatDateDigits(digits) }))
     if (errors[field]) setErrors(prev => ({ ...prev, [field]: undefined }))
+  }
+
+  const moveCursorToEnd = (e: React.SyntheticEvent<HTMLInputElement>) => {
+    const el = e.currentTarget
+    requestAnimationFrame(() => { el.setSelectionRange(el.value.length, el.value.length) })
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setServerError(null)
 
-    // Validación client-side con Zod (CASOS-02)
     const result = casoSchema.safeParse(values)
     if (!result.success) {
       const fieldErrors: FieldErrors = {}
@@ -142,15 +181,31 @@ export function CasoForm() {
                 <label className="text-[13px] font-normal text-brand-text mb-1 block">
                   Fecha de ingreso
                 </label>
-                <input
-                  type="text"
-                  inputMode="numeric"
-                  value={values.fechaIngreso}
-                  onChange={handleDateChange("fechaIngreso")}
-                  placeholder="dd/mm/aaaa"
-                  maxLength={10}
-                  className={inputClass("fechaIngreso")}
-                />
+                <div className="flex gap-2 items-start">
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    value={values.fechaIngreso}
+                    onKeyDown={handleDateKeyDown("fechaIngreso")}
+                    onPaste={handleDatePaste("fechaIngreso")}
+                    onChange={() => {}}
+                    onClick={moveCursorToEnd}
+                    onSelect={moveCursorToEnd}
+                    placeholder="dd/mm/aaaa"
+                    maxLength={10}
+                    className={inputClass("fechaIngreso")}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setValues(v => ({ ...v, fechaIngreso: getTodayDDMMYYYY() }))
+                      if (errors.fechaIngreso) setErrors(prev => ({ ...prev, fechaIngreso: undefined }))
+                    }}
+                    className="shrink-0 px-3 py-2 rounded-lg border border-[#FECBA1] text-[13px] text-brand-title bg-white hover:bg-brand-accent/20 transition-colors duration-150 whitespace-nowrap"
+                  >
+                    Hoy
+                  </button>
+                </div>
                 {errors.fechaIngreso && (
                   <p className="text-[11px] text-red-600 mt-1">{errors.fechaIngreso}</p>
                 )}
@@ -165,7 +220,11 @@ export function CasoForm() {
                   type="text"
                   inputMode="numeric"
                   value={values.fechaVencimiento}
-                  onChange={handleDateChange("fechaVencimiento")}
+                  onKeyDown={handleDateKeyDown("fechaVencimiento")}
+                  onPaste={handleDatePaste("fechaVencimiento")}
+                  onChange={() => {}}
+                  onClick={moveCursorToEnd}
+                  onSelect={moveCursorToEnd}
                   placeholder="dd/mm/aaaa"
                   maxLength={10}
                   className={inputClass("fechaVencimiento")}

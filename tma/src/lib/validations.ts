@@ -14,3 +14,12 @@ export const registerSchema = z.object({
 
 export type LoginSchema = z.infer<typeof loginSchema>
 export type RegisterSchema = z.infer<typeof registerSchema>
+
+export const casoSchema = z.object({
+  nombre: z.string().min(1, "El nombre del asunto es obligatorio."),
+  fechaIngreso: z.string().min(1, "La fecha de ingreso es obligatoria."),
+  fechaVencimiento: z.string().min(1, "La fecha de vencimiento es obligatoria."),
+  responsable: z.string().min(1, "El responsable es obligatorio."),
+})
+
+export type CasoSchema = z.infer<typeof casoSchema>

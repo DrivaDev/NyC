@@ -109,12 +109,22 @@ function stripUnderline(rprXml: string): string {
  * Valid XML 1.0 chars: U+0009, U+000A, U+000D, U+0020–U+D7FF, U+E000–U+FFFD.
  */
 export function escapeXml(str: string): string {
-  // Strip XML 1.0 invalid chars via char codes to avoid regex encoding pitfalls
+  // Whitelist XML 1.0 valid chars: #x9 | #xA | #xD | [#x20-#xD7FF] | [#xE000-#xFFFD] | [#x10000-#x10FFFF]
+  // Handles surrogate pairs for supplementary chars; strips lone surrogates and all other invalid code points.
   let sanitized = ""
   for (let i = 0; i < str.length; i++) {
     const c = str.charCodeAt(i)
-    if (c <= 0x0008 || c === 0x000B || c === 0x000C || (c >= 0x000E && c <= 0x001F) || c === 0xFFFE || c === 0xFFFF) continue
-    sanitized += str[i]
+    if (c >= 0xD800 && c <= 0xDBFF) {
+      const next = str.charCodeAt(i + 1)
+      if (next >= 0xDC00 && next <= 0xDFFF) { sanitized += str[i] + str[i + 1]; i++ }
+      // else: lone high surrogate — drop
+      continue
+    }
+    if (c >= 0xDC00 && c <= 0xDFFF) continue // lone low surrogate — drop
+    if (c === 0x09 || c === 0x0A || c === 0x0D || (c >= 0x20 && c <= 0xD7FF) || (c >= 0xE000 && c <= 0xFFFD)) {
+      sanitized += str[i]
+    }
+    // else: drop (control chars, U+FFFE, U+FFFF)
   }
   return sanitized
     .replace(/&/g, "&amp;")

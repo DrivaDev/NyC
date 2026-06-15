@@ -22,8 +22,6 @@ type WizardStep = 1 | 2 | 3 | 4
 
 interface GenerationResult {
   blob: Blob
-  completedCount: number
-  totalCount: number
 }
 
 interface LocadorEntry {
@@ -337,9 +335,7 @@ export function ContratoWizard() {
         throw new Error(msg)
       }
       const blob = await res.blob()
-      const header = res.headers.get("X-Fields-Completed") ?? "0/0"
-      const [comp, total] = header.split("/").map(Number)
-      dispatch({ type: "SET_RESULT", result: { blob, completedCount: comp || 0, totalCount: total || 0 } })
+      dispatch({ type: "SET_RESULT", result: { blob } })
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Error desconocido"
       dispatch({ type: "SET_ERROR", error: msg })

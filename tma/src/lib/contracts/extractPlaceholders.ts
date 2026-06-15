@@ -12,7 +12,7 @@ export interface Placeholder {
   id: string        // "ph_0", "ph_1", ... sequential, document order
   context: string   // paragraph plain-text for Gemini context
   label: string     // original text of the highlighted group (e.g. "COD. SITIO – 00000")
-  // Internal — used by fillHighlightPlaceholders for position-based replacement
+  // Internal — used by buildHighlightSplices for position-based replacement
   _startPos: number // offset of first run's <w:r> in full XML
   _endPos: number   // offset after last run's </w:r> in full XML
   _rprXml: string   // inner content of <w:rPr> from first run (already has w:highlight)
@@ -22,7 +22,7 @@ export interface LabelPlaceholder {
   id: string
   label: string     // semantic label WITHOUT colon (e.g. "Domicilio")
   context: string   // full paragraph text WITH colon (e.g. "Domicilio:") — sent to Gemini
-  // Internal — used by fillLabelPlaceholders for position-based insertion
+  // Internal — used by buildLabelSplices for position-based insertion
   _insertPos: number  // offset where new value run is inserted (just before </w:p>)
   _rprXml: string     // inner <w:rPr> from first run in paragraph (formats the value run)
 }
@@ -86,7 +86,7 @@ function groupText(runs: RunInfo[]): string {
 
 /**
  * Returns the immediate linguistic position of a placeholder group as
- * "...BEFORE[CAMPO]AFTER..." (plain text, ~80 chars each side).
+ * "...BEFORE[CAMPO]AFTER..." (plain text, ~120 chars each side).
  * This is far more useful for Gemini than the full paragraph, because
  * multiple placeholders often share the same paragraph (e.g. street,
  * city, province are all in one sentence). With local context, Gemini

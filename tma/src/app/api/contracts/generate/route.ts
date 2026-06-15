@@ -11,7 +11,6 @@ import {
   type LabelPlaceholder,
   type UnderscoredPlaceholder,
 } from "@/lib/contracts/extractPlaceholders"
-// extractUnderscoredPlaceholders kept for AC flow; Adenda uses highlight-only strategy
 import { callGemini, type GeminiPlaceholder } from "@/lib/contracts/geminiClient"
 import {
   applySplices,

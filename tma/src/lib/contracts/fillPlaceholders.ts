@@ -108,12 +108,28 @@ function stripUnderline(rprXml: string): string {
  *
  * Valid XML 1.0 chars: U+0009, U+000A, U+000D, U+0020–U+D7FF, U+E000–U+FFFD.
  */
+// Windows-1252 → Unicode map for the C1 range (0x80-0x9F). Gemini emits these raw
+// when it mis-decodes CP1252 smart-punctuation in source PDFs/docx. Map the common
+// ones to their proper Unicode so contract text stays readable; the rest get dropped.
+const CP1252_C1: Record<number, string> = {
+  0x80: "€", 0x82: "‚", 0x83: "ƒ", 0x84: "„", 0x85: "…", 0x86: "†", 0x87: "‡",
+  0x88: "ˆ", 0x89: "‰", 0x8a: "Š", 0x8b: "‹", 0x8c: "Œ", 0x8e: "Ž", 0x91: "‘",
+  0x92: "’", 0x93: "“", 0x94: "”", 0x95: "•", 0x96: "–", 0x97: "—", 0x98: "˜",
+  0x99: "™", 0x9a: "š", 0x9b: "›", 0x9c: "œ", 0x9e: "ž", 0x9f: "Ÿ",
+}
+
 export function escapeXml(str: string): string {
   // Whitelist XML 1.0 valid chars: #x9 | #xA | #xD | [#x20-#xD7FF] | [#xE000-#xFFFD] | [#x10000-#x10FFFF]
   // Handles surrogate pairs for supplementary chars; strips lone surrogates and all other invalid code points.
   let sanitized = ""
   for (let i = 0; i < str.length; i++) {
     const c = str.charCodeAt(i)
+    // Repair Windows-1252 C1 mojibake before whitelist (else these would be dropped)
+    if (c >= 0x80 && c <= 0x9f) {
+      const mapped = CP1252_C1[c]
+      if (mapped) sanitized += mapped
+      continue
+    }
     if (c >= 0xD800 && c <= 0xDBFF) {
       const next = str.charCodeAt(i + 1)
       if (next >= 0xDC00 && next <= 0xDFFF) { sanitized += str[i] + str[i + 1]; i++ }
@@ -121,10 +137,20 @@ export function escapeXml(str: string): string {
       continue
     }
     if (c >= 0xDC00 && c <= 0xDFFF) continue // lone low surrogate — drop
-    if (c === 0x09 || c === 0x0A || c === 0x0D || (c >= 0x20 && c <= 0xD7FF) || (c >= 0xE000 && c <= 0xFFFD)) {
+    // Drop DEL (0x7F) and C1 control chars (0x80-0x9F): XML 1.0 technically permits
+    // them but Word's parser rejects them. They appear as Windows-1252 mojibake when
+    // Gemini reads PDFs/docx with mis-decoded smart quotes, dashes, ellipsis, etc.
+    if (
+      c === 0x09 ||
+      c === 0x0A ||
+      c === 0x0D ||
+      (c >= 0x20 && c <= 0x7e) ||
+      (c >= 0xa0 && c <= 0xd7ff) ||
+      (c >= 0xe000 && c <= 0xfffd)
+    ) {
       sanitized += str[i]
     }
-    // else: drop (control chars, U+FFFE, U+FFFF)
+    // else: drop (C0/C1 control chars, DEL, U+FFFE, U+FFFF)
   }
   return sanitized
     .replace(/&/g, "&amp;")

@@ -14,7 +14,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Foundation & Auth** - Acceso seguro + identidad visual Driva Dev ✓ 2026-06-11
 - [ ] **Phase 2: Contratos — Pipeline de generación** - Flujo completo de generación de .docx vía Gemini
-- [ ] **Phase 3: Contratos — Multi-locador** - Soporte para contratos con múltiples locadores
+- [x] **Phase 3: Contratos — Multi-locador** - Soporte para contratos con múltiples locadores ✓ 2026-06-15
 - [ ] **Phase 4: Casos — CRUD & Dashboard** - Gestión completa de asuntos con tabla filtrable
 - [ ] **Phase 5: Casos — Estadísticas** - Selector de período + gráfico de barras mensual
 

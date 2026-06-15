@@ -5,13 +5,13 @@ milestone_name: milestone
 status: executing
 stopped_at: Roadmap created — Phase 1 ready to plan
 last_updated: "2026-06-14T19:31:31.046Z"
-last_activity: 2026-06-14 -- Phase 03 Plan 04 complete (route multi-locador orchestration)
+last_activity: 2026-06-15 -- Phase 03 complete (aprobado por usuario)
 progress:
   total_phases: 5
-  completed_phases: 2
+  completed_phases: 3
   total_plans: 15
-  completed_plans: 13
-  percent: 72
+  completed_plans: 14
+  percent: 87
 ---
 
 # Project State
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-06-10)
 
 **Core value:** El usuario puede cargar documentación de un asunto y obtener un .docx de contrato correctamente completado en segundos, sin escribir datos manualmente.
-**Current focus:** Phase 2 — Contratos (Pipeline de generación)
+**Current focus:** Phase 4 — Casos (CRUD & Dashboard)
 
 ## Current Position
 
-Phase: 2 of 5 (Contratos — Pipeline de generación)
-Plan: 0 of 6 in current phase
-Status: Ready to execute
-Last activity: 2026-06-14 -- Phase 03 Plan 04 complete (route multi-locador)
+Phase: 4 of 5 (Casos — CRUD & Dashboard)
+Plan: 0 of TBD in current phase
+Status: Ready to plan
+Last activity: 2026-06-15 -- Phase 03 complete (aprobado)
 
-Progress: [███████░░░] 72%
+Progress: [████████░░] 87%
 
 ## Performance Metrics
 
@@ -81,6 +81,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-06-14
-Stopped at: Phase 03 Plan 04 complete — 03-05 (verification GREEN + checkpoint humano) is next
+Last session: 2026-06-15
+Stopped at: Phase 03 complete — Phase 04 (Casos CRUD & Dashboard) is next to plan
 Resume file: None

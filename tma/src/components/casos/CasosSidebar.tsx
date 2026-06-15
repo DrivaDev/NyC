@@ -43,14 +43,14 @@ export function CasosSidebar() {
     <>
       {/* Desktop: aside fijo — visible en md+ */}
       <aside
-        className="hidden md:flex w-60 shrink-0 flex-col sticky top-0 h-screen overflow-y-auto bg-white border-r border-[#FECBA1]"
+        className="hidden md:flex w-60 shrink-0 flex-col sticky top-14 h-[calc(100vh-3.5rem)] overflow-y-auto bg-white border-r border-[#FECBA1]"
       >
         <SidebarContent pathname={pathname} />
       </aside>
 
       {/* Móvil: botón hamburger fijo */}
       <button
-        className="fixed top-4 left-4 z-50 md:hidden w-10 h-10 flex items-center justify-center rounded-lg bg-white border border-[#FECBA1] shadow-sm"
+        className="fixed top-[60px] left-4 z-50 md:hidden w-10 h-10 flex items-center justify-center rounded-lg bg-white border border-[#FECBA1] shadow-sm"
         onClick={() => setIsOpen(o => !o)}
         aria-label={isOpen ? "Cerrar menú" : "Abrir menú"}
       >

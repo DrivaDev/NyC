@@ -138,7 +138,7 @@ export function CasoForm() {
       "outline-none focus:ring-2 transition-colors",
       errors[field]
         ? "border-red-400 focus:ring-red-300/30"
-        : "border-[#FECBA1] focus:ring-brand-primary/30 focus:border-brand-primary/50",
+        : "border-[#a8dbde] focus:ring-brand-primary/30 focus:border-brand-primary/50",
     ].join(" ")
 
   return (
@@ -166,8 +166,8 @@ export function CasoForm() {
           <div
             className="rounded-2xl bg-white p-8"
             style={{
-              border: "1px solid #FECBA1",
-              boxShadow: "0 1px 3px 0 rgba(154,52,18,0.06), 0 1px 2px -1px rgba(154,52,18,0.04)",
+              border: "1px solid #a8dbde",
+              boxShadow: "0 1px 3px 0 rgba(30,35,82,0.06), 0 1px 2px -1px rgba(30,35,82,0.04)",
             }}
           >
             <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-4">
@@ -212,7 +212,7 @@ export function CasoForm() {
                       setValues(v => ({ ...v, fechaIngreso: getTodayDDMMYYYY() }))
                       if (errors.fechaIngreso) setErrors(prev => ({ ...prev, fechaIngreso: undefined }))
                     }}
-                    className="shrink-0 px-3 py-2 rounded-lg border border-[#FECBA1] text-[13px] text-brand-title bg-white hover:bg-brand-accent/20 transition-colors duration-150 whitespace-nowrap"
+                    className="shrink-0 px-3 py-2 rounded-lg border border-[#a8dbde] text-[13px] text-brand-title bg-white hover:bg-brand-accent/20 transition-colors duration-150 whitespace-nowrap"
                   >
                     Hoy
                   </button>

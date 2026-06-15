@@ -74,8 +74,8 @@ export function CasosEstadisticas() {
         <div
           className="rounded-2xl bg-white p-6 flex flex-col gap-5"
           style={{
-            border: "1px solid #FECBA1",
-            boxShadow: "0 1px 3px 0 rgba(154,52,18,0.06)",
+            border: "1px solid #a8dbde",
+            boxShadow: "0 1px 3px 0 rgba(30,35,82,0.06)",
           }}
         >
           <div className="flex flex-col sm:flex-row sm:items-center gap-4">
@@ -83,7 +83,7 @@ export function CasosEstadisticas() {
               Asuntos creados en el período
             </p>
             {/* Selector de período */}
-            <div className="flex gap-1 p-1 rounded-lg bg-[#FFF7ED] border border-[#FECBA1]">
+            <div className="flex gap-1 p-1 rounded-lg bg-[#f0f9fa] border border-[#a8dbde]">
               {PERIODS.map(p => (
                 <button
                   key={p.value}
@@ -91,7 +91,7 @@ export function CasosEstadisticas() {
                   className={[
                     "px-3 py-1.5 rounded-md text-[12px] transition-colors duration-150",
                     period === p.value
-                      ? "bg-white text-brand-primary font-medium shadow-sm border border-[#FECBA1]"
+                      ? "bg-white text-brand-primary font-medium shadow-sm border border-[#a8dbde]"
                       : "text-brand-text/60 hover:text-brand-title",
                   ].join(" ")}
                 >
@@ -119,8 +119,8 @@ export function CasosEstadisticas() {
         <div
           className="rounded-2xl bg-white p-6 flex flex-col gap-4"
           style={{
-            border: "1px solid #FECBA1",
-            boxShadow: "0 1px 3px 0 rgba(154,52,18,0.06)",
+            border: "1px solid #a8dbde",
+            boxShadow: "0 1px 3px 0 rgba(30,35,82,0.06)",
           }}
         >
           <p className="text-[14px] text-brand-text/60">
@@ -132,7 +132,7 @@ export function CasosEstadisticas() {
           ) : (
             <ResponsiveContainer width="100%" height={220}>
               <BarChart data={chartData} barSize={28} margin={{ top: 4, right: 4, left: -16, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#FECBA1" vertical={false} />
+                <CartesianGrid strokeDasharray="3 3" stroke="#a8dbde" vertical={false} />
                 <XAxis
                   dataKey="mes"
                   tick={{ fontSize: 12, fill: "#78716c" }}
@@ -146,16 +146,16 @@ export function CasosEstadisticas() {
                   tickLine={false}
                 />
                 <Tooltip
-                  cursor={{ fill: "#FED7AA", opacity: 0.4 }}
+                  cursor={{ fill: "#a8dbde", opacity: 0.4 }}
                   contentStyle={{
                     borderRadius: "8px",
-                    border: "1px solid #FECBA1",
+                    border: "1px solid #a8dbde",
                     fontSize: "13px",
-                    color: "#1C1917",
+                    color: "#1e2352",
                   }}
                   formatter={(value) => [Number(value ?? 0), "asuntos"]}
                 />
-                <Bar dataKey="cantidad" fill="#EA580C" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="cantidad" fill="#78ccd0" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           )}

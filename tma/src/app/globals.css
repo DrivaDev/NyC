@@ -1,19 +1,19 @@
 @import "tailwindcss";
 
 @theme {
-  /* Paleta Driva Dev (UI-01, D-12) */
-  --color-brand-primary: #EA580C;
-  --color-brand-title: #9A3412;
-  --color-brand-accent: #FED7AA;
-  --color-brand-background: #FFF7ED;
-  --color-brand-text: #1C1917;
+  /* Paleta NyC */
+  --color-brand-primary: #78ccd0;
+  --color-brand-title: #1e2352;
+  --color-brand-accent: #a8dbde;
+  --color-brand-background: #f0f9fa;
+  --color-brand-text: #1e2352;
 
-  /* Tipografía Poppins (UI-02, D-13) */
-  --font-poppins: var(--font-poppins);
+  /* Tipografía Sora */
+  --font-sora: var(--font-sora);
 }
 
 body {
   background-color: var(--color-brand-background);
   color: var(--color-brand-text);
-  font-family: var(--font-poppins), sans-serif;
+  font-family: var(--font-sora), sans-serif;
 }

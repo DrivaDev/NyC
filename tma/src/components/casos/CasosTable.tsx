@@ -50,7 +50,7 @@ export function CasosTable({
   }
 
   return (
-    <div className="overflow-x-auto rounded-xl border border-[#FECBA1] bg-white">
+    <div className="overflow-x-auto rounded-xl border border-[#a8dbde] bg-white">
       <table className="w-full text-[13px] text-brand-text table-fixed">
         <colgroup>
           <col className="w-[30%]" />
@@ -60,7 +60,7 @@ export function CasosTable({
           <col className="w-[12%]" />
         </colgroup>
         <thead>
-          <tr className="border-b border-[#FECBA1] bg-[#FFF7ED]">
+          <tr className="border-b border-[#a8dbde] bg-[#f0f9fa]">
             <th className="text-left px-4 py-3 text-[13px] font-normal text-brand-title whitespace-nowrap overflow-hidden text-ellipsis">
               Nombre
             </th>
@@ -110,7 +110,7 @@ export function CasosTable({
                   key={String(caso._id)}
                   exit={{ opacity: 0, height: 0 }}
                   transition={{ duration: 0.18 }}
-                  className="border-b border-[#FECBA1]/40 last:border-0 hover:bg-brand-accent/20 transition-colors duration-100 h-12"
+                  className="border-b border-[#a8dbde]/40 last:border-0 hover:bg-brand-accent/20 transition-colors duration-100 h-12"
                 >
                   <td className="px-4 py-3">{caso.nombre}</td>
                   <td className="px-4 py-3">{formatDate(caso.fechaIngreso)}</td>

@@ -139,9 +139,9 @@ function getBadgeLabel(group: string) {
 // ── Card style ─────────────────────────────────────────────────────────────────
 
 const cardStyle = {
-  background: "linear-gradient(145deg, #FFFFFF 0%, #FFF7ED 100%)",
-  border: "1px solid #FECBA1",
-  boxShadow: "0 1px 3px rgba(154,52,18,0.06), 0 1px 2px -1px rgba(154,52,18,0.04)",
+  background: "#FFFFFF",
+  border: "1px solid #a8dbde",
+  boxShadow: "0 1px 3px rgba(30,35,82,0.06), 0 1px 2px -1px rgba(30,35,82,0.04)",
 }
 
 // ── FileUploadZone ─────────────────────────────────────────────────────────────
@@ -190,11 +190,11 @@ function FileUploadZone({ label, files, onChange, required = false }: FileUpload
         style={{
           minHeight: 88,
           padding: 16,
-          border: isDragOver ? "1.5px solid #EA580C" : "1.5px dashed #FECBA1",
-          background: isDragOver ? "rgba(234,88,12,0.06)" : "#FFF7ED",
+          border: isDragOver ? "1.5px solid #78ccd0" : "1.5px dashed #a8dbde",
+          background: isDragOver ? "rgba(120,204,208,0.06)" : "#f0f9fa",
         }}
       >
-        <Upload size={24} style={{ color: "#FED7AA" }} />
+        <Upload size={24} style={{ color: "#a8dbde" }} />
         <span className="text-[14px] text-brand-text/60">Hacé clic o arrastrá archivos</span>
       </div>
 
@@ -220,7 +220,7 @@ function FileUploadZone({ label, files, onChange, required = false }: FileUpload
             <span
               key={i}
               className="flex items-center gap-1 text-[11px] rounded-full px-2 py-1"
-              style={{ backgroundColor: "#FED7AA", color: "#9A3412" }}
+              style={{ backgroundColor: "#a8dbde", color: "#1e2352" }}
             >
               <span className="truncate max-w-[120px]">
                 {f.name.length > 24 ? f.name.slice(0, 21) + "..." : f.name}
@@ -257,7 +257,7 @@ function WizardStepIndicator({ currentStep }: { currentStep: WizardStep }) {
               key={step}
               className="w-2 h-2 rounded-full transition-all duration-300"
               style={{
-                backgroundColor: isCompleted ? "#9A3412" : isActive ? "#EA580C" : "#FED7AA",
+                backgroundColor: isCompleted ? "#1e2352" : isActive ? "#78ccd0" : "#a8dbde",
                 opacity: isActive || isCompleted ? 1 : 0.6,
               }}
             />
@@ -383,13 +383,13 @@ export function ContratoWizard() {
                     whileTap={{ scale: 0.98 }}
                     onClick={() => { dispatch({ type: "SELECT_MODEL", model: m }); dispatch({ type: "NEXT_STEP" }) }}
                     className="text-left h-full p-6 flex flex-col gap-4 rounded-2xl focus:outline-none"
-                    style={{ ...cardStyle, outline: isSelected ? "2px solid #EA580C" : "none", outlineOffset: isSelected ? 2 : 0 }}
+                    style={{ ...cardStyle, outline: isSelected ? "2px solid #78ccd0" : "none", outlineOffset: isSelected ? 2 : 0 }}
                   >
                     <div
                       className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
-                      style={{ backgroundColor: isSelected ? "#EA580C" : "#FED7AA" }}
+                      style={{ backgroundColor: isSelected ? "#78ccd0" : "#a8dbde" }}
                     >
-                      <GroupIcon size={20} style={{ color: isSelected ? "#FFFFFF" : "#9A3412" }} strokeWidth={1.75} />
+                      <GroupIcon size={20} style={{ color: isSelected ? "#FFFFFF" : "#1e2352" }} strokeWidth={1.75} />
                     </div>
                     <div>
                       <p className="text-[14px] font-bold text-brand-title leading-snug mb-1">{m.label}</p>
@@ -397,7 +397,7 @@ export function ContratoWizard() {
                     </div>
                     <span
                       className="self-start text-[11px] font-bold rounded-full"
-                      style={{ backgroundColor: "#FED7AA", color: "#9A3412", padding: "4px 8px" }}
+                      style={{ backgroundColor: "#a8dbde", color: "#1e2352", padding: "4px 8px" }}
                     >
                       {badgeLabel}
                     </span>
@@ -442,7 +442,7 @@ export function ContratoWizard() {
             type="button"
             onClick={() => dispatch({ type: "ADD_LOCADOR" })}
             className="text-[12px] font-bold rounded-lg px-3 py-1.5 transition-colors"
-            style={{ backgroundColor: "#EA580C", color: "#FFFFFF" }}
+            style={{ backgroundColor: "#78ccd0", color: "#FFFFFF" }}
           >
             + Agregar locador
           </button>
@@ -457,7 +457,7 @@ export function ContratoWizard() {
               exit={{ opacity: 0, height: 0 }}
               transition={{ duration: 0.25, ease: "easeOut" }}
               className="rounded-xl overflow-hidden"
-              style={{ border: "1px solid #FECBA1", background: "#FFF7ED" }}
+              style={{ border: "1px solid #a8dbde", background: "#f0f9fa" }}
             >
               <div className="flex items-center justify-between px-4 py-2">
                 <button
@@ -473,7 +473,7 @@ export function ContratoWizard() {
                     onClick={() => dispatch({ type: "REMOVE_LOCADOR", id: loc.id })}
                     aria-label={`Quitar Locador ${i + 1}`}
                     className="text-[12px] rounded-full w-6 h-6 flex items-center justify-center transition-colors"
-                    style={{ backgroundColor: "#FED7AA", color: "#9A3412" }}
+                    style={{ backgroundColor: "#a8dbde", color: "#1e2352" }}
                   >
                     −
                   </button>
@@ -501,10 +501,10 @@ export function ContratoWizard() {
           value={state.notes}
           onChange={e => dispatch({ type: "SET_NOTES", notes: e.target.value })}
           placeholder="Información adicional relevante para completar el contrato (opcional)"
-          className="resize-y rounded-xl font-[Poppins] text-[14px] text-brand-text focus:outline-none transition-colors"
-          style={{ minHeight: 96, padding: "12px 16px", border: "1px solid #FECBA1", background: "#FFF7ED" }}
-          onFocus={e => { e.target.style.borderColor = "#EA580C" }}
-          onBlur={e => { e.target.style.borderColor = "#FECBA1" }}
+          className="resize-y rounded-xl font-[Sora] text-[14px] text-brand-text focus:outline-none transition-colors"
+          style={{ minHeight: 96, padding: "12px 16px", border: "1px solid #a8dbde", background: "#f0f9fa" }}
+          onFocus={e => { e.target.style.borderColor = "#78ccd0" }}
+          onBlur={e => { e.target.style.borderColor = "#a8dbde" }}
         />
       </div>
 
@@ -521,7 +521,7 @@ export function ContratoWizard() {
           disabled={!step2RequiredFulfilled}
           onClick={() => dispatch({ type: "START_PROCESSING" })}
           className="px-6 py-3 rounded-xl text-[14px] font-bold text-white transition-all duration-200"
-          style={{ backgroundColor: "#EA580C", opacity: step2RequiredFulfilled ? 1 : 0.45, cursor: step2RequiredFulfilled ? "pointer" : "not-allowed" }}
+          style={{ backgroundColor: "#78ccd0", opacity: step2RequiredFulfilled ? 1 : 0.45, cursor: step2RequiredFulfilled ? "pointer" : "not-allowed" }}
         >
           Generar contrato
         </button>
@@ -544,7 +544,7 @@ export function ContratoWizard() {
             type="button"
             onClick={() => { dispatch({ type: "RETRY" }); handleGenerate() }}
             className="flex items-center gap-2 px-6 py-3 rounded-xl text-[14px] font-bold text-white max-w-[240px] w-full justify-center"
-            style={{ backgroundColor: "#EA580C" }}
+            style={{ backgroundColor: "#78ccd0" }}
           >
             <RefreshCw size={16} />
             Reintentar
@@ -566,7 +566,7 @@ export function ContratoWizard() {
           animate={{ rotate: 360 }}
           transition={{ repeat: Infinity, duration: 1.2, ease: "linear" }}
         >
-          <Loader2 size={48} style={{ color: "#EA580C" }} />
+          <Loader2 size={48} style={{ color: "#78ccd0" }} />
         </motion.div>
 
         <div style={{ minHeight: 44 }} className="flex items-center justify-center">
@@ -601,12 +601,12 @@ export function ContratoWizard() {
           animate={{ scale: 1, opacity: 1 }}
           transition={{ type: "spring", stiffness: 300, damping: 20 }}
         >
-          <CheckCircle size={48} style={{ color: "#9A3412" }} />
+          <CheckCircle size={48} style={{ color: "#1e2352" }} />
         </motion.div>
 
         <span
           className="text-[11px] font-bold rounded-full"
-          style={{ backgroundColor: "#FED7AA", color: "#9A3412", padding: "4px 12px" }}
+          style={{ backgroundColor: "#a8dbde", color: "#1e2352", padding: "4px 12px" }}
         >
           {completedCount} de {totalCount} campos completados
         </span>
@@ -621,7 +621,7 @@ export function ContratoWizard() {
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.97 }}
           className="flex items-center gap-2 px-6 py-3 rounded-xl text-[14px] font-bold text-white w-full max-w-[280px] justify-center"
-          style={{ backgroundColor: "#EA580C" }}
+          style={{ backgroundColor: "#78ccd0" }}
         >
           <Download size={18} />
           Descargar .docx

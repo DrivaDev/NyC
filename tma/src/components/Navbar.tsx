@@ -21,11 +21,9 @@ export function Navbar() {
     ].join(" ")
 
   return (
-    <header className="sticky top-0 z-40 bg-white border-b border-[#FECBA1] h-14 flex items-center px-6 gap-4">
+    <header className="sticky top-0 z-40 bg-white border-b border-[#a8dbde] h-14 flex items-center px-6 gap-4">
       {/* Brand */}
-      <span className="text-[17px] font-bold text-brand-title mr-4 select-none">
-        NyC
-      </span>
+      <img src="/logo.svg" alt="Nicholson & Cano" className="h-8 mr-4 select-none" />
 
       {/* Nav links */}
       <nav className="flex items-center gap-1 flex-1">

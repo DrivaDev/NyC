@@ -44,7 +44,7 @@ export function ConfirmDialog({ open, casoNombre, onConfirm, onCancel }: Confirm
             exit={{ opacity: 0 }}
           >
             <motion.div
-              className="rounded-2xl bg-white border border-[#FECBA1] shadow-lg p-6 max-w-[400px] w-full pointer-events-auto"
+              className="rounded-2xl bg-white border border-[#a8dbde] shadow-lg p-6 max-w-[400px] w-full pointer-events-auto"
               initial={{ opacity: 0, scale: 0.95, y: 8 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 8 }}
@@ -71,7 +71,7 @@ export function ConfirmDialog({ open, casoNombre, onConfirm, onCancel }: Confirm
               <div className="flex gap-3 justify-end">
                 <button
                   onClick={onCancel}
-                  className="px-4 py-2 text-[13px] rounded-lg border border-[#FECBA1] text-brand-title
+                  className="px-4 py-2 text-[13px] rounded-lg border border-[#a8dbde] text-brand-title
                              hover:bg-brand-accent/20 transition-colors duration-150 min-h-[44px]"
                 >
                   No, mantener

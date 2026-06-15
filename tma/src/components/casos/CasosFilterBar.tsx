@@ -19,7 +19,7 @@ export function CasosFilterBar({
   sortDir,
   onSortToggle,
 }: CasosFilterBarProps) {
-  const inputClass = "w-full max-w-[220px] border border-[#FECBA1] rounded-lg px-3 py-2 text-[13px] bg-white text-brand-text placeholder:text-brand-text/40 outline-none focus:ring-2 focus:ring-brand-primary/30 focus:border-brand-primary/50"
+  const inputClass = "w-full max-w-[220px] border border-[#a8dbde] rounded-lg px-3 py-2 text-[13px] bg-white text-brand-text placeholder:text-brand-text/40 outline-none focus:ring-2 focus:ring-brand-primary/30 focus:border-brand-primary/50"
 
   return (
     <div className="flex flex-col sm:flex-row gap-3 mb-4 flex-wrap items-center">
@@ -41,7 +41,7 @@ export function CasosFilterBar({
       />
       <button
         onClick={onSortToggle}
-        className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-[#FECBA1] bg-white text-[13px] text-brand-title hover:bg-brand-accent/20 transition-colors duration-150 whitespace-nowrap"
+        className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-[#a8dbde] bg-white text-[13px] text-brand-title hover:bg-brand-accent/20 transition-colors duration-150 whitespace-nowrap"
         aria-label={`Ordenar por vencimiento ${sortDir === "asc" ? "descendente" : "ascendente"}`}
       >
         {sortDir === "asc"

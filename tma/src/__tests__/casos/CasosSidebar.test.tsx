@@ -35,8 +35,10 @@ describe("CasosSidebar — UI-05", () => {
     expect(screen.getAllByText("Estadísticas").length).toBeGreaterThanOrEqual(1)
   })
 
-  it("renderiza el badge 'Próximamente' en el ítem Estadísticas (D-03)", () => {
+  it("el ítem Estadísticas tiene href activo (ya no badge Próximamente)", () => {
     render(<CasosSidebar />)
-    expect(screen.getAllByText("Próximamente").length).toBeGreaterThanOrEqual(1)
+    const links = screen.getAllByRole("link")
+    const estadisticasLink = links.find(l => l.textContent?.includes("Estadísticas"))
+    expect(estadisticasLink).toBeDefined()
   })
 })

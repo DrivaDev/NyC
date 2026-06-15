@@ -9,7 +9,7 @@ import { SidebarNavItem } from "./SidebarNavItem"
 const navItems = [
   { label: "Dashboard", icon: LayoutDashboard, href: "/casos", badge: undefined },
   { label: "Nuevo asunto", icon: PlusCircle, href: "/casos/nuevo", badge: undefined },
-  { label: "Estadísticas", icon: BarChart2, href: null, badge: "Próximamente" },
+  { label: "Estadísticas", icon: BarChart2, href: "/casos/estadisticas", badge: undefined },
 ] as const
 
 function SidebarContent({ pathname, onClose }: { pathname: string; onClose?: () => void }) {

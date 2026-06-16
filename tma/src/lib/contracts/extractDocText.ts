@@ -1,6 +1,4 @@
 import mammoth from "mammoth"
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const pdfParse = require("pdf-parse") as (buffer: Buffer) => Promise<{ text: string }>
 
 export interface InlinePart {
   inlineData: {
@@ -17,20 +15,6 @@ export async function extractDocxText(buffer: Buffer): Promise<string> {
   try {
     const { value } = await mammoth.extractRawText({ buffer })
     return value
-  } catch {
-    return ""
-  }
-}
-
-/**
- * Extract plain text from a PDF Buffer using pdf-parse.
- * Returns empty string if extraction fails.
- * CRITICAL: pdf-parse uses Node.js APIs — only call this from server-side code.
- */
-export async function extractPdfText(buffer: Buffer): Promise<string> {
-  try {
-    const { text } = await pdfParse(buffer)
-    return text
   } catch {
     return ""
   }

@@ -232,7 +232,7 @@ export async function callGemini(
 
   const genAI = new GoogleGenerativeAI(apiKey)
   // No responseMimeType — text mode lets Gemini reason before producing JSON
-  const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" })
+  const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" })
 
   const prompt = buildPrompt(placeholders, extractedTexts, notes, locadorCount)
   const contentParts: Array<{ text: string } | InlinePart> = [

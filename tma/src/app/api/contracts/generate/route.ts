@@ -44,6 +44,16 @@ async function processFiles(files: File[]): Promise<{ texts: string[]; images: A
 }
 
 export async function POST(request: NextRequest) {
+  try {
+    return await handleGenerate(request)
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : String(err)
+    console.error("[generate] unhandled error:", msg, err)
+    return NextResponse.json({ error: `Error interno: ${msg}` }, { status: 500 })
+  }
+}
+
+async function handleGenerate(request: NextRequest) {
   // ── Security: auth check FIRST (T-02-01) ───────────────────────────────────
   const session = await auth()
   if (!session) {

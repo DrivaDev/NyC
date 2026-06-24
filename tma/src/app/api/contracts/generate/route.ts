@@ -49,6 +49,12 @@ export async function POST(request: NextRequest) {
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : String(err)
     console.error("[generate] unhandled error:", msg, err)
+    if (msg.includes("503") || msg.includes("Service Unavailable") || msg.includes("high demand")) {
+      return NextResponse.json(
+        { error: "El servicio de IA está saturado en este momento. Esperá unos minutos e intentá de nuevo." },
+        { status: 503 }
+      )
+    }
     return NextResponse.json({ error: `Error interno: ${msg}` }, { status: 500 })
   }
 }

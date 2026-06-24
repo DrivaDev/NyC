@@ -232,7 +232,7 @@ export async function callGemini(
 
   const genAI = new GoogleGenerativeAI(apiKey)
   // No responseMimeType — text mode lets Gemini reason before producing JSON
-  const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" })
+  const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" })
 
   const prompt = buildPrompt(placeholders, extractedTexts, notes, locadorCount)
   const contentParts: Array<{ text: string } | InlinePart> = [
@@ -249,7 +249,7 @@ export async function callGemini(
       if (
         retryCount === 0 &&
         err instanceof Error &&
-        (err.message.includes("429") || err.message.includes("RESOURCE_EXHAUSTED"))
+        (err.message.includes("429") || err.message.includes("RESOURCE_EXHAUSTED") || err.message.includes("503"))
       ) {
         await new Promise(resolve => setTimeout(resolve, 2000))
         return callWithRetry(1)

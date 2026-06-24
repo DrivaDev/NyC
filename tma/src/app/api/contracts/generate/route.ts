@@ -51,7 +51,7 @@ export async function POST(request: NextRequest) {
     console.error("[generate] unhandled error:", msg, err)
     if (msg.includes("503") || msg.includes("Service Unavailable") || msg.includes("high demand")) {
       return NextResponse.json(
-        { error: "El servicio de IA está saturado en este momento. Esperá unos minutos e intentá de nuevo." },
+        { error: "El sistema está saturado en este momento. Esperá unos minutos e intentá de nuevo." },
         { status: 503 }
       )
     }

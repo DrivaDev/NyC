@@ -27,7 +27,6 @@ export function CasosDashboard() {
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [pendingDelete, setPendingDelete] = useState<{ id: string; nombre: string } | null>(null)
 
-  // Fetch inicial de asuntos (D-07: todos se cargan al montar, filtrado en memoria)
   useEffect(() => {
     fetch("/api/casos")
       .then(r => {
@@ -44,41 +43,34 @@ export function CasosDashboard() {
       })
   }, [])
 
-  // Filtrado AND (D-06, D-07, D-09) — sobre el array original, no paginado
   const filteredCasos = casos.filter(c =>
     c.nombre.toLowerCase().includes(filterNombre.toLowerCase()) &&
     c.responsable.toLowerCase().includes(filterResponsable.toLowerCase())
   )
 
-  // Ordenamiento por fechaVencimiento (D-08) — después del filtrado
   const sortedCasos = [...filteredCasos].sort((a, b) =>
     sortDir === "asc"
       ? new Date(a.fechaVencimiento).getTime() - new Date(b.fechaVencimiento).getTime()
       : new Date(b.fechaVencimiento).getTime() - new Date(a.fechaVencimiento).getTime()
   )
 
-  // Solicitar confirmación de eliminación (D-10)
   const handleDeleteRequest = (id: string, nombre: string) => {
     setPendingDelete({ id, nombre })
     setConfirmOpen(true)
     setDeleteError(null)
   }
 
-  // Confirmar eliminación con UI optimista (D-11)
   const handleDeleteConfirm = async () => {
     if (!pendingDelete) return
     const { id } = pendingDelete
     setConfirmOpen(false)
 
     const backup = [...casos]
-    // 1. UI optimista: eliminar inmediatamente del estado local
     setCasos(prev => prev.filter(c => String(c._id) !== id))
 
-    // 2. Llamada al servidor
     try {
       const res = await fetch(`/api/casos?id=${id}`, { method: "DELETE" })
       if (!res.ok) {
-        // 3. Rollback si el servidor responde con error (D-11)
         setCasos(backup)
         setDeleteError("No se pudo eliminar el asunto. Intentá nuevamente.")
       }
@@ -88,6 +80,26 @@ export function CasosDashboard() {
     }
 
     setPendingDelete(null)
+  }
+
+  const handleArchiveRequest = async (id: string) => {
+    const backup = [...casos]
+    setCasos(prev => prev.filter(c => String(c._id) !== id))
+
+    try {
+      const res = await fetch(`/api/casos?id=${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ archivado: true }),
+      })
+      if (!res.ok) {
+        setCasos(backup)
+        setDeleteError("No se pudo archivar el asunto. Intentá nuevamente.")
+      }
+    } catch {
+      setCasos(backup)
+      setDeleteError("No se pudo archivar el asunto. Intentá nuevamente.")
+    }
   }
 
   const hasActiveFilter = filterNombre.trim() !== "" || filterResponsable.trim() !== ""
@@ -111,21 +123,18 @@ export function CasosDashboard() {
             </Link>
           </div>
 
-          {/* Error de carga */}
           {loadError && (
             <div className="mb-4 bg-red-50 border border-red-200 rounded-lg px-4 py-3 text-[13px] text-red-700">
               {loadError}
             </div>
           )}
 
-          {/* Error de eliminación */}
           {deleteError && (
             <div className="mb-4 bg-red-50 border border-red-200 rounded-lg px-4 py-3 text-[13px] text-red-700">
               {deleteError}
             </div>
           )}
 
-          {/* Filtros + ordenamiento */}
           <CasosFilterBar
             filterNombre={filterNombre}
             filterResponsable={filterResponsable}
@@ -135,16 +144,15 @@ export function CasosDashboard() {
             onSortToggle={() => setSortDir(d => d === "asc" ? "desc" : "asc")}
           />
 
-          {/* Tabla */}
           <CasosTable
             casos={sortedCasos}
             onDeleteRequest={handleDeleteRequest}
+            onArchiveRequest={handleArchiveRequest}
             loading={loading}
             hasActiveFilter={hasActiveFilter}
           />
         </motion.div>
 
-      {/* Dialog de confirmación (D-10) */}
       {pendingDelete && (
         <ConfirmDialog
           open={confirmOpen}

@@ -2,13 +2,14 @@
 
 import { useState } from "react"
 import { motion, AnimatePresence } from "motion/react"
-import { LayoutDashboard, PlusCircle, BarChart2, Menu, X } from "lucide-react"
+import { LayoutDashboard, PlusCircle, BarChart2, Archive, Menu, X } from "lucide-react"
 import { usePathname } from "next/navigation"
 import { SidebarNavItem } from "./SidebarNavItem"
 
 const navItems = [
   { label: "Dashboard", icon: LayoutDashboard, href: "/casos", badge: undefined },
   { label: "Nuevo asunto", icon: PlusCircle, href: "/casos/nuevo", badge: undefined },
+  { label: "Archivados", icon: Archive, href: "/casos/archivados", badge: undefined },
   { label: "Estadísticas", icon: BarChart2, href: "/casos/estadisticas", badge: undefined },
 ] as const
 

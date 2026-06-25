@@ -1,9 +1,9 @@
 "use client"
 
 import { motion, AnimatePresence } from "motion/react"
-import { Trash2, Briefcase, SearchX } from "lucide-react"
+import Link from "next/link"
+import { Trash2, Pencil, Archive, Briefcase, SearchX } from "lucide-react"
 
-// ICaso sin mongoose.Document para uso en Client Component
 interface CasoRow {
   _id: string
   nombre: string
@@ -13,10 +13,11 @@ interface CasoRow {
 }
 
 interface CasosTableProps {
-  casos: CasoRow[]         // ya filtrados y ordenados
+  casos: CasoRow[]
   onDeleteRequest: (id: string, nombre: string) => void
+  onArchiveRequest: (id: string, nombre: string) => void
   loading: boolean
-  hasActiveFilter: boolean  // true si filterNombre || filterResponsable no están vacíos
+  hasActiveFilter: boolean
 }
 
 function formatDate(dateStr: string | Date): string {
@@ -33,6 +34,7 @@ function formatDate(dateStr: string | Date): string {
 export function CasosTable({
   casos,
   onDeleteRequest,
+  onArchiveRequest,
   loading,
   hasActiveFilter,
 }: CasosTableProps) {
@@ -53,11 +55,11 @@ export function CasosTable({
     <div className="overflow-x-auto rounded-xl border border-[#a8dbde] bg-white">
       <table className="w-full text-[13px] text-brand-text table-fixed">
         <colgroup>
-          <col className="w-[30%]" />
-          <col className="w-[17%]" />
+          <col className="w-[28%]" />
+          <col className="w-[16%]" />
+          <col className="w-[18%]" />
           <col className="w-[20%]" />
-          <col className="w-[21%]" />
-          <col className="w-[12%]" />
+          <col className="w-[18%]" />
         </colgroup>
         <thead>
           <tr className="border-b border-[#a8dbde] bg-[#f0f9fa]">
@@ -117,14 +119,32 @@ export function CasosTable({
                   <td className="px-4 py-3">{formatDate(caso.fechaVencimiento)}</td>
                   <td className="px-4 py-3">{caso.responsable}</td>
                   <td className="px-4 py-3">
-                    <button
-                      onClick={() => onDeleteRequest(String(caso._id), caso.nombre)}
-                      title="Eliminar asunto"
-                      className="p-1.5 rounded-lg hover:bg-red-50 transition-colors duration-150"
-                      aria-label={`Eliminar asunto ${caso.nombre}`}
-                    >
-                      <Trash2 size={16} className="text-red-500" />
-                    </button>
+                    <div className="flex items-center gap-1">
+                      <Link
+                        href={`/casos/editar/${caso._id}`}
+                        title="Editar asunto"
+                        aria-label={`Editar asunto ${caso.nombre}`}
+                        className="p-1.5 rounded-lg hover:bg-brand-accent/30 transition-colors duration-150"
+                      >
+                        <Pencil size={15} className="text-brand-title/60" />
+                      </Link>
+                      <button
+                        onClick={() => onArchiveRequest(String(caso._id), caso.nombre)}
+                        title="Archivar asunto"
+                        aria-label={`Archivar asunto ${caso.nombre}`}
+                        className="p-1.5 rounded-lg hover:bg-amber-50 transition-colors duration-150"
+                      >
+                        <Archive size={15} className="text-amber-500" />
+                      </button>
+                      <button
+                        onClick={() => onDeleteRequest(String(caso._id), caso.nombre)}
+                        title="Eliminar asunto"
+                        aria-label={`Eliminar asunto ${caso.nombre}`}
+                        className="p-1.5 rounded-lg hover:bg-red-50 transition-colors duration-150"
+                      >
+                        <Trash2 size={15} className="text-red-500" />
+                      </button>
+                    </div>
                   </td>
                 </motion.tr>
               ))}

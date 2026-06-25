@@ -20,6 +20,11 @@ interface FieldErrors {
   responsable?: string
 }
 
+interface CasoFormProps {
+  casoId?: string
+  initialValues?: FormValues
+}
+
 function formatDateDigits(rawDigits: string): string {
   let d = rawDigits.slice(0, 8)
 
@@ -45,14 +50,17 @@ function getTodayDDMMYYYY(): string {
   return `${dd}/${mm}/${t.getFullYear()}`
 }
 
-export function CasoForm() {
+export function CasoForm({ casoId, initialValues }: CasoFormProps = {}) {
+  const isEditMode = !!casoId
   const router = useRouter()
-  const [values, setValues] = useState<FormValues>({
-    nombre: "",
-    fechaIngreso: "",
-    fechaVencimiento: "",
-    responsable: "",
-  })
+  const [values, setValues] = useState<FormValues>(
+    initialValues ?? {
+      nombre: "",
+      fechaIngreso: "",
+      fechaVencimiento: "",
+      responsable: "",
+    }
+  )
   const [errors, setErrors] = useState<FieldErrors>({})
   const [submitting, setSubmitting] = useState(false)
   const [serverError, setServerError] = useState<string | null>(null)
@@ -114,8 +122,10 @@ export function CasoForm() {
 
     setSubmitting(true)
     try {
-      const res = await fetch("/api/casos", {
-        method: "POST",
+      const url = isEditMode ? `/api/casos?id=${casoId}` : "/api/casos"
+      const method = isEditMode ? "PUT" : "POST"
+      const res = await fetch(url, {
+        method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(values),
       })
@@ -123,10 +133,18 @@ export function CasoForm() {
       if (res.ok) {
         router.push("/casos")
       } else {
-        setServerError("No se pudo guardar el asunto. Intentá nuevamente.")
+        setServerError(
+          isEditMode
+            ? "No se pudo actualizar el asunto. Intentá nuevamente."
+            : "No se pudo guardar el asunto. Intentá nuevamente."
+        )
       }
     } catch {
-      setServerError("No se pudo guardar el asunto. Intentá nuevamente.")
+      setServerError(
+        isEditMode
+          ? "No se pudo actualizar el asunto. Intentá nuevamente."
+          : "No se pudo guardar el asunto. Intentá nuevamente."
+      )
     } finally {
       setSubmitting(false)
     }
@@ -149,7 +167,9 @@ export function CasoForm() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.35, ease: "easeOut" }}
         >
-          <h1 className="text-[28px] font-bold text-brand-title mb-1">Nuevo Asunto</h1>
+          <h1 className="text-[28px] font-bold text-brand-title mb-1">
+            {isEditMode ? "Editar Asunto" : "Nuevo Asunto"}
+          </h1>
           <Link
             href="/casos"
             className="text-[13px] text-brand-primary hover:underline underline-offset-2 block mb-8"
@@ -274,10 +294,10 @@ export function CasoForm() {
                 {submitting ? (
                   <>
                     <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
-                    Guardando...
+                    {isEditMode ? "Guardando cambios..." : "Guardando..."}
                   </>
                 ) : (
-                  "Guardar asunto"
+                  isEditMode ? "Guardar cambios" : "Guardar asunto"
                 )}
               </button>
             </form>

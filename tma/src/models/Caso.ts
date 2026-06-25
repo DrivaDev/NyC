@@ -5,6 +5,7 @@ export interface ICaso extends Document {
   fechaIngreso: Date
   fechaVencimiento: Date
   responsable: string
+  archivado: boolean
   createdAt: Date
 }
 
@@ -13,6 +14,7 @@ const CasoSchema = new Schema<ICaso>({
   fechaIngreso: { type: Date, required: true },
   fechaVencimiento: { type: Date, required: true },
   responsable: { type: String, required: true, trim: true },
+  archivado: { type: Boolean, default: false },
   createdAt: { type: Date, default: Date.now },
 })
 

@@ -525,15 +525,17 @@ export function ContratoWizard() {
         >
           Volver
         </button>
-        <button
+        <motion.button
           type="button"
           disabled={!step2RequiredFulfilled}
           onClick={() => dispatch({ type: "START_PROCESSING" })}
           className="px-6 py-3 rounded-xl text-[14px] font-bold text-white transition-all duration-200"
           style={{ backgroundColor: "#78ccd0", opacity: step2RequiredFulfilled ? 1 : 0.45, cursor: step2RequiredFulfilled ? "pointer" : "not-allowed" }}
+          whileHover={step2RequiredFulfilled ? { scale: 1.04, backgroundColor: "#5bbdc2" } : undefined}
+          whileTap={step2RequiredFulfilled ? { scale: 0.97 } : undefined}
         >
           Generar contrato
-        </button>
+        </motion.button>
       </div>
     </div>
   )

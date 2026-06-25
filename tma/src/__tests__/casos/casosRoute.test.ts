@@ -41,13 +41,15 @@ describe("GET /api/casos — CASOS-03", () => {
     const authMock = await import("@/auth")
     vi.mocked(authMock.auth).mockResolvedValueOnce(null)
     const { GET } = await import("@/app/api/casos/route")
-    const response = await GET()
+    const req = new Request("http://localhost/api/casos") as unknown as import("next/server").NextRequest
+    const response = await GET(req)
     expect(response.status).toBe(401)
   })
 
   it("retorna 200 con array de casos cuando hay sesión", async () => {
     const { GET } = await import("@/app/api/casos/route")
-    const response = await GET()
+    const req = new Request("http://localhost/api/casos") as unknown as import("next/server").NextRequest
+    const response = await GET(req)
     expect(response.status).toBe(200)
     const data = await response.json()
     expect(Array.isArray(data)).toBe(true)

@@ -28,6 +28,9 @@ export async function connectDB() {
       .connect(MONGODB_URI, {
         bufferCommands: false,
         serverSelectionTimeoutMS: 5000,
+        maxPoolSize: 5,
+        minPoolSize: 1,
+        socketTimeoutMS: 10000,
       })
       .catch((err) => {
         cached.promise = null // allow retry on next request

@@ -27,13 +27,18 @@ const PERIODS: { value: Period; label: string; days: number }[] = [
   { value: "1y", label: "Último año", days: 365 },
 ]
 
-export function CasosEstadisticas() {
-  const [casos, setCasos] = useState<CasoData[]>([])
-  const [loading, setLoading] = useState(true)
+interface CasosEstadisticasProps {
+  initialCasos?: CasoData[]
+}
+
+export function CasosEstadisticas({ initialCasos }: CasosEstadisticasProps = {}) {
+  const [casos, setCasos] = useState<CasoData[]>(initialCasos ?? [])
+  const [loading, setLoading] = useState(!initialCasos)
   const [loadError, setLoadError] = useState(false)
   const [period, setPeriod] = useState<Period>("1m")
 
   useEffect(() => {
+    if (initialCasos) return // server already provided data
     fetch("/api/casos")
       .then(r => { if (!r.ok) throw new Error(); return r.json() })
       .then((data: CasoData[]) => { setCasos(data); setLoading(false) })

@@ -16,9 +16,13 @@ interface CasoData {
   responsable: string
 }
 
-export function CasosDashboard() {
-  const [casos, setCasos] = useState<CasoData[]>([])
-  const [loading, setLoading] = useState(true)
+interface CasosDashboardProps {
+  initialCasos?: CasoData[]
+}
+
+export function CasosDashboard({ initialCasos }: CasosDashboardProps = {}) {
+  const [casos, setCasos] = useState<CasoData[]>(initialCasos ?? [])
+  const [loading, setLoading] = useState(!initialCasos)
   const [loadError, setLoadError] = useState<string | null>(null)
   const [filterNombre, setFilterNombre] = useState("")
   const [filterResponsable, setFilterResponsable] = useState("")
@@ -28,6 +32,7 @@ export function CasosDashboard() {
   const [pendingDelete, setPendingDelete] = useState<{ id: string; nombre: string } | null>(null)
 
   useEffect(() => {
+    if (initialCasos) return // server already provided data
     fetch("/api/casos")
       .then(r => {
         if (!r.ok) throw new Error("Error al cargar")

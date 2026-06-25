@@ -13,6 +13,10 @@ interface CasoData {
   responsable: string
 }
 
+interface CasosArchivadosProps {
+  initialCasos?: CasoData[]
+}
+
 function formatDate(dateStr: string | Date): string {
   const s = typeof dateStr === "string" ? dateStr : dateStr.toISOString()
   const d = new Date(s.length === 10 ? s + "T12:00:00" : s)
@@ -24,15 +28,16 @@ function formatDate(dateStr: string | Date): string {
   })
 }
 
-export function CasosArchivados() {
-  const [casos, setCasos] = useState<CasoData[]>([])
-  const [loading, setLoading] = useState(true)
+export function CasosArchivados({ initialCasos }: CasosArchivadosProps = {}) {
+  const [casos, setCasos] = useState<CasoData[]>(initialCasos ?? [])
+  const [loading, setLoading] = useState(!initialCasos)
   const [loadError, setLoadError] = useState<string | null>(null)
   const [actionError, setActionError] = useState<string | null>(null)
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [pendingDelete, setPendingDelete] = useState<{ id: string; nombre: string } | null>(null)
 
   useEffect(() => {
+    if (initialCasos) return // server already provided data
     fetch("/api/casos?archivados=1")
       .then(r => {
         if (!r.ok) throw new Error("Error al cargar")

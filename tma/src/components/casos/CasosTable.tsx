@@ -111,7 +111,7 @@ export function CasosTable({
                 <motion.tr
                   key={String(caso._id)}
                   exit={{ opacity: 0, height: 0 }}
-                  transition={{ duration: 0.18 }}
+                  transition={{ duration: 0.1 }}
                   className="border-b border-[#a8dbde]/40 last:border-0 hover:bg-brand-accent/20 transition-colors duration-100 h-12"
                 >
                   <td className="px-4 py-3">{caso.nombre}</td>
@@ -124,7 +124,7 @@ export function CasosTable({
                         href={`/casos/editar/${caso._id}`}
                         title="Editar asunto"
                         aria-label={`Editar asunto ${caso.nombre}`}
-                        className="p-1.5 rounded-lg hover:bg-brand-accent/30 transition-colors duration-150"
+                        className="p-1.5 rounded-lg hover:bg-brand-accent/30 transition-colors duration-150 cursor-pointer"
                       >
                         <Pencil size={15} className="text-brand-title/60" />
                       </Link>
@@ -132,17 +132,17 @@ export function CasosTable({
                         onClick={() => onArchiveRequest(String(caso._id), caso.nombre)}
                         title="Archivar asunto"
                         aria-label={`Archivar asunto ${caso.nombre}`}
-                        className="p-1.5 rounded-lg hover:bg-amber-50 transition-colors duration-150"
+                        className="p-1.5 rounded-lg hover:bg-brand-accent/30 transition-colors duration-150 cursor-pointer"
                       >
-                        <Archive size={15} className="text-amber-500" />
+                        <Archive size={15} className="text-brand-title/60" />
                       </button>
                       <button
                         onClick={() => onDeleteRequest(String(caso._id), caso.nombre)}
                         title="Eliminar asunto"
                         aria-label={`Eliminar asunto ${caso.nombre}`}
-                        className="p-1.5 rounded-lg hover:bg-red-50 transition-colors duration-150"
+                        className="p-1.5 rounded-lg hover:bg-brand-accent/30 transition-colors duration-150 cursor-pointer"
                       >
-                        <Trash2 size={15} className="text-red-500" />
+                        <Trash2 size={15} className="text-brand-title/60" />
                       </button>
                     </div>
                   </td>

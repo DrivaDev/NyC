@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "motion/react"
-import { ArchiveRestore, Archive, Briefcase } from "lucide-react"
+import { ArchiveRestore, Archive, Briefcase, Trash2 } from "lucide-react"
+import { ConfirmDialog } from "./ConfirmDialog"
 
 interface CasoData {
   _id: string
@@ -28,6 +29,8 @@ export function CasosArchivados() {
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState<string | null>(null)
   const [actionError, setActionError] = useState<string | null>(null)
+  const [confirmOpen, setConfirmOpen] = useState(false)
+  const [pendingDelete, setPendingDelete] = useState<{ id: string; nombre: string } | null>(null)
 
   useEffect(() => {
     fetch("/api/casos?archivados=1")
@@ -66,12 +69,40 @@ export function CasosArchivados() {
     }
   }
 
+  const handleDeleteRequest = (id: string, nombre: string) => {
+    setPendingDelete({ id, nombre })
+    setConfirmOpen(true)
+    setActionError(null)
+  }
+
+  const handleDeleteConfirm = async () => {
+    if (!pendingDelete) return
+    const { id } = pendingDelete
+    setConfirmOpen(false)
+
+    const backup = [...casos]
+    setCasos(prev => prev.filter(c => String(c._id) !== id))
+
+    try {
+      const res = await fetch(`/api/casos?id=${id}`, { method: "DELETE" })
+      if (!res.ok) {
+        setCasos(backup)
+        setActionError("No se pudo eliminar el asunto. Intentá nuevamente.")
+      }
+    } catch {
+      setCasos(backup)
+      setActionError("No se pudo eliminar el asunto. Intentá nuevamente.")
+    }
+
+    setPendingDelete(null)
+  }
+
   return (
     <div className="p-8">
       <motion.div
-        initial={{ opacity: 0, y: 16 }}
+        initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.35, ease: "easeOut" }}
+        transition={{ duration: 0.15, ease: "easeOut" }}
       >
         <div className="flex items-center gap-3 mb-6">
           <Archive size={22} className="text-brand-title/60" />
@@ -100,11 +131,11 @@ export function CasosArchivados() {
           <div className="overflow-x-auto rounded-xl border border-[#a8dbde] bg-white">
             <table className="w-full text-[13px] text-brand-text table-fixed">
               <colgroup>
-                <col className="w-[30%]" />
-                <col className="w-[17%]" />
+                <col className="w-[28%]" />
+                <col className="w-[16%]" />
+                <col className="w-[18%]" />
                 <col className="w-[20%]" />
-                <col className="w-[21%]" />
-                <col className="w-[12%]" />
+                <col className="w-[18%]" />
               </colgroup>
               <thead>
                 <tr className="border-b border-[#a8dbde] bg-[#f0f9fa]">
@@ -134,7 +165,7 @@ export function CasosArchivados() {
                       <motion.tr
                         key={String(caso._id)}
                         exit={{ opacity: 0, height: 0 }}
-                        transition={{ duration: 0.18 }}
+                        transition={{ duration: 0.1 }}
                         className="border-b border-[#a8dbde]/40 last:border-0 hover:bg-brand-accent/20 transition-colors duration-100 h-12"
                       >
                         <td className="px-4 py-3 text-brand-text/60">{caso.nombre}</td>
@@ -142,14 +173,24 @@ export function CasosArchivados() {
                         <td className="px-4 py-3 text-brand-text/60">{formatDate(caso.fechaVencimiento)}</td>
                         <td className="px-4 py-3 text-brand-text/60">{caso.responsable}</td>
                         <td className="px-4 py-3">
-                          <button
-                            onClick={() => handleRestore(String(caso._id))}
-                            title="Restaurar asunto"
-                            aria-label={`Restaurar asunto ${caso.nombre}`}
-                            className="p-1.5 rounded-lg hover:bg-green-50 transition-colors duration-150"
-                          >
-                            <ArchiveRestore size={15} className="text-green-600" />
-                          </button>
+                          <div className="flex items-center gap-1">
+                            <button
+                              onClick={() => handleRestore(String(caso._id))}
+                              title="Restaurar asunto"
+                              aria-label={`Restaurar asunto ${caso.nombre}`}
+                              className="p-1.5 rounded-lg hover:bg-brand-accent/30 transition-colors duration-150 cursor-pointer"
+                            >
+                              <ArchiveRestore size={15} className="text-brand-title/60" />
+                            </button>
+                            <button
+                              onClick={() => handleDeleteRequest(String(caso._id), caso.nombre)}
+                              title="Eliminar asunto"
+                              aria-label={`Eliminar asunto ${caso.nombre}`}
+                              className="p-1.5 rounded-lg hover:bg-brand-accent/30 transition-colors duration-150 cursor-pointer"
+                            >
+                              <Trash2 size={15} className="text-brand-title/60" />
+                            </button>
+                          </div>
                         </td>
                       </motion.tr>
                     ))}
@@ -160,6 +201,15 @@ export function CasosArchivados() {
           </div>
         )}
       </motion.div>
+
+      {pendingDelete && (
+        <ConfirmDialog
+          open={confirmOpen}
+          casoNombre={pendingDelete.nombre}
+          onConfirm={handleDeleteConfirm}
+          onCancel={() => { setConfirmOpen(false); setPendingDelete(null) }}
+        />
+      )}
     </div>
   )
 }

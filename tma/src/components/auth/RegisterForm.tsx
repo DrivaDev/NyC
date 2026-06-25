@@ -15,7 +15,7 @@ export function RegisterForm() {
     <motion.div
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.35, ease: "easeOut" }}
+      transition={{ duration: 0.15, ease: "easeOut" }}
       className="w-full max-w-[400px] mx-auto px-4"
     >
       <h1 className="text-[28px] font-bold text-brand-title mb-8 text-center">

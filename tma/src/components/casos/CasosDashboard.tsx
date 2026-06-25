@@ -109,7 +109,7 @@ export function CasosDashboard() {
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.35, ease: "easeOut" }}
+          transition={{ duration: 0.15, ease: "easeOut" }}
         >
           {/* Header */}
           <div className="flex items-center justify-between mb-6 flex-wrap gap-4">

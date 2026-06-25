@@ -376,7 +376,7 @@ export function ContratoWizard() {
                     type="button"
                     initial={{ opacity: 0, y: 12 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.25, ease: "easeOut", delay: groupIdx * models.length * 0.05 + cardIdx * 0.05 }}
+                    transition={{ duration: 0.15, ease: "easeOut", delay: groupIdx * 0.03 + cardIdx * 0.03 }}
                     whileHover={{ scale: 1.025, y: -3 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={() => { dispatch({ type: "SELECT_MODEL", model: m }); dispatch({ type: "NEXT_STEP" }) }}
@@ -445,7 +445,7 @@ export function ContratoWizard() {
             }}
             whileTap={{ scale: 0.92 }}
             animate={locadorAdded ? { scale: [1, 1.08, 1] } : {}}
-            transition={{ duration: 0.25 }}
+            transition={{ duration: 0.15 }}
             className="text-[12px] font-bold rounded-lg px-3 py-1.5"
             style={{
               backgroundColor: locadorAdded ? "#1e2352" : "#78ccd0",
@@ -464,7 +464,7 @@ export function ContratoWizard() {
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.25, ease: "easeOut" }}
+              transition={{ duration: 0.15, ease: "easeOut" }}
               className="rounded-xl overflow-hidden"
               style={{ border: "1px solid #a8dbde", background: "#f0f9fa" }}
             >
@@ -587,7 +587,7 @@ export function ContratoWizard() {
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -8 }}
-              transition={{ duration: 0.3 }}
+              transition={{ duration: 0.15 }}
               className="text-[14px] text-brand-text"
             >
               {processingMessages[msgIndex]}
@@ -647,7 +647,7 @@ export function ContratoWizard() {
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.35, ease: "easeOut" }}
+          transition={{ duration: 0.15, ease: "easeOut" }}
           className="text-center mb-8"
         >
           <h1 className="text-[30px] font-bold text-brand-title mb-2 tracking-tight">
@@ -668,7 +668,7 @@ export function ContratoWizard() {
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -12 }}
-            transition={{ duration: 0.3, ease: "easeOut" }}
+            transition={{ duration: 0.15, ease: "easeOut" }}
           >
             {state.step === 1 && renderStep1()}
             {state.step === 2 && renderStep2()}
